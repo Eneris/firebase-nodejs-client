@@ -1,6 +1,6 @@
 {
   "name": "@eneris/firebase-nodejs-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Firebase NodeJS client",
   "author": "Martin Kalabek<martin.kalabek@gmail.com>",
   "license": "Apache-2.0",
@@ -16,14 +16,9 @@
     "url": "git+ssh://git@github.com/eneris/firebase-nodejs-client.git"
   },
   "keywords": [
-    "push",
-    "service",
-    "fcm",
-    "gcm",
-    "notifications",
     "node",
-    "electron",
-    "receiver"
+    "firebase",
+    "remote-config"
   ],
   "scripts": {
     "build": "yarn clean && yarn tsc",
