@@ -22,29 +22,26 @@ Will add more parts based on my project needs or uppon request.
 
 ## How to use it
 ```js
-const { FirebaseApp, RemoteConfig } = require('../dist')
+const fs = require('fs')
+const path = require('path')
+const { FirebaseApp, Installations, RemoteConfig } = require('../dist')
 
-const store = {}
+const storageFileName = path.join(__dirname, 'storage.json')
+
+let store = {}
+
+if (fs.existsSync(storageFileName)) {
+    store = JSON.parse(fs.readFileSync(storageFileName).toString())
+}
 
 const app = new FirebaseApp({
-    credentials: {
-        apiKey: '',
-        authDomain: '',
-        databaseURL: '',
-        projectId: '',
-        storageBucket: '',
-        messagingSenderId: '',
-        appId: '',
-        measurementId: '',
-    },
+    credentials: { /* CREDENTIALS HERE */ },
     storage: {
-        get: (key) => {
-            console.log('get', key)
-            store[key]
-        },
+        get: (key) => store[key],
         set: (key, value) => {
-            console.log('set', key)
             store[key] = value
+
+            fs.writeFileSync(storageFileName, JSON.stringify(store, null, 2))
         }
     }
 })
@@ -55,13 +52,23 @@ const remoteConfig = new RemoteConfig(app, {
     }
 })
 
-console.log('test', remoteConfig.getValue('test').asBoolean())
+remoteConfig.on('fetch', () => {
+    console.log('fetch')
+})
 
+remoteConfig.on('activate', () => {
+    console.log('activate')
+})
+
+remoteConfig.fetchAndActivate().then(() => {
+    console.log(remoteConfig.getAll())
+})
 ```
 
 ### Wiki
 - [`InstallationsWeb`](wiki/InstallationsWeb.md)
 - [`RemoteConfig`](wiki/RemoteConfig.md)
+- [`Value`](wiki/Value.md)
 
 ## Credits
  - Big thanks to authors of https://github.com/firebase/firebase-js-sdk . Most of the logic/types/infromation comes from there
