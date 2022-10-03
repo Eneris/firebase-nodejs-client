@@ -1,4 +1,4 @@
-import type { StorageInterface } from "../utils/storage"
+import type { StorageInterface } from '../utils/storage'
 
 export interface FirebaseCredentials {
     apiKey: string

@@ -59,5 +59,9 @@ console.log('test', remoteConfig.getValue('test').asBoolean())
 
 ```
 
+### Wiki
+- [`InstallationsWeb`](wiki/InstallationsWeb.md)
+- [`RemoteConfig`](wiki/RemoteConfig.md)
+
 ## Credits
  - Big thanks to authors of https://github.com/firebase/firebase-js-sdk . Most of the logic/types/infromation comes from there

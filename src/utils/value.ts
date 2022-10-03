@@ -2,7 +2,7 @@
  * @license
  * Copyright 2019 Google LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-export type ValueSource = 'static' | 'default' | 'remote';
+export type ValueSource = 'static' | 'default' | 'remote'
 
-const DEFAULT_VALUE_FOR_BOOLEAN = false;
-const DEFAULT_VALUE_FOR_STRING = '';
-const DEFAULT_VALUE_FOR_NUMBER = 0;
+const DEFAULT_VALUE_FOR_BOOLEAN = false
+const DEFAULT_VALUE_FOR_STRING = ''
+const DEFAULT_VALUE_FOR_NUMBER = 0
 
-const BOOLEAN_TRUTHY_VALUES = ['1', 'true', 't', 'yes', 'y', 'on'];
+const BOOLEAN_TRUTHY_VALUES = ['1', 'true', 't', 'yes', 'y', 'on']
 
 export default class Value {
     constructor(
@@ -30,29 +30,29 @@ export default class Value {
     ) { }
 
     asString(): string {
-        return this._value;
+        return this._value
     }
 
     asBoolean(): boolean {
         if (this._source === 'static') {
-            return DEFAULT_VALUE_FOR_BOOLEAN;
+            return DEFAULT_VALUE_FOR_BOOLEAN
         }
 
-        return BOOLEAN_TRUTHY_VALUES.indexOf(this._value.toLowerCase()) >= 0;
+        return BOOLEAN_TRUTHY_VALUES.indexOf(this._value.toLowerCase()) >= 0
     }
 
     asNumber(): number {
         if (this._source === 'static') {
-            return DEFAULT_VALUE_FOR_NUMBER;
+            return DEFAULT_VALUE_FOR_NUMBER
         }
 
-        let num = Number(this._value);
+        let num = Number(this._value)
 
         if (isNaN(num)) {
-            num = DEFAULT_VALUE_FOR_NUMBER;
+            num = DEFAULT_VALUE_FOR_NUMBER
         }
 
-        return num;
+        return num
     }
 
     asJSON<T = Record<string, unknown>>(): T {
@@ -64,6 +64,6 @@ export default class Value {
     }
 
     getSource(): ValueSource {
-        return this._source;
+        return this._source
     }
 }

@@ -26,14 +26,20 @@ export interface FetchResult<T> {
 
 interface RemoteConfigEvents {
     fetch: () => void
-    ativate: () => void
+    activate: () => void
+}
+
+export interface RemoteConfigStore<T> {
+    lastFetchTimestamp: number,
+    etag: string
+    config: T
 }
 
 export default class RemoteConfig<T = Record<string, string>> extends EventEmitter<RemoteConfigEvents> {
     private readonly app: FirebaseApp
     private readonly installations: Installations
     private readonly options: RemoteConfigOptions<T>
-    private readonly storage: StorageInterface
+    private readonly storage: StorageInterface<RemoteConfigStore<T>>
     private readonly request: AxiosInstance
 
     constructor(app: FirebaseApp, options: RemoteConfigOptions<T> = {}) {
@@ -61,9 +67,10 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
         this.storage = {
             get: (key) => this.app.storage.get(storagePrefix + key),
             set: (key, value) => this.app.storage.set(storagePrefix + key, value),
-        }
+        } as StorageInterface<RemoteConfigStore<T>>
 
-        this.fetchAndActivate()
+        this.on('fetch', () => console.log('Constructor - fetch'))
+        this.on('activate', () => console.log('Constructor - activate'))
     }
 
     get defaultConfig() {
@@ -71,8 +78,9 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
     }
 
     get isCacheValid() {
-        const cacheAge = Date.now() - (this.storage.get<number>('lastFetchTimestamp') || 0)
-        return this.storage.get('etag') && this.storage.get('config') && cacheAge < this.options.cacheMaxAge
+        const cacheAge = Date.now() - (this.storage.get('lastFetchTimestamp') || 0)
+
+        return this.storage.get('config') && cacheAge < this.options.cacheMaxAge
     }
 
     getActiveConfig(): T {
@@ -128,10 +136,12 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
     }
 
     async fetchAndActivate(ignoreCache = false): Promise<void> {
-        const etag = this.storage.get<string>('etag')
+        const etag = this.storage.get('etag')
+
 
         if (!ignoreCache && this.isCacheValid) {
-            console.log('Cache is valid, return cache', this.storage.get('cache'))
+            this.emit('fetch')
+            console.log('config cache is valid')
             return Promise.resolve()
         }
 
@@ -191,11 +201,9 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
 
         switch(status) {
             case 200:
-                this.emit('ativate')
-                this.storage.set('cache', {
-                    etag: responseEtag,
-                    config
-                })
+                this.storage.set('config', config)
+                this.storage.set('etag', responseEtag)
+                this.emit('activate')
             // eslint-disable-line-rule: no-fallthrough
             case 304:
                 this.storage.set('lastFetchTimestamp', Date.now())

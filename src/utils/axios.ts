@@ -1,5 +1,5 @@
-import axios, { AxiosInstance } from 'axios';
-import axiosRetry from 'axios-retry';
+import axios, { AxiosInstance } from 'axios'
+import axiosRetry from 'axios-retry'
 
 const injectRetry = (context) => {
     axiosRetry(context, {
@@ -10,15 +10,15 @@ const injectRetry = (context) => {
 
 injectRetry(axios)
 
-const orgCreate = axios.create;
+const orgCreate = axios.create
 
 axios.create = function (config): AxiosInstance {
-    const result = orgCreate.call(this, config) as AxiosInstance;
+    const result = orgCreate.call(this, config) as AxiosInstance
 
     injectRetry(result)
 
-    return result;
-};
+    return result
+}
 
 export * from 'axios'
 

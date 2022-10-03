@@ -1,7 +1,7 @@
-import axios, { AxiosError, AxiosInstance } from "../utils/axios"
-import generateFid from "../functions/generateFid"
-import { StorageInterface } from "../utils/storage"
-import FirebaseApp from './app';
+import axios, { AxiosError, AxiosInstance } from '../utils/axios'
+import generateFid from '../functions/generateFid'
+import { StorageInterface } from '../utils/storage'
+import FirebaseApp from '../lib/app'
 
 const AUTH_VERSION = 'FIS_v2'
 const SDK_VERSION = 'w:0.5.12'
@@ -18,10 +18,14 @@ export interface InstallationEntry {
     readonly authToken: AuthToken
 }
 
+export interface InstallationStorageInterface {
+    installation: InstallationEntry
+}
+
 export default class WebInstallations {
     private readonly app: FirebaseApp
     private readonly request: AxiosInstance
-    private readonly storage: StorageInterface
+    private readonly storage: StorageInterface<InstallationStorageInterface>
 
     constructor(app: FirebaseApp) {
         this.app = app
@@ -39,7 +43,7 @@ export default class WebInstallations {
         this.storage = {
             get: (key) => this.app.storage.get(storagePrefix + key),
             set: (key, value) => this.app.storage.set(storagePrefix + key, value),
-        }
+        } as StorageInterface<InstallationStorageInterface>
     }
 
     static convertExpire(value: string) {
@@ -88,13 +92,13 @@ export default class WebInstallations {
             },
         }
 
-        this.storage.set(newInstallation.fid, newInstallation)
+        this.storage.set('installation', newInstallation)
 
         return newInstallation
     }
 
     private async refresh(fid: string): Promise<InstallationEntry> {
-        const installation = this.storage.get<InstallationEntry>(fid)
+        const installation = this.storage.get('installation')
 
         if (!installation) {
             throw new Error(`Installation with fid '${fid}' not found`)
@@ -124,13 +128,13 @@ export default class WebInstallations {
             },
         }
 
-        this.storage.set(newInstallation.fid, newInstallation)
+        this.storage.set('installation', newInstallation)
 
         return newInstallation
     }
 
     private async delete(fid: string): Promise<void> {
-        const installation = this.storage.get<InstallationEntry>(fid)
+        const installation = this.storage.get('installation')
 
         if (!installation) {
             throw new Error(`Installation with fid '${fid}' not found`)
@@ -151,7 +155,7 @@ export default class WebInstallations {
      */
 
     async getInstallation(): Promise<InstallationEntry> {
-        let installation: InstallationEntry = this.storage.get<InstallationEntry>('installation')
+        let installation: InstallationEntry = this.storage.get('installation')
 
         // Does not exist
         if (!installation) {
@@ -167,7 +171,7 @@ export default class WebInstallations {
     }
 
     async deleteInstalation(): Promise<void> {
-        const installation: InstallationEntry = this.storage.get<InstallationEntry>('installation')
+        const installation: InstallationEntry = this.storage.get('installation')
 
         if (installation) {
             return this.delete(installation.fid)
