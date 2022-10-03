@@ -2,7 +2,7 @@
   "name": "@eneris/firebase-nodejs-client",
   "version": "0.1.1",
   "description": "Firebase NodeJS client",
-  "author": "Martin Kalabek<martin.kalabek@gmail.com>",
+  "author": "Eneris<eneris.cz@gmail.com>",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
