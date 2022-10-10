@@ -56,10 +56,36 @@ export default class Value {
     }
 
     asJSON<T = Record<string, unknown>>(): T {
+        if (typeof this._value !== 'string') {
+            return this._value
+        }
+
         try {
             return JSON.parse(this._value) as T
         } catch {
             return null
+        }
+    }
+
+    asConverted(): any {
+        if (typeof this._value !== 'string') {
+            return this._value
+        }
+
+        if (['true', 'false'].includes(this._value)) {
+            return Boolean(this._value)
+        }
+
+        const asNumber = Number(this._value)
+
+        if (asNumber !== NaN) {
+            return asNumber
+        }
+
+        try {
+            return JSON.parse(this._value)
+        } catch {
+            return this._value
         }
     }
 

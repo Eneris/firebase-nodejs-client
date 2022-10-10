@@ -8,3 +8,4 @@
 - `fetchAndActivate` - attempts to download config from remote server if cache is missing or invalid
 - `getValue` - Returns instance of [`Value`](Value.md) for given key
 - `getAll` - Returns all properties as collection of [`Value`](Value.md) instances
+- `getAllConverted` - Returns all properties converted into their "best guess" types

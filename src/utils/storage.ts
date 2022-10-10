@@ -1,6 +1,6 @@
 export interface StorageInterface<T = Record<string, any>> {
     get<K extends keyof T>(key: K): T[K]
-    set<K extends keyof T>(key: K, value: T[K]): this
+    set<K extends keyof T>(key: K, value: T[K]): void
 }
 
 export default class MemoryStorage<T = Record<string, any>> implements StorageInterface<T> {
@@ -12,6 +12,5 @@ export default class MemoryStorage<T = Record<string, any>> implements StorageIn
 
     set(key, value) {
         this.data[key] = value
-        return this
     }
 }

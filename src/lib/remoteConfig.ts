@@ -41,6 +41,8 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
     private readonly options: RemoteConfigOptions<T>
     private readonly storage: StorageInterface<RemoteConfigStore<T>>
     private readonly request: AxiosInstance
+    private refreshTimer: NodeJS.Timer
+    private semaphoreFetch: Promise<void>
 
     constructor(app: FirebaseApp, options: RemoteConfigOptions<T> = {}) {
         super()
@@ -69,12 +71,9 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
             set: (key, value) => this.app.storage.set(storagePrefix + key, value),
         } as StorageInterface<RemoteConfigStore<T>>
 
-        this.on('fetch', () => console.log('Constructor - fetch'))
-        this.on('activate', () => console.log('Constructor - activate'))
-    }
+        this.fetchAndActivate()
 
-    get defaultConfig() {
-        return this.options.defaultConfig
+        this.refreshTimer = setInterval(this.fetchAndActivate, this.options.cacheMaxAge + 1000)
     }
 
     get isCacheValid() {
@@ -83,67 +82,74 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
         return this.storage.get('config') && cacheAge < this.options.cacheMaxAge
     }
 
-    getActiveConfig(): T {
-        return this.storage.get('config')
-    }
-
-    getDefaultConfig(): T {
+    get defaultConfig() {
         return this.options.defaultConfig
     }
 
-    getValue<K extends keyof T>(key: K): Value {
-        const config = this.getActiveConfig()
+    private get activeConfig() {
+        return this.storage.get('config')
+    }
 
+    set defaultConfig(defaultConfig: RemoteConfigOptions<T>['defaultConfig']) {
+        this.options.defaultConfig = defaultConfig
+    }
+
+    getValue<K extends keyof T>(key: K): Value {
+        const config = this.activeConfig
+
+        // Has remote version
         if (config && config[key] !== undefined) {
-            return new Value('remote', String(config[key]))
+            return new Value('remote', config[key] as string)
         }
 
-        const defaultConfig = this.getDefaultConfig()
+        const defaultConfig = this.defaultConfig
 
+        // Has default version
         if (defaultConfig && defaultConfig[key] !== undefined) {
-            return new Value('default', String(defaultConfig[key]))
+            return new Value('default', defaultConfig[key] as string)
         }
         
+        // Not found, return static
         return new Value('static')
     }
 
-    getAll() {
+    getAll(): Record<string, Value> {
         const config = {
-            ...(this.getActiveConfig() || {}),
-            ...(this.getDefaultConfig() || {})
+            ...(this.activeConfig || {}),
+            ...(this.defaultConfig || {})
         }
 
         return Object.keys(config).reduce((result, key) => {
             result[key] = this.getValue(key as keyof T)
+
             return result
         }, {})
     }
 
-    getBoolean<K extends keyof T>(key: K): boolean {
-        return this.getValue(key).asBoolean()
-    }
+    getAllConverted(): T {
+        const config = this.getAll()
 
-    getNumber<K extends keyof T>(key: K): number {
-        return this.getValue(key).asNumber()
-    }
+        Object.keys(config).forEach((key) => {
+            config[key] = config[key].asConverted()
+        })
 
-    getString<K extends keyof T>(key: K): string {
-        return this.getValue(key).asString()
-    }
-
-    getJSON<K extends keyof T, V = Record<string, unknown>>(key: K): V {
-        return this.getValue(key).asJSON<V>()
+        return config as T
     }
 
     async fetchAndActivate(ignoreCache = false): Promise<void> {
         const etag = this.storage.get('etag')
 
-
         if (!ignoreCache && this.isCacheValid) {
             this.emit('fetch')
-            console.log('config cache is valid')
             return Promise.resolve()
         }
+
+        if (this.semaphoreFetch) {
+            return this.semaphoreFetch;
+        }
+
+        let resolveSemaphore = null
+        this.semaphoreFetch = new Promise((res) => { resolveSemaphore = res })
 
         const installation = await this.installations.getInstallation()
 
@@ -212,5 +218,9 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
                 throw new Error(`Failed to fetch RemoteConfig status: ${status}`)
 
         }
+
+        this.semaphoreFetch = null
+
+        resolveSemaphore?.()
     }
 }
