@@ -34,8 +34,8 @@ export default class WebInstallations {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept-Charset': 'application/json',
-                'x-goog-api-key': this.app.credentials.apiKey
-            }
+                'x-goog-api-key': this.app.credentials.apiKey,
+            },
         })
 
         const storagePrefix = `installations.${this.app.credentials.projectId}.${this.app.credentials.appId}.`
@@ -78,9 +78,9 @@ export default class WebInstallations {
             fid: generateFid(),
             authVersion: AUTH_VERSION,
             appId: this.app.credentials.appId,
-            sdkVersion: SDK_VERSION
+            sdkVersion: SDK_VERSION,
         }, {
-            headers: this.getHeaders({ heartbeat: true })
+            headers: this.getHeaders({ heartbeat: true }),
         }).then(({ data }) => data)
 
         const newInstallation: InstallationEntry = {
@@ -88,7 +88,7 @@ export default class WebInstallations {
             authToken: {
                 ...data.authToken,
                 token: data.authToken.token,
-                expiresIn: WebInstallations.convertExpire(data.authToken.expiresIn)
+                expiresIn: WebInstallations.convertExpire(data.authToken.expiresIn),
             },
         }
 
@@ -109,9 +109,9 @@ export default class WebInstallations {
             installation: {
                 sdkVersion: SDK_VERSION,
                 appId: this.app.credentials.appId,
-            }
+            },
         }, {
-            headers: this.getHeaders({ auth: installation, heartbeat: true })
+            headers: this.getHeaders({ auth: installation, heartbeat: true }),
         })
             .then(({ data }) => data)
             .catch((err: AxiosError) => {
@@ -124,7 +124,7 @@ export default class WebInstallations {
             authToken: {
                 ...installation.authToken,
                 token: newToken.token,
-                expiresIn: WebInstallations.convertExpire(newToken.expiresIn)
+                expiresIn: WebInstallations.convertExpire(newToken.expiresIn),
             },
         }
 
@@ -141,7 +141,7 @@ export default class WebInstallations {
         }
 
         await this.request.delete(`/${installation.fid}`, {
-            headers: this.getHeaders({ auth: installation })
+            headers: this.getHeaders({ auth: installation }),
         })
             .then(() => Promise.resolve())
             .catch((err: AxiosError) => {

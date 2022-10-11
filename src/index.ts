@@ -5,5 +5,5 @@ import RemoteConfig from './lib/remoteConfig'
 export {
     FirebaseApp,
     Installations,
-    RemoteConfig
+    RemoteConfig,
 }

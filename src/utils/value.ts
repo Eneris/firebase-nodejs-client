@@ -78,7 +78,7 @@ export default class Value {
 
         const asNumber = Number(this._value)
 
-        if (asNumber !== NaN) {
+        if (!isNaN(asNumber)) {
             return asNumber
         }
 
