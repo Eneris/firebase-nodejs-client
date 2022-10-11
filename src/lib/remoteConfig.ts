@@ -61,7 +61,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
         this.installations = new Installations(this.app)
 
         this.request = axios.create({
-            baseURL: `https://firebaseremoteconfig.googleapis.com/v1/projects/${this.app.credentials.projectId}/namespaces/firebase`
+            baseURL: `https://firebaseremoteconfig.googleapis.com/v1/projects/${this.app.credentials.projectId}/namespaces/firebase`,
         })
 
         const storagePrefix = `remoteConfig.${this.app.credentials.appId}.`
@@ -76,22 +76,22 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
         this.refreshTimer = setInterval(this.fetchAndActivate, this.options.cacheMaxAge + 1000)
     }
 
-    get isCacheValid() {
-        const cacheAge = Date.now() - (this.storage.get('lastFetchTimestamp') || 0)
-
-        return this.storage.get('config') && cacheAge < this.options.cacheMaxAge
+    set defaultConfig(defaultConfig: RemoteConfigOptions<T>['defaultConfig']) {
+        this.options.defaultConfig = defaultConfig
     }
 
     get defaultConfig() {
         return this.options.defaultConfig
     }
 
-    private get activeConfig() {
-        return this.storage.get('config')
+    get isCacheValid() {
+        const cacheAge = Date.now() - (this.storage.get('lastFetchTimestamp') || 0)
+
+        return this.storage.get('config') && cacheAge < this.options.cacheMaxAge
     }
 
-    set defaultConfig(defaultConfig: RemoteConfigOptions<T>['defaultConfig']) {
-        this.options.defaultConfig = defaultConfig
+    private get activeConfig() {
+        return this.storage.get('config')
     }
 
     getValue<K extends keyof T>(key: K): Value {
@@ -116,7 +116,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
     getAll(): Record<string, Value> {
         const config = {
             ...(this.activeConfig || {}),
-            ...(this.defaultConfig || {})
+            ...(this.defaultConfig || {}),
         }
 
         return Object.keys(config).reduce((result, key) => {
@@ -158,7 +158,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
             app_instance_id: installation.fid,
             app_instance_id_token: installation.authToken.token,
             app_id: this.app.credentials.appId,
-            language_code: this.options.languageCode
+            language_code: this.options.languageCode,
         }, {
             headers: {
                 'Content-Type': 'application/json',
@@ -166,16 +166,16 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
                 'Accept-Encoding': 'gzip',
                 // Deviates from pure decorator by not passing max-age header since we don't currently have
                 // service behavior using that header.
-                'If-None-Match': etag || '*'
+                'If-None-Match': etag || '*',
             },
             params: {
-                key: this.app.credentials.apiKey
+                key: this.app.credentials.apiKey,
             },
             validateStatus: (status) => status >= 200 && status <= 399,
         }).catch((err: AxiosError) => ({
             status: err.response.status,
             data: err.response.data,
-            headers: err.response.headers
+            headers: err.response.headers,
         }))
 
         const responseEtag = response.headers.etag || undefined

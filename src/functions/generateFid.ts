@@ -5,7 +5,7 @@ const INVALID_FID = ''
 
 function bufferToBase64UrlSafe(array) {
     // function bufferToBase64UrlSafe(array: Uint8Array): string {
-    const b64 = btoa(String.fromCharCode(...array))
+    const b64 = Buffer.from(array).toString('base64')
     return b64.replace(/\+/g, '-').replace(/\//g, '_')
 }
 
@@ -15,7 +15,7 @@ function encode(fidByteArray) {
 
     // Remove the 23rd character that was added because of the extra 4 bits at the
     // end of our 17 byte array, and the '=' padding.
-    return b64String.substr(0, 22)
+    return b64String.substring(0, 22)
 }
 
 export default function generateFid() {
