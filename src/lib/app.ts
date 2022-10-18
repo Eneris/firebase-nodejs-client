@@ -1,5 +1,3 @@
-import type { StorageInterface } from '../utils/storage'
-
 export interface FirebaseCredentials {
     apiKey: string
     authDomain: string
@@ -16,6 +14,11 @@ export interface Logger {
     debug: (...args: any) => void
     warn: (...args: any) => void
     error: (err: Error) => void
+}
+
+export interface StorageInterface<T = Record<string, any>> {
+    get<K extends keyof T>(key: K): T[K]
+    set<K extends keyof T>(key: K, value: T[K]): void
 }
 
 export interface FirebaseAppOptions {

@@ -1,11 +1,8 @@
 import EventEmitter from 'eventemitter3'
 import axios, { AxiosError, AxiosInstance } from '../utils/axios'
 import Value from '../utils/value'
-
-import type { StorageInterface } from '../utils/storage'
-
 import Installations from './installations'
-import FirebaseApp from './app'
+import FirebaseApp, { StorageInterface } from './app'
 
 const SDK_VERSION = 'w:0.3.11'
 const DEFAULT_FETCH_TIMEOUT_MILLIS = 60 * 1000 // One minute

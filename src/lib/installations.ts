@@ -1,6 +1,5 @@
 import axios, { AxiosError, AxiosInstance } from '../utils/axios'
-import { StorageInterface } from '../utils/storage'
-import FirebaseApp from '../lib/app'
+import FirebaseApp, { StorageInterface } from './app'
 
 const AUTH_VERSION = 'FIS_v2'
 const SDK_VERSION = 'w:0.5.12'
