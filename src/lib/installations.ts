@@ -1,10 +1,11 @@
 import axios, { AxiosError, AxiosInstance } from '../utils/axios'
-import generateFid from '../functions/generateFid'
 import { StorageInterface } from '../utils/storage'
 import FirebaseApp from '../lib/app'
 
 const AUTH_VERSION = 'FIS_v2'
 const SDK_VERSION = 'w:0.5.12'
+const VALID_FID_PATTERN = /^[cdef][\w-]{21}$/
+const INVALID_FID = ''
 
 export interface AuthToken {
     readonly token: string
@@ -54,6 +55,31 @@ export default class WebInstallations {
         return installation.authToken.creationTime + installation.authToken.expiresIn <= Date.now()
     }
 
+    private generateFid(): string {
+        try {
+            // A valid FID has exactly 22 base64 characters, which is 132 bits, or 16.5
+            // bytes. our implementation generates a 17 byte array instead.
+            const fidByteArray = new Uint8Array(17)
+            crypto.getRandomValues(fidByteArray)
+    
+            // Replace the first 4 random bits with the constant FID header of 0b0111.
+            fidByteArray[0] = 0b01110000 + (fidByteArray[0] % 0b00010000)
+
+            const b64 = Buffer.from(fidByteArray).toString('base64')
+            const b64String = b64.replace(/\+/g, '-').replace(/\//g, '_')
+
+            // Remove the 23rd character that was added because of the extra 4 bits at the
+            // end of our 17 byte array, and the '=' padding.
+            const fid = b64String.substring(0, 22)
+
+            return VALID_FID_PATTERN.test(fid) ? fid : INVALID_FID
+        } catch(err) {
+            this.app.logger.error(err)
+            // FID generation errored
+            return INVALID_FID
+        }
+    }
+
     /**
      * API
      */
@@ -75,7 +101,7 @@ export default class WebInstallations {
     private async create(): Promise<InstallationEntry> {
         // TODO: HeartBeat
         const data = await this.request.post('', {
-            fid: generateFid(),
+            fid: this.generateFid(),
             authVersion: AUTH_VERSION,
             appId: this.app.credentials.appId,
             sdkVersion: SDK_VERSION,
@@ -115,7 +141,7 @@ export default class WebInstallations {
         })
             .then(({ data }) => data)
             .catch((err: AxiosError) => {
-                console.debug(err)
+                this.app.logger.debug(err)
                 throw new Error(`Installation refresh failed with status ${err.response.status} '${err.response.statusText}'`)
             })
 
@@ -145,7 +171,7 @@ export default class WebInstallations {
         })
             .then(() => Promise.resolve())
             .catch((err: AxiosError) => {
-                console.debug(err)
+                this.app.logger.debug(err)
                 throw new Error(`Installation refresh failed with status ${err.response.status} '${err.response.statusText}'`)
             })
     }

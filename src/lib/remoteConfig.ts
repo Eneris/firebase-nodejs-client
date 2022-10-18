@@ -52,8 +52,8 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
         this.options = {
             ...options,
             languageCode: options.languageCode || 'en-GB',
-            fetchTimeout: options.fetchTimeout || DEFAULT_FETCH_TIMEOUT_MILLIS,
-            cacheMaxAge: options.cacheMaxAge || DEFAULT_CACHE_MAX_AGE_MILLIS,
+            fetchTimeout: options.fetchTimeout ?? DEFAULT_FETCH_TIMEOUT_MILLIS,
+            cacheMaxAge: options.cacheMaxAge ?? DEFAULT_CACHE_MAX_AGE_MILLIS,
             defaultConfig: options.defaultConfig || {} as T,
         }
 
@@ -73,7 +73,14 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
 
         this.fetchAndActivate()
 
-        this.refreshTimer = setInterval(this.fetchAndActivate, this.options.cacheMaxAge + 1000)
+        if (this.options.cacheMaxAge) {
+            this.refreshTimer = setInterval(this.fetchAndActivate, this.options.cacheMaxAge + 1000)
+        }
+    }
+
+    destroy() {
+        clearInterval(this.refreshTimer)
+        this.refreshTimer = null
     }
 
     set defaultConfig(defaultConfig: RemoteConfigOptions<T>['defaultConfig']) {
@@ -199,7 +206,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
                     config = {}
                     break
                 default:
-                    console.warn('Unknown remoteConfig data state:', response.data?.state)
+                    this.app.logger.warn('Unknown remoteConfig data state:', response.data?.state)
             }
         }
 
