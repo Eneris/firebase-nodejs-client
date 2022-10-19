@@ -59,7 +59,7 @@ export default class WebInstallations {
             // A valid FID has exactly 22 base64 characters, which is 132 bits, or 16.5
             // bytes. our implementation generates a 17 byte array instead.
             const fidByteArray = new Uint8Array(17)
-            crypto.getRandomValues(fidByteArray)
+            this.app.crypto.getRandomValues(fidByteArray)
     
             // Replace the first 4 random bits with the constant FID header of 0b0111.
             fidByteArray[0] = 0b01110000 + (fidByteArray[0] % 0b00010000)

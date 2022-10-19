@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
 const { FirebaseApp, Installations, RemoteConfig } = require('../dist')
@@ -19,7 +20,8 @@ const app = new FirebaseApp({
 
             fs.writeFileSync(storageFileName, JSON.stringify(store, null, 2))
         }
-    }
+    },
+    crypto: crypto.webcrypto,
 })
 
 const remoteConfig = new RemoteConfig(app, {

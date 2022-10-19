@@ -1,6 +1,6 @@
 {
   "name": "@eneris/firebase-nodejs-client",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Firebase NodeJS client",
   "author": "Eneris<eneris.cz@gmail.com>",
   "license": "Apache-2.0",
