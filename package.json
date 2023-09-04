@@ -1,6 +1,6 @@
 {
   "name": "@eneris/firebase-nodejs-client",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Firebase NodeJS client",
   "author": "Eneris<eneris.cz@gmail.com>",
   "homepage": "https://github.com/Eneris/firebase-nodejs-client",
@@ -31,17 +31,17 @@
     "prepare": "yarn prepublish"
   },
   "dependencies": {
-    "axios": "^1.1.2",
-    "axios-retry": "^3.3.1",
-    "eventemitter3": "^4.0.7"
+    "axios": "^1.5.0",
+    "axios-retry": "^3.7.0",
+    "eventemitter3": "^5.0.1"
   },
   "devDependencies": {
     "@types/node": "^18.8.4",
-    "@typescript-eslint/eslint-plugin": "^5.40.0",
-    "@typescript-eslint/parser": "^5.40.0",
-    "eslint": "^8.25.0",
+    "@typescript-eslint/eslint-plugin": "^6.5.0",
+    "@typescript-eslint/parser": "^6.5.0",
+    "eslint": "^8.48.0",
     "ts-node": "^10.9.1",
-    "typescript": "^4.8.4"
+    "typescript": "^5.2.2"
   },
   "engines": {
     "node": ">=16"
