@@ -1,4 +1,4 @@
-import EventEmitter from 'eventemitter3'
+import { EventEmitter } from 'eventemitter3'
 import axios, { AxiosError, AxiosInstance } from '../utils/axios'
 import Value from '../utils/value'
 import Installations from './installations'
@@ -71,7 +71,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
         this.fetchAndActivate()
 
         if (this.options.cacheMaxAge) {
-            this.refreshTimer = setInterval(this.fetchAndActivate, this.options.cacheMaxAge + 1000)
+            this.refreshTimer = setInterval(this.fetchAndActivate.bind(this), this.options.cacheMaxAge + 1000)
         }
     }
 
