@@ -1,4 +1,8 @@
-import axios, { AxiosError, AxiosInstance } from '../utils/axios'
+import axios, {
+    type Axios,
+    type AxiosError,
+    type AxiosInstance,
+} from '../utils/axios'
 import FirebaseApp, { StorageInterface } from './app'
 
 const AUTH_VERSION = 'FIS_v2'
@@ -22,16 +26,25 @@ export interface InstallationStorageInterface {
     installation: InstallationEntry
 }
 
+export interface InstallationsOptions {
+    axiosConfigOverrides?: Partial<Axios['defaults']>
+}
+
 export default class WebInstallations {
     private readonly app: FirebaseApp
+    private readonly options: InstallationsOptions
     private readonly request: AxiosInstance
     private readonly storage: StorageInterface<InstallationStorageInterface>
 
-    constructor(app: FirebaseApp) {
+    constructor(app: FirebaseApp, options?: InstallationsOptions) {
         this.app = app
+        this.options = options || {}
+        const axiosOverrides = this.options.axiosConfigOverrides || {}
         this.request = axios.create({
+            ...axiosOverrides,
             baseURL: `https://firebaseinstallations.googleapis.com/v1/projects/${this.app.credentials.projectId}/installations`,
             headers: {
+                ...(axiosOverrides.headers || {}),
                 'Content-Type': 'application/json',
                 'Accept-Charset': 'application/json',
                 'x-goog-api-key': this.app.credentials.apiKey,

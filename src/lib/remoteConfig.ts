@@ -1,5 +1,5 @@
 import { EventEmitter } from 'eventemitter3'
-import axios, { AxiosError, AxiosInstance } from '../utils/axios'
+import axios, { Axios, AxiosError, AxiosInstance } from '../utils/axios'
 import Value from '../utils/value'
 import Installations from './installations'
 import FirebaseApp, { StorageInterface } from './app'
@@ -13,6 +13,7 @@ export interface RemoteConfigOptions<T> {
     cacheMaxAge?: number
     languageCode?: string
     defaultConfig?: T
+    axiosConfigOverrides?: Partial<Axios['defaults']>
 }
 
 export interface FetchResult<T> {
@@ -52,12 +53,14 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
             fetchTimeout: options.fetchTimeout ?? DEFAULT_FETCH_TIMEOUT_MILLIS,
             cacheMaxAge: options.cacheMaxAge ?? DEFAULT_CACHE_MAX_AGE_MILLIS,
             defaultConfig: options.defaultConfig || {} as T,
+            axiosConfigOverrides: options.axiosConfigOverrides || {},
         }
 
         this.app = app
         this.installations = new Installations(this.app)
 
         this.request = axios.create({
+            ...this.options.axiosConfigOverrides,
             baseURL: `https://firebaseremoteconfig.googleapis.com/v1/projects/${this.app.credentials.projectId}/namespaces/firebase`,
         })
 
