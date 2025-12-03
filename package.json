@@ -31,17 +31,17 @@
     "prepare": "yarn prepublish"
   },
   "dependencies": {
-    "axios": "^1.5.0",
-    "axios-retry": "^3.7.0",
+    "axios": "^1.13.2",
+    "axios-retry": "^4.5.0",
     "eventemitter3": "^5.0.1"
   },
   "devDependencies": {
-    "@types/node": "^18.8.4",
-    "@typescript-eslint/eslint-plugin": "^6.5.0",
-    "@typescript-eslint/parser": "^6.5.0",
-    "eslint": "^8.48.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "@types/node": "^24.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/parser": "^8.48.1",
+    "eslint": "^9.39.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=16"

@@ -38,7 +38,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
     private readonly options: RemoteConfigOptions<T>
     private readonly storage: StorageInterface<RemoteConfigStore<T>>
     private readonly request: AxiosInstance
-    private refreshTimer: NodeJS.Timer
+    private refreshTimer: NodeJS.Timeout
     private semaphoreFetch: Promise<void>
 
     constructor(app: FirebaseApp, options: RemoteConfigOptions<T> = {}) {
