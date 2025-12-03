@@ -31,9 +31,8 @@
     "prepare": "yarn prepublish"
   },
   "dependencies": {
-    "axios": "^1.13.2",
-    "axios-retry": "^4.5.0",
-    "eventemitter3": "^5.0.1"
+    "eventemitter3": "^5.0.1",
+    "fetch-retry": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

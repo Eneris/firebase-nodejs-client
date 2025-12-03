@@ -1,8 +1,4 @@
-import axios, {
-    type Axios,
-    type AxiosError,
-    type AxiosInstance,
-} from '../utils/axios'
+import fetchWithRetry from '../utils/fetch'
 import FirebaseApp, { StorageInterface } from './app'
 
 const AUTH_VERSION = 'FIS_v2'
@@ -26,30 +22,24 @@ export interface InstallationStorageInterface {
     installation: InstallationEntry
 }
 
-export interface InstallationsOptions {
-    axiosConfigOverrides?: Partial<Axios['defaults']>
+export interface WebInstallationsOptions {
+    h
 }
 
 export default class WebInstallations {
     private readonly app: FirebaseApp
-    private readonly options: InstallationsOptions
-    private readonly request: AxiosInstance
+    private readonly baseURL: string
+    private readonly defaultHeaders: Record<string, string>
     private readonly storage: StorageInterface<InstallationStorageInterface>
 
-    constructor(app: FirebaseApp, options?: InstallationsOptions) {
+    constructor(app: FirebaseApp) {
         this.app = app
-        this.options = options || {}
-        const axiosOverrides = this.options.axiosConfigOverrides || {}
-        this.request = axios.create({
-            ...axiosOverrides,
-            baseURL: `https://firebaseinstallations.googleapis.com/v1/projects/${this.app.credentials.projectId}/installations`,
-            headers: {
-                ...(axiosOverrides.headers || {}),
-                'Content-Type': 'application/json',
-                'Accept-Charset': 'application/json',
-                'x-goog-api-key': this.app.credentials.apiKey,
-            },
-        })
+        this.baseURL = `https://firebaseinstallations.googleapis.com/v1/projects/${this.app.credentials.projectId}/installations`
+        this.defaultHeaders = {
+            'Content-Type': 'application/json',
+            'Accept-Charset': 'application/json',
+            'x-goog-api-key': this.app.credentials.apiKey,
+        }
 
         const storagePrefix = `installations.${this.app.credentials.projectId}.${this.app.credentials.appId}.`
 
@@ -112,14 +102,18 @@ export default class WebInstallations {
 
     private async create(): Promise<InstallationEntry> {
         // TODO: HeartBeat
-        const data = await this.request.post('', {
-            fid: this.generateFid(),
-            authVersion: AUTH_VERSION,
-            appId: this.app.credentials.appId,
-            sdkVersion: SDK_VERSION,
-        }, {
-            headers: this.getHeaders({ heartbeat: true }),
-        }).then(({ data }) => data)
+        const response = await fetchWithRetry(this.baseURL, {
+            method: 'POST',
+            headers: { ...this.defaultHeaders, ...this.getHeaders({ heartbeat: true }) },
+            body: JSON.stringify({
+                fid: this.generateFid(),
+                authVersion: AUTH_VERSION,
+                appId: this.app.credentials.appId,
+                sdkVersion: SDK_VERSION,
+            }),
+        })
+
+        const data = await response.json()
 
         const newInstallation: InstallationEntry = {
             ...data,
@@ -143,19 +137,23 @@ export default class WebInstallations {
         }
 
         // TODO: HeartBeat
-        const newToken = await this.request.post<{ token: string, expiresIn: string }>(`/${installation.fid}/authTokens:generate`, {
-            installation: {
-                sdkVersion: SDK_VERSION,
-                appId: this.app.credentials.appId,
-            },
-        }, {
-            headers: this.getHeaders({ auth: installation, heartbeat: true }),
+        const response = await fetchWithRetry(`${this.baseURL}/${installation.fid}/authTokens:generate`, {
+            method: 'POST',
+            headers: { ...this.defaultHeaders, ...this.getHeaders({ auth: installation, heartbeat: true }) },
+            body: JSON.stringify({
+                installation: {
+                    sdkVersion: SDK_VERSION,
+                    appId: this.app.credentials.appId,
+                },
+            }),
         })
-            .then(({ data }) => data)
-            .catch((err: AxiosError) => {
-                this.app.logger.debug(err)
-                throw new Error(`Installation refresh failed with status ${err.response.status} '${err.response.statusText}'`)
-            })
+
+        if (!response.ok) {
+            this.app.logger.debug(response)
+            throw new Error(`Installation refresh failed with status ${response.status} '${response.statusText}'`)
+        }
+
+        const newToken = await response.json()
 
         const newInstallation: InstallationEntry = {
             ...installation,
@@ -178,14 +176,15 @@ export default class WebInstallations {
             throw new Error(`Installation with fid '${fid}' not found`)
         }
 
-        await this.request.delete(`/${installation.fid}`, {
-            headers: this.getHeaders({ auth: installation }),
+        const response = await fetchWithRetry(`${this.baseURL}/${installation.fid}`, {
+            method: 'DELETE',
+            headers: { ...this.defaultHeaders, ...this.getHeaders({ auth: installation }) },
         })
-            .then(() => Promise.resolve())
-            .catch((err: AxiosError) => {
-                this.app.logger.debug(err)
-                throw new Error(`Installation refresh failed with status ${err.response.status} '${err.response.statusText}'`)
-            })
+
+        if (!response.ok) {
+            this.app.logger.debug(response)
+            throw new Error(`Installation deletion failed with status ${response.status} '${response.statusText}'`)
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'eventemitter3'
-import axios, { Axios, AxiosError, AxiosInstance } from '../utils/axios'
+import fetchWithRetry from '../utils/fetch'
 import Value from '../utils/value'
 import Installations from './installations'
 import FirebaseApp, { StorageInterface } from './app'
@@ -13,7 +13,6 @@ export interface RemoteConfigOptions<T> {
     cacheMaxAge?: number
     languageCode?: string
     defaultConfig?: T
-    axiosConfigOverrides?: Partial<Axios['defaults']>
 }
 
 export interface FetchResult<T> {
@@ -38,7 +37,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
     private readonly installations: Installations
     private readonly options: RemoteConfigOptions<T>
     private readonly storage: StorageInterface<RemoteConfigStore<T>>
-    private readonly request: AxiosInstance
+    private readonly baseURL: string
     private refreshTimer: NodeJS.Timeout
     private semaphoreFetch: Promise<void>
 
@@ -53,16 +52,11 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
             fetchTimeout: options.fetchTimeout ?? DEFAULT_FETCH_TIMEOUT_MILLIS,
             cacheMaxAge: options.cacheMaxAge ?? DEFAULT_CACHE_MAX_AGE_MILLIS,
             defaultConfig: options.defaultConfig || {} as T,
-            axiosConfigOverrides: options.axiosConfigOverrides || {},
         }
 
         this.app = app
         this.installations = new Installations(this.app)
-
-        this.request = axios.create({
-            ...this.options.axiosConfigOverrides,
-            baseURL: `https://firebaseremoteconfig.googleapis.com/v1/projects/${this.app.credentials.projectId}/namespaces/firebase`,
-        })
+        this.baseURL = `https://firebaseremoteconfig.googleapis.com/v1/projects/${this.app.credentials.projectId}/namespaces/firebase`
 
         const storagePrefix = `remoteConfig.${this.app.credentials.appId}.`
 
@@ -160,38 +154,50 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
 
         const installation = await this.installations.getInstallation()
 
-        const response = await this.request.post(`:fetch`, {
-            sdk_version: SDK_VERSION,
-            app_instance_id: installation.fid,
-            app_instance_id_token: installation.authToken.token,
-            app_id: this.app.credentials.appId,
-            language_code: this.options.languageCode,
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Encoding': 'gzip',
-                'Accept-Encoding': 'gzip',
-                // Deviates from pure decorator by not passing max-age header since we don't currently have
-                // service behavior using that header.
-                'If-None-Match': etag || '*',
-            },
-            params: {
-                key: this.app.credentials.apiKey,
-            },
-            validateStatus: (status) => status >= 200 && status <= 399,
-        }).catch((err: AxiosError) => ({
-            status: err.response.status,
-            data: err.response.data,
-            headers: err.response.headers,
-        }))
+        const url = new URL(`${this.baseURL}/:fetch`)
+        url.searchParams.append('key', this.app.credentials.apiKey)
 
-        const responseEtag = response.headers.etag || undefined
+        let response: globalThis.Response
+        let status: number
+        let data: any
+        let responseHeaders: Record<string, string>
 
-        let status = response.status
-        let config = response.data?.entries
+        try {
+            response = await fetchWithRetry(url.toString(), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Encoding': 'gzip',
+                    'Accept-Encoding': 'gzip',
+                    'If-None-Match': etag || '*',
+                },
+                body: JSON.stringify({
+                    sdk_version: SDK_VERSION,
+                    app_instance_id: installation.fid,
+                    app_instance_id_token: installation.authToken.token,
+                    app_id: this.app.credentials.appId,
+                    language_code: this.options.languageCode,
+                }),
+            })
 
-        if (response.data?.state) {
-            switch (response.data?.state) {
+            status = response.status
+            responseHeaders = {}
+            response.headers.forEach((value, key) => {
+                responseHeaders[key] = value
+            })
+            data = await response.json()
+        } catch (err: any) {
+            status = err.response?.status || 500
+            data = err.response?.data
+            responseHeaders = err.response?.headers || {}
+        }
+
+        const responseEtag = responseHeaders.etag || undefined
+
+        let config = data?.entries
+
+        if (data?.state) {
+            switch (data?.state) {
                 case 'UPDATE':
                     status = 200
                     break
@@ -206,7 +212,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
                     config = {}
                     break
                 default:
-                    this.app.logger.warn('Unknown remoteConfig data state:', response.data?.state)
+                    this.app.logger.warn('Unknown remoteConfig data state:', data?.state)
             }
         }
 
