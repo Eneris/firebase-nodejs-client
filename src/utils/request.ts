@@ -1,0 +1,54 @@
+import delay from './timeout'
+import type FirebaseApp from '../app'
+
+// In seconds
+const MAX_RETRY_TIMEOUT = 15
+
+// Step in seconds
+const RETRY_STEP = 5
+
+export default function requestWithRety(url: string, options?: globalThis.RequestInit, maxRetries = 3): Promise<Response> {
+    return retry(0, url, options, maxRetries)
+}
+
+async function retry(retryCount = 0, url: string, options?: globalThis.RequestInit, maxRetries = 3): Promise<Response> {
+    try {
+        return await fetch(url, options)
+            .then(async (response) => { // Serer responded
+                if (response.ok) return response
+
+                const responseText = await response.text()
+
+                if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+                    throw new Error(`Request failed: ${response.status} ${response.statusText}${responseText ? ` - ${responseText}` : ''}`)
+                }
+
+                // Response not ok. This means server responded but with an error. We retry with increased retry count
+                const timeout = Math.min(retryCount * RETRY_STEP, MAX_RETRY_TIMEOUT)
+
+                console.debug(`Request failed : ${response.status} ${response.statusText}${responseText ? ` - ${responseText}` : ''}`)
+                console.debug(`Retrying in ${timeout} seconds`)
+
+                if (retryCount >= maxRetries) {
+                    throw new Error(`Request failed: ${response.status} ${response.statusText}${responseText ? ` - ${responseText}` : ''}`)
+                }
+
+                await delay(timeout * 1000)
+
+                return retry(retryCount + 1, url, options)
+            })
+    } catch (error) {
+        if (error instanceof Error && error.message.startsWith('Request failed:')) {
+            throw error
+        }
+
+        console.debug('Request failed with network error. Wait 10s and retry')
+        // Fetch throws only for network errors. In that case we wait a bit and retry without increasing the count
+        await delay(10_000) // 10 seconds
+        return retry(retryCount, url, options)
+    }
+}
+
+export const getEndpoint = (projectId: string, baseUrl: string, path = '') => (
+    `${baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`}projects/${projectId}/${path}`
+)

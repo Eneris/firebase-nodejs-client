@@ -14,10 +14,10 @@ Will add more parts based on my project needs or uppon request.
 
 ## What is done / planned
  - ✅ Web Installartions
- - ⬜️ Mobile Installations
+ - ✅ Mobile Installations
  - ✅ Remote config
- - ⬜️ Cloud Messaging
- - ⬜️ HeartBeat
+ - ✅ Cloud Messaging
+ - ✅ HeartBeat
  - ⬜️ TESTS - probably jest/mocha
 
 ## How to use it

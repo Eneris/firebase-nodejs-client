@@ -55,7 +55,7 @@ export default class Value {
         return num
     }
 
-    asJSON<T = Record<string, unknown>>(): T {
+    asJSON<T = Record<string, unknown>>(): T | null {
         if (typeof this._value !== 'string') {
             return this._value
         }
