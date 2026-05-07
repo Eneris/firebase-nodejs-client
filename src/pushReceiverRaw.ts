@@ -32,7 +32,8 @@ interface ClientEvents {
 export default class PushReceiver extends Emitter<ClientEvents> {
     readonly #HOST = 'mtalk.google.com'
     readonly #PORT = 5228
-    readonly #MAX_RETRY_TIMEOUT = 15
+    readonly #DEFAULT_MAX_RETRY_ATTEMPTS = 5
+    readonly #RETRY_DELAY_SECONDS = 15
 
     #app: FirebaseApp
     #storage: StorageInterface<PushReceiverStorage>
@@ -45,7 +46,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
     #heartbeatTimeout?: NodeJS.Timeout
     #streamId = 0
     #lastStreamIdReported = -1
-    #ready = defer()
+    #ready = defer<void>()
 
     #fcm: FCM
     #gcm: GCM
@@ -56,7 +57,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         return this.#fcmData?.registration.token
     }
 
-    constructor(app: FirebaseApp, config: Types.ClientConfig) {
+    constructor(app: FirebaseApp, config: Types.ClientConfig = {}) {
         super()
 
         assertRequiredProperties(app, [
@@ -76,7 +77,8 @@ export default class PushReceiver extends Emitter<ClientEvents> {
 
         this.#config = {
             heartbeatIntervalMs: 5 * 60 * 1000, // 5 min
-            ...config
+            maxRetryAttempts: this.#DEFAULT_MAX_RETRY_ATTEMPTS,
+            ...(config || {}),
         }
 
         this.#storage = {
@@ -110,7 +112,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         this.#lastPersistentIds = lastPersistentIds.slice(-MAX_STORED_PERSISTENT_IDS)
     }
 
-    get whenReady() {
+    get whenReady(): Promise<void> {
         return this.#ready.promise
     }
 
@@ -127,40 +129,51 @@ export default class PushReceiver extends Emitter<ClientEvents> {
     }
 
     connect = async (): Promise<void> => {
-        if (this.#socket) return
+        if (this.#socket) {
+            return this.whenReady
+        }
 
-        this.#gcmData = await this.#gcm.getRegistration()
-        this.#fcmData = await this.#fcm.getRegistration()
+        if (this.#ready.isResolved) {
+            this.#ready = defer<void>()
+        }
 
-        this.#app.logger.debug('connect')
+        try {
+            this.#gcmData = await this.#gcm.getRegistration()
+            this.#fcmData = await this.#fcm.getRegistration()
 
-        this.#lastStreamIdReported = -1
+            this.#app.logger.debug('connect')
 
-        this.#socket = new tls.TLSSocket(null as any)
-        this.#socket.setKeepAlive(true)
-        this.#socket.on('connect', () => this.#handleSocketConnect())
-        this.#socket.on('close', () => this.#handleSocketClose())
-        this.#socket.on('error', (err) => this.#handleSocketError(err))
-        this.#socket.connect({ host: this.#HOST, port: this.#PORT })
+            this.#lastStreamIdReported = -1
 
-        this.#parser = new Parser(this.#app, this.#socket)
-        this.#parser.on('message', (data) => this.#handleMessage(data))
-        this.#parser.on('error', (err) => this.#handleParserError(err))
+            this.#socket = new tls.TLSSocket(null as any)
+            this.#socket.setKeepAlive(true)
+            this.#socket.on('connect', () => this.#handleSocketConnect())
+            this.#socket.on('close', () => this.#handleSocketClose())
+            this.#socket.on('error', (err) => this.#handleSocketError(err))
+            this.#socket.connect({ host: this.#HOST, port: this.#PORT })
 
-        this.#sendLogin()
+            this.#parser = new Parser(this.#app, this.#socket)
+            this.#parser.on('message', (data) => this.#handleMessage(data))
+            this.#parser.on('error', (err) => this.#handleParserError(err))
 
-        return new Promise((res) => {
-            const dispose = this.onReady(() => {
-                dispose()
-                res()
-            })
-        })
+            await this.#sendLogin()
+
+            return await this.whenReady
+        } catch (error) {
+            this.#rejectReady(error as Error)
+            this.#destroyConnection()
+            throw error
+        }
     }
 
-    destroy = () => {
-        this.#clearReady()
+    destroy = (reason = new Error('Client destroyed')) => {
+        this.#rejectReady(reason)
+        this.#destroyConnection()
+    }
 
+    #destroyConnection() {
         clearTimeout(this.#retryTimeout)
+        this.#retryTimeout = undefined
         this.#clearHeartbeat()
 
         if (this.#socket) {
@@ -172,24 +185,14 @@ export default class PushReceiver extends Emitter<ClientEvents> {
 
         if (this.#parser) {
             this.#parser.destroy()
-            this.#parser = null 
+            this.#parser = null
         }
     }
 
-    get #configMetaData() {
-        return {
-            bundleId: this.#app.config.bundleId,
-            projectId: this.#app.credentials.projectId,
-            vapidKey: this.#app.config.vapidKey,
-        }
-    }
-
-    #clearReady() {
+    #rejectReady(reason: Error) {
         if (!this.#ready.isResolved) {
-            this.#ready.reject(new Error('Client destroyed'))
+            this.#ready.reject(reason)
         }
-
-        this.#ready = defer()
     }
 
     #clearHeartbeat() {
@@ -226,10 +229,38 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         // ignore, the close handler takes care of retry
     }
 
+    #getRetryDelayMs(retryAttempt: number): number {
+        if (retryAttempt <= 1) {
+            return 0
+        }
+
+        return this.#RETRY_DELAY_SECONDS * (2 ** (retryAttempt - 2)) * 1000
+    }
+
+    #getMaxRetryAttempts(): number {
+        const { maxRetryAttempts } = this.#config
+
+        if (maxRetryAttempts == null || Number.isNaN(maxRetryAttempts) || maxRetryAttempts <= 0) {
+            return Number.POSITIVE_INFINITY
+        }
+
+        return maxRetryAttempts
+    }
+
     #socketRetry() {
-        this.destroy()
-        const timeout = Math.min(++this.#retryCount, this.#MAX_RETRY_TIMEOUT) * 1000
-        this.#retryTimeout = setTimeout(() => this.connect(), timeout)
+        if (this.#retryCount >= this.#getMaxRetryAttempts()) {
+            const error = new Error('PushReceiver retry limit reached')
+            this.#app.logger.error(error)
+            this.destroy(error)
+            return
+        }
+
+        this.#destroyConnection()
+
+        const retryAttempt = ++this.#retryCount
+        this.#retryTimeout = setTimeout(() => {
+            void this.connect().catch((error) => this.#app.logger.error(error))
+        }, this.#getRetryDelayMs(retryAttempt))
     }
 
     #getStreamId(): number {

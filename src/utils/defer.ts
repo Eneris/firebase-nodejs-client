@@ -1,4 +1,4 @@
-export default function defer<T>(): { promise: Promise<T>; resolve: (value?: T | PromiseLike<T>) => void; reject: (reason?: any) => void; isResolved: boolean } {
+export default function defer<T>(): { promise: Promise<T>; resolve: (value?: T | PromiseLike<T>) => void; reject: (reason?: any) => void; readonly isResolved: boolean } {
     let resolve!: (value?: T | PromiseLike<T>) => void;
     let reject!: (reason?: any) => void;
     let isResolved = false;
@@ -14,5 +14,12 @@ export default function defer<T>(): { promise: Promise<T>; resolve: (value?: T |
         };
     });
 
-    return { promise, resolve, reject, isResolved };
+    return {
+        promise,
+        resolve,
+        reject,
+        get isResolved() {
+            return isResolved;
+        },
+    };
 }

@@ -100,6 +100,11 @@ export interface FirebaseConfig {
 
 export interface ClientConfig {
     heartbeatIntervalMs?: number
+    /**
+     * Maximum reconnect attempts after a disconnect.
+     * Undefined or non-positive values disable the retry limit.
+     */
+    maxRetryAttempts?: number
 }
 
 export interface MessageToSend {
