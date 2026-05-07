@@ -39,6 +39,7 @@ export default class Parser extends Emitter<ParserEvents> {
     #messageSize = 0
     #handshakeComplete = false
     #isWaitingForData = true
+    #destroyed = false
 
     constructor(app: FirebaseApp, socket: TLSSocket) {
         super()
@@ -51,6 +52,7 @@ export default class Parser extends Emitter<ParserEvents> {
     }
 
     destroy(): void {
+        this.#destroyed = true
         this.#isWaitingForData = false
         this.#socket.removeListener('data', this.#handleData)
     }
@@ -70,56 +72,71 @@ export default class Parser extends Emitter<ParserEvents> {
     }
 
     #waitForData() {
-        this.#app.logger.debug(`waitForData state: ${this.#state}`)
+        while (!this.#destroyed && !this.#isWaitingForData) {
+            this.#app.logger.debug(`waitForData state: ${this.#state}`)
 
-        let minBytesNeeded = 0
+            let minBytesNeeded = 0
 
-        switch (this.#state) {
-            case ProcessingState.MCS_VERSION_TAG_AND_SIZE:
-                minBytesNeeded += Variables.kVersionPacketLen
-            // eslint-disable-next-line no-fallthrough
-            case ProcessingState.MCS_TAG_AND_SIZE:
-                minBytesNeeded += Variables.kTagPacketLen
+            switch (this.#state) {
+                case ProcessingState.MCS_VERSION_TAG_AND_SIZE:
+                    minBytesNeeded += Variables.kVersionPacketLen
                 // eslint-disable-next-line no-fallthrough
-            case ProcessingState.MCS_SIZE:
-                minBytesNeeded += Variables.kSizePacketLenMin
-                break
-            case ProcessingState.MCS_PROTO_BYTES:
-                minBytesNeeded = this.#messageSize
-                break
-            default:
-                this.#emitError(new Error(`Unexpected state: ${this.#state}`))
+                case ProcessingState.MCS_TAG_AND_SIZE:
+                    minBytesNeeded += Variables.kTagPacketLen
+                    // eslint-disable-next-line no-fallthrough
+                case ProcessingState.MCS_SIZE:
+                    minBytesNeeded += Variables.kSizePacketLenMin
+                    break
+                case ProcessingState.MCS_PROTO_BYTES:
+                    minBytesNeeded = this.#messageSize
+                    break
+                default:
+                    this.#emitError(new Error(`Unexpected state: ${this.#state}`))
+                    return
+            }
+
+            if (this.#data.length < minBytesNeeded) {
+                this.#app.logger.debug(`Waiting for ${minBytesNeeded - this.#data.length} more bytes. Got ${this.#data.length}`)
+                this.#isWaitingForData = true
                 return
-        }
+            }
 
-        if (this.#data.length < minBytesNeeded) {
-            this.#app.logger.debug(`Waiting for ${minBytesNeeded - this.#data.length} more bytes. Got ${this.#data.length}`)
-            this.#isWaitingForData = true
-            return
-        }
+            this.#app.logger.debug(`Processing MCS data: state == ${this.#state}`)
 
-        this.#app.logger.debug(`Processing MCS data: state == ${this.#state}`)
-
-        switch (this.#state) {
-            case ProcessingState.MCS_VERSION_TAG_AND_SIZE:
-                this.#handleGotVersion()
-                this.#handleGotMessageTag()
-                this.#handleGotMessageSize()
-                break
-            case ProcessingState.MCS_TAG_AND_SIZE:
-                this.#handleGotMessageTag()
-                this.#handleGotMessageSize()
-                break
-            case ProcessingState.MCS_SIZE:
-                this.#handleGotMessageSize()
-                break
-            case ProcessingState.MCS_PROTO_BYTES:
-                this.#handleGotMessageBytes()
-                break
-            default:
-                this.#emitError(new Error(`Unexpected state: ${this.#state}`))
-                return
+            switch (this.#state) {
+                case ProcessingState.MCS_VERSION_TAG_AND_SIZE:
+                    this.#handleGotVersion()
+                    if (this.#shouldStopProcessing()) {
+                        return
+                    }
+                    this.#handleGotMessageTag()
+                    if (this.#shouldStopProcessing()) {
+                        return
+                    }
+                    this.#handleGotMessageSize()
+                    break
+                case ProcessingState.MCS_TAG_AND_SIZE:
+                    this.#handleGotMessageTag()
+                    if (this.#shouldStopProcessing()) {
+                        return
+                    }
+                    this.#handleGotMessageSize()
+                    break
+                case ProcessingState.MCS_SIZE:
+                    this.#handleGotMessageSize()
+                    break
+                case ProcessingState.MCS_PROTO_BYTES:
+                    this.#handleGotMessageBytes()
+                    break
+                default:
+                    this.#emitError(new Error(`Unexpected state: ${this.#state}`))
+                    return
+            }
         }
+    }
+
+    #shouldStopProcessing() {
+        return this.#destroyed || this.#isWaitingForData
     }
 
     #handleGotVersion() {
@@ -161,7 +178,7 @@ export default class Parser extends Emitter<ParserEvents> {
         // above to be mid-packet like: new ProtobufJS.BufferReader(this.#data.slice(0, 1))
         if (incompleteSizePacket) {
             this.#state = ProcessingState.MCS_SIZE
-            this.#waitForData()
+            this.#isWaitingForData = true
             return
         }
 
@@ -171,10 +188,10 @@ export default class Parser extends Emitter<ParserEvents> {
 
         if (this.#messageSize > 0) {
             this.#state = ProcessingState.MCS_PROTO_BYTES
-            this.#waitForData()
-        } else {
-            this.#handleGotMessageBytes()
+            return
         }
+
+        this.#handleGotMessageBytes()
     }
 
     #handleGotMessageBytes() {
@@ -196,7 +213,7 @@ export default class Parser extends Emitter<ParserEvents> {
             // Continue reading data.
             this.#app.logger.debug(`Continuing data read. Buffer size is ${this.#data.length}, expecting ${this.#messageSize}`)
             this.#state = ProcessingState.MCS_PROTO_BYTES
-            this.#waitForData()
+            this.#isWaitingForData = true
             return
         }
 
@@ -229,7 +246,6 @@ export default class Parser extends Emitter<ParserEvents> {
         this.#messageTag = 0
         this.#messageSize = 0
         this.#state = ProcessingState.MCS_TAG_AND_SIZE
-        this.#waitForData()
     }
 
     #buildProtobufFromTag(tag: number) {
