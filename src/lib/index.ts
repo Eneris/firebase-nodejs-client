@@ -1,4 +1,4 @@
-import PushReceiver from "../pushReceiverRaw"
+import PushReceiver from "../pushReceiver"
 import PushSender from "../pushSender"
 
 export {
