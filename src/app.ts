@@ -85,7 +85,7 @@ function createMissingPropertiesError(parameterName: string, missingProperties: 
     return error
 }
 
-export function assertRequiredProperties(app: Object, requirements: string[], parameterName = 'app'): void {
+export function assertRequiredProperties(app: object, requirements: string[], parameterName = 'app'): void {
     if (!app) {
         throw new TypeError(`Invalid ${parameterName} parameter`)
     }

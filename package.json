@@ -9,6 +9,8 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
+    "src",
+    "wiki",
     "package*",
     "*.md"
   ],
@@ -16,17 +18,28 @@
     "type": "git",
     "url": "git+ssh://git@github.com/eneris/firebase-nodejs-client.git"
   },
+  "bugs": {
+    "url": "https://github.com/Eneris/firebase-nodejs-client/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "node",
     "firebase",
-    "remote-config"
+    "remote-config",
+    "analytics",
+    "cloud-messaging",
+    "fcm",
+    "gcm",
+    "push-notifications",
+    "push-receiver"
   ],
   "scripts": {
-    "prepublish": "yarn build",
-    "prepare": "yarn prepublish",
+    "prepack": "yarn build",
     "protobuf": "pbjs -t static-module -w commonjs -o src/protobuf/protos.js src/protobuf/*.proto && pbts -o src/protobuf/protos.d.ts src/protobuf/protos.js",
     "build": "yarn clean && yarn protobuf && yarn tsc --incremental && mkdir -p dist/protobuf && cp src/protobuf/protos.js src/protobuf/protos.d.ts dist/protobuf/",
-    "lint": "yarn eslint src --ext .ts",
+    "lint": "yarn eslint src",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "precommit": "yarn lint && yarn build"
   },
@@ -41,6 +54,7 @@
   },
   "devDependencies": {
     "@eneris/conf": "^15.2.2",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.5.0",
     "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.58.0",
@@ -50,6 +64,6 @@
     "typescript": "^6.0.2"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19.0"
   }
 }

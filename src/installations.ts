@@ -1,5 +1,5 @@
 import fetchWithRetry from './utils/fetch'
-import FirebaseApp, { Logger, StorageInterface, assertRequiredProperties } from './app'
+import FirebaseApp, { StorageInterface, assertRequiredProperties } from './app'
 import { toBase64 } from './utils/base64'
 
 const AUTH_VERSION = 'FIS_v2'

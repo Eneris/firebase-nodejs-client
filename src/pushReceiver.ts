@@ -1,13 +1,11 @@
 import Long from 'long'
 import tls from 'tls'
-import crypto from 'crypto'
 import Emitter from 'eventemitter3'
 import GCM, { type GcmData } from './lib/gcm'
 import FCM, { type FcmData } from './lib/fcm'
 import Parser from './lib/parser'
 import decrypt from './utils/decrypt'
 import defer from './utils/defer'
-import { escape } from './utils/base64'
 import Protos from './protobuf'
 
 import { Variables, MCSProtoTag } from './utils/constants'

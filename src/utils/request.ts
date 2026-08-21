@@ -1,5 +1,4 @@
 import delay from './timeout'
-import type FirebaseApp from '../app'
 
 // In seconds
 const MAX_RETRY_TIMEOUT = 15
