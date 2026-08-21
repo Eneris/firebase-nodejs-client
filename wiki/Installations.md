@@ -1,4 +1,6 @@
-# class `InstallationsWeb`
+# class `Installations`
+
+Provides the Firebase installation id (FID) with its auth token and the `x-firebase-client` heartbeat header used by the other modules.
 
 ## Methods
 ### `getInstallation`
