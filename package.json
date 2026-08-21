@@ -22,7 +22,8 @@
     "url": "https://github.com/Eneris/firebase-nodejs-client/issues"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "tag": "experimental"
   },
   "keywords": [
     "node",
