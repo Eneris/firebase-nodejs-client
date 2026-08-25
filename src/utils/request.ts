@@ -11,41 +11,33 @@ export default function requestWithRety(url: string, options?: globalThis.Reques
 }
 
 async function retry(retryCount = 0, url: string, options?: globalThis.RequestInit, maxRetries = 3): Promise<Response> {
+    let response: Response
+
     try {
-        return await fetch(url, options)
-            .then(async (response) => { // Serer responded
-                if (response.ok) return response
-
-                const responseText = await response.text()
-
-                if (response.status >= 400 && response.status < 500 && response.status !== 429) {
-                    throw new Error(`Request failed: ${response.status} ${response.statusText}${responseText ? ` - ${responseText}` : ''}`)
-                }
-
-                // Response not ok. This means server responded but with an error. We retry with increased retry count
-                const timeout = Math.min(retryCount * RETRY_STEP, MAX_RETRY_TIMEOUT)
-
-                console.debug(`Request failed : ${response.status} ${response.statusText}${responseText ? ` - ${responseText}` : ''}`)
-                console.debug(`Retrying in ${timeout} seconds`)
-
-                if (retryCount >= maxRetries) {
-                    throw new Error(`Request failed: ${response.status} ${response.statusText}${responseText ? ` - ${responseText}` : ''}`)
-                }
-
-                await delay(timeout * 1000)
-
-                return retry(retryCount + 1, url, options)
-            })
+        response = await fetch(url, options)
     } catch (error) {
-        if (error instanceof Error && error.message.startsWith('Request failed:')) {
+        if (retryCount >= maxRetries) {
             throw error
         }
 
-        console.debug('Request failed with network error. Wait 10s and retry')
-        // Fetch throws only for network errors. In that case we wait a bit and retry without increasing the count
-        await delay(10_000) // 10 seconds
-        return retry(retryCount, url, options)
+        await delay(10_000)
+        return retry(retryCount + 1, url, options, maxRetries)
     }
+
+    if (response.ok) {
+        return response
+    }
+
+    const isRetryable = response.status === 429 || response.status >= 500
+
+    if (!isRetryable || retryCount >= maxRetries) {
+        throw new Error(`Request failed: ${response.status} ${response.statusText}`)
+    }
+
+    const timeout = Math.min(retryCount * RETRY_STEP, MAX_RETRY_TIMEOUT)
+    await delay(timeout * 1000)
+
+    return retry(retryCount + 1, url, options, maxRetries)
 }
 
 export const getEndpoint = (projectId: string, baseUrl: string, path = '') => (

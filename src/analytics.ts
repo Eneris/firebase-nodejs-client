@@ -7,6 +7,7 @@ import FirebaseApp, { StorageInterface, assertRequiredProperties } from './app'
  * Params are URL-encoded query parameters (v=2, tid=, cid=, en=, ep.*, epn.*, …).
  */
 const GTAG_COLLECT_ENDPOINT = 'https://www.google-analytics.com/g/collect'
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000
 
 // Matches the User-Agent sent by Chrome on macOS — required for GA4 to accept hits from this endpoint.
 const BROWSER_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
@@ -19,7 +20,7 @@ const BROWSER_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Appl
  */
 export interface AnalyticsOptions {
     app: FirebaseApp
-    installations: Installations
+    installations?: Installations
     /**
      * When `true`, the `_dbg=1` parameter is appended to every hit, making
      * events visible in the GA4 DebugView — identical to gtag's debug mode.
@@ -51,6 +52,7 @@ interface AnalyticsStorageSchema {
     clientId: string
     sessionId: string
     sessionCount: number
+    lastEventTime: number
 }
 
 // ─── Client class ────────────────────────────────────────────────────────────
@@ -90,11 +92,12 @@ export default class AnalyticsClient {
             'storage.get',
             'storage.set',
         ])
-        assertRequiredProperties(options.installations, ['getInstallation'], 'options.installations')
+        const installations = options.installations ?? options.app.installations
+        assertRequiredProperties(installations, ['getInstallation'], 'options.installations')
 
         this.#app = options.app
         this.#debug = options.debug ?? false
-        this.#installations = options.installations
+        this.#installations = installations
 
         this.#storage = {
             get: (key) => this.#app.storage.get(`analytics.${key}`),
@@ -104,7 +107,7 @@ export default class AnalyticsClient {
 
     // ─── Internal helpers ─────────────────────────────────────────────────────
 
-    nextHitCount(): number {
+    private nextHitCount(): number {
         return ++this.hitCount
     }
 
@@ -119,12 +122,18 @@ export default class AnalyticsClient {
     private getOrCreateSession(): { sessionId: string, sessionCount: number } {
         let sessionId = this.#storage.get('sessionId')
         let sessionCount = this.#storage.get('sessionCount') ?? 0
-        if (!sessionId) {
+        const now = Date.now()
+        const lastEventTime = this.#storage.get('lastEventTime') ?? 0
+
+        if (!sessionId || now - lastEventTime >= SESSION_TIMEOUT_MS) {
             sessionId = String(Math.floor(Date.now() / 1000))
             sessionCount = sessionCount + 1
             this.#storage.set('sessionId', sessionId)
             this.#storage.set('sessionCount', sessionCount)
         }
+
+        this.#storage.set('lastEventTime', now)
+
         return { sessionId, sessionCount }
     }
 

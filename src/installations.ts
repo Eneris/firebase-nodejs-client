@@ -28,12 +28,6 @@ const HEARTBEAT_AGENT = [
     `fire-installations-${BUILD_TARGET}/${SDK_VERSION.slice(2)}`,
 ].join(' ')
 
-export interface AuthToken {
-    readonly token: string
-    readonly creationTime: number
-    readonly expiresIn: number
-}
-
 export interface InstallationEntry {
     readonly fid: string
     readonly refreshToken: string
@@ -62,10 +56,6 @@ interface HeartbeatCacheEntry {
 export interface InstallationStorageInterface {
     installation: InstallationEntry
     heartbeat: HeartbeatCacheEntry
-}
-
-export interface WebInstallationsOptions {
-    h?: unknown
 }
 
 // Mirrors the high-level HeartbeatServiceImpl flow, but uses app.storage instead of
@@ -161,6 +151,8 @@ class HeartbeatManager {
 }
 
 export default class WebInstallations {
+    static readonly #pendingInstallations = new WeakMap<FirebaseApp, Promise<InstallationEntry>>()
+
     readonly #app: FirebaseApp
     readonly #baseURL: string
     readonly #defaultHeaders: Record<string, string>
@@ -272,6 +264,10 @@ export default class WebInstallations {
             }),
         })
 
+        if (!response.ok) {
+            throw new Error(`Installation creation failed with status ${response.status} '${response.statusText}'`)
+        }
+
         const data = await response.json()
 
         const newInstallation: InstallationEntry = {
@@ -347,6 +343,26 @@ export default class WebInstallations {
     async getInstallation(): Promise<InstallationEntry> {
         this.#heartbeat.trigger()
 
+        const pendingInstallation = WebInstallations.#pendingInstallations.get(this.#app)
+
+        if (pendingInstallation) {
+            return pendingInstallation
+        }
+
+        const installationPromise = this.#getInstallation()
+        WebInstallations.#pendingInstallations.set(this.#app, installationPromise)
+
+        try {
+            return await installationPromise
+        } finally {
+            if (WebInstallations.#pendingInstallations.get(this.#app) === installationPromise) {
+                WebInstallations.#pendingInstallations.delete(this.#app)
+            }
+        }
+    }
+
+    async #getInstallation(): Promise<InstallationEntry> {
+
         let installation: InstallationEntry = this.#storage.get('installation')
 
         // Does not exist
@@ -362,7 +378,7 @@ export default class WebInstallations {
         return installation
     }
 
-    async deleteInstalation(): Promise<void> {
+    async deleteInstallation(): Promise<void> {
         this.#heartbeat.trigger()
 
         const installation: InstallationEntry = this.#storage.get('installation')
@@ -370,6 +386,11 @@ export default class WebInstallations {
         if (installation) {
             return this.delete(installation.fid)
         }
+    }
+
+    /** @deprecated Use deleteInstallation instead. */
+    async deleteInstalation(): Promise<void> {
+        return this.deleteInstallation()
     }
 }
 

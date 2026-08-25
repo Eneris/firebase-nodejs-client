@@ -68,7 +68,7 @@ export interface FirebaseAppOptions {
     storage: StorageInterface
     logger?: Logger
     crypto?: CryptoInterface
-    config?: Required<FirebaseAppConfig>
+    config?: FirebaseAppConfig
 }
 
 type MissingPropertiesError = TypeError & {

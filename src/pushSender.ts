@@ -68,7 +68,7 @@ export default class PushSender {
     }
 
     async #getAccessToken(): Promise<GoogleOAuthAccessToken> {
-        if (this.#accessToken && this.#accessToken.generated_at + this.#accessToken.expires_in > new Date().getTime()) return this.#accessToken;
+        if (this.#accessToken && this.#accessToken.generated_at + this.#accessToken.expires_in * 1000 > Date.now()) return this.#accessToken;
         
         const token = this.#createAuthJwt();
 

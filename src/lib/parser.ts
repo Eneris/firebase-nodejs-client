@@ -14,6 +14,8 @@ import type { DataPacket } from './types'
 import type FirebaseApp from '../app'
 import { assertRequiredProperties } from '../app'
 
+const MAX_MESSAGE_SIZE = 8 * 1024 * 1024
+
 // Parser parses wire data from gcm.
 // This takes the role of WaitForData in the chromium connection handler.
 //
@@ -186,6 +188,11 @@ export default class Parser extends Emitter<ParserEvents> {
 
         this.#app.logger.debug(`Proto size: ${this.#messageSize}`)
 
+        if (this.#messageSize < 0 || this.#messageSize > MAX_MESSAGE_SIZE) {
+            this.#emitError(new Error(`Invalid MCS message size: ${this.#messageSize}`))
+            return
+        }
+
         if (this.#messageSize > 0) {
             this.#state = ProcessingState.MCS_PROTO_BYTES
             return
@@ -218,15 +225,22 @@ export default class Parser extends Emitter<ParserEvents> {
         }
 
         const buffer = this.#data.slice(0, this.#messageSize)
-        const message = protobuf.decode(buffer)
+        let object: Record<string, unknown>
+
+        try {
+            const message = protobuf.decode(buffer)
+
+            object = protobuf.toObject(message, {
+                longs: String,
+                enums: String,
+                bytes: Buffer,
+            })
+        } catch (error) {
+            this.#emitError(error as Error)
+            return
+        }
 
         this.#data = this.#data.slice(this.#messageSize)
-
-        const object = protobuf.toObject(message, {
-            longs: String,
-            enums: String,
-            bytes: Buffer,
-        })
 
         this.emit('message', { tag: this.#messageTag, object: object })
 

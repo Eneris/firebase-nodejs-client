@@ -8,7 +8,7 @@ Requests are sent with a browser `User-Agent`, `Origin` and `Referer` built from
 ```js
 const analytics = new Analytics({
     app,            // FirebaseApp with `authDomain` and `measurementId` in credentials
-    installations,  // Installations instance used to derive the client id
+    installations,  // optional, defaults to app.installations
     debug: false,   // appends `_dbg=1` so events show up in GA4 DebugView
 })
 ```
@@ -33,12 +33,10 @@ const analytics = new Analytics({
 
 ## Example
 ```js
-const { FirebaseApp, Installations, Analytics } = require('@eneris/firebase-nodejs-client')
+const { FirebaseApp, Analytics } = require('@eneris/firebase-nodejs-client')
 
 const app = new FirebaseApp({ credentials, storage, crypto: crypto.webcrypto })
-const installations = new Installations(app)
-
-const analytics = new Analytics({ app, installations, debug: true })
+const analytics = new Analytics({ app, debug: true })
 
 analytics.setDefaultEventParameters({ app_version: '1.0.0' })
 analytics.setUserId('user-123')

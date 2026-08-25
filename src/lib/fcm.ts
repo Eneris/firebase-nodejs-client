@@ -274,8 +274,8 @@ export default class FCM {
         })
     }
 
-    async getRegistration(): Promise<FcmData> {
-        const gcmRegistration = await this.#gcm.getRegistration()
+    async getRegistration(gcmData?: GcmData): Promise<FcmData> {
+        const gcmRegistration = gcmData ?? await this.#gcm.getRegistration()
 
         if (!gcmRegistration) {
             throw new Error('GCM registration not found, cannot get FCM registration')

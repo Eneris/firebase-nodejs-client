@@ -61,7 +61,11 @@ export default class GCM {
             return registration
         }
 
-        return gcmRegistration
+        const checkin = await this.checkIn(gcmRegistration)
+        const refreshedRegistration = { ...gcmRegistration, ...checkin }
+        this.#storage.set('registration', refreshedRegistration)
+
+        return refreshedRegistration
     }
 
     #parseLong(number: bigint, unsigned?: boolean | number, radix?: number): Long {

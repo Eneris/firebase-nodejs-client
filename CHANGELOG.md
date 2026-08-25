@@ -8,6 +8,11 @@
  - `FirebaseApp` now accepts `config` (bundleId, chrome identity, timeZone, vapidKey) and a pluggable `crypto` implementation
  - Package now ships `src` and `wiki`, and publishes with public access
  - Requires Node.js >= 20.19 (`dot-prop` is ESM only)
+ - Added certificate verification and SNI to the persistent FCM connection
+ - Bounded HTTP retries, corrected OAuth token expiry caching and hardened MCS frame parsing
+ - Fixed Remote Config request cleanup, timeout handling and background error reporting
+ - Added per-app installation locking and GA4 session rollover after 30 minutes of inactivity
+ - Added reliability regression tests using the Node.js test runner
 
 ## 0.4.0
  - Replaced `axios` + `axios-retry` with native `fetch` + `fetch-retry`, removing Node.js HTTP adapter dependency

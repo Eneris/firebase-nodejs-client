@@ -449,7 +449,7 @@ class PushReceiver extends PushReceiverRaw {
 
     async registerIfNeeded(): Promise<Credentials> {
         if (this.checkCredentials(this.config.credentials)) {
-            await this.#gcm.checkIn(this.config.credentials.gcm)
+            await this.#gcm.getRegistration()
 
             return this.config.credentials
         }

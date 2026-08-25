@@ -4,23 +4,23 @@ Compact firebase client implementation for NodeJS environment
 ## Why do we need another module
 
 Current official modules support only
- - Node.JS as Admin with low to none client capabilities
+ - Node.js as Admin with few to no client capabilities
  - Browser only env (hard linked to `window`, `IndexedDB` and `WebWorkers`)
 
-I needed module that I can use in any JavaScript environment. The main difference is, that you can to provide your own storage with simple get/set methods for data persistency.
+I needed a module that I could use in any JavaScript environment. The main difference is that you can provide your own storage with simple get/set methods for data persistence.
 
 Putting this public, so it can help some other projects too.
-Will add more parts based on my project needs or uppon request.
+Will add more parts based on my project needs or upon request.
 
 ## What is done / planned
- - ✅ Web Installartions
+ - ✅ Web Installations
  - ✅ Mobile Installations
  - ✅ Remote config
  - ✅ Cloud Messaging - receiving push notifications (`PushReceiver`)
  - ✅ Cloud Messaging - sending push notifications (`PushSender`)
  - ✅ Google Analytics 4 events (`Analytics`)
  - ✅ HeartBeat
- - ⬜️ TESTS - probably jest/mocha
+ - ✅ Reliability tests using the Node.js test runner
 
 ## Exports
 
@@ -114,7 +114,7 @@ await sender.send({ title: 'Hello', body: 'World' }, fcmToken)
 [`Analytics`](wiki/Analytics.md) sends GA4 events to the same `g/collect` endpoint `gtag.js` uses, so no `api_secret` is needed.
 
 ```js
-const analytics = new Analytics({ app, installations: new Installations(app) })
+const analytics = new Analytics({ app })
 
 await analytics.logEvent('page_view', { page_title: 'Home' })
 ```

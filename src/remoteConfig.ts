@@ -1,8 +1,8 @@
 import { EventEmitter } from 'eventemitter3'
 import fetchWithRetry from './utils/fetch'
 import Value from './utils/value'
-import Installations from './installations'
 import FirebaseApp, { StorageInterface, assertRequiredProperties } from './app'
+import type Installations from './installations'
 
 const SDK_VERSION = 'w:0.3.11'
 const DEFAULT_FETCH_TIMEOUT_MILLIS = 60 * 1000 // One minute
@@ -40,6 +40,8 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
     readonly #baseURL: string
     #refreshTimer: NodeJS.Timeout | null = null
     #semaphoreFetch: Promise<void> | null = null
+    #fetchAbortController: AbortController | null = null
+    #destroyed = false
 
     constructor(app: FirebaseApp, options: RemoteConfigOptions<T> = {}) {
         super()
@@ -62,7 +64,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
         }
 
         this.#app = app
-        this.#installations = new Installations(this.#app)
+        this.#installations = this.#app.installations
         this.#baseURL = `https://firebaseremoteconfig.googleapis.com/v1/projects/${this.#app.credentials.projectId}/namespaces/firebase`
 
         this.#storage = {
@@ -70,18 +72,30 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
             set: (key, value) => this.#app.storage.set(`remote_config.${key}`, value),
         } as StorageInterface<RemoteConfigStore<T>>
 
-        this.fetchAndActivate()
+        void this.fetchAndActivate().catch((error) => this.#handleBackgroundError(error))
 
         if (this.#options.cacheMaxAge) {
-            this.#refreshTimer = setInterval(this.fetchAndActivate.bind(this), this.#options.cacheMaxAge + 1000)
+            this.#refreshTimer = setInterval(() => {
+                void this.fetchAndActivate().catch((error) => this.#handleBackgroundError(error))
+            }, this.#options.cacheMaxAge + 1000)
         }
     }
 
     destroy() {
+        this.#destroyed = true
+        this.#fetchAbortController?.abort()
+        this.#fetchAbortController = null
+
         if (this.#refreshTimer !== null) {
             clearInterval(this.#refreshTimer)
         }
         this.#refreshTimer = null
+    }
+
+    #handleBackgroundError(error: unknown): void {
+        if (!this.#destroyed) {
+            this.#app.logger.error(error as Error)
+        }
     }
 
     set defaultConfig(defaultConfig: RemoteConfigOptions<T>['defaultConfig']) {
@@ -145,61 +159,74 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
     }
 
     async fetchAndActivate(ignoreCache = false): Promise<void> {
-        const etag = this.#storage.get('etag')
+        if (this.#destroyed) {
+            throw new Error('RemoteConfig has been destroyed')
+        }
 
         if (!ignoreCache && this.isCacheValid) {
             this.emit('fetch')
-            return Promise.resolve()
+            return
         }
 
         if (this.#semaphoreFetch) {
             return this.#semaphoreFetch;
         }
 
-        let resolveSemaphore: ((value: void | PromiseLike<void>) => void) | null = null
-        this.#semaphoreFetch = new Promise((res) => { resolveSemaphore = res })
+        this.#semaphoreFetch = this.#fetchAndActivate()
+
+        try {
+            await this.#semaphoreFetch
+        } finally {
+            this.#semaphoreFetch = null
+            this.#fetchAbortController = null
+        }
+    }
+
+    async #fetchAndActivate(): Promise<void> {
+        const etag = this.#storage.get('etag')
 
         const installation = await this.#installations.getInstallation()
 
         const url = new URL(`${this.#baseURL}/:fetch`)
         url.searchParams.append('key', this.#app.credentials.apiKey)
 
-        let response: globalThis.Response
-        let status: number
-        let data: any
-        let responseHeaders: Record<string, string>
+        this.#fetchAbortController = new AbortController()
+        const signals = [this.#fetchAbortController.signal]
 
-        try {
-            response = await fetchWithRetry(url.toString(), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Encoding': 'gzip',
-                    'Accept-Encoding': 'gzip',
-                    'If-None-Match': etag || '*',
-                },
-                body: JSON.stringify({
-                    sdk_version: SDK_VERSION,
-                    app_instance_id: installation.fid,
-                    app_instance_id_token: installation.authToken,
-                    app_id: this.#app.credentials.appId,
-                    language_code: this.#options.languageCode,
-                }),
-            })
-
-            status = response.status
-            responseHeaders = {}
-            response.headers.forEach((value, key) => {
-                responseHeaders[key] = value
-            })
-            data = await response.json()
-        } catch (err: any) {
-            status = err.response?.status || 500
-            data = err.response?.data
-            responseHeaders = err.response?.headers || {}
+        if (this.#options.fetchTimeout) {
+            signals.push(AbortSignal.timeout(this.#options.fetchTimeout))
         }
 
-        const responseEtag = responseHeaders.etag || undefined
+        const response = await fetchWithRetry(url.toString(), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Encoding': 'gzip',
+                'Accept-Encoding': 'gzip',
+                'If-None-Match': etag || '*',
+            },
+            body: JSON.stringify({
+                sdk_version: SDK_VERSION,
+                app_instance_id: installation.fid,
+                app_instance_id_token: installation.authToken,
+                app_id: this.#app.credentials.appId,
+                language_code: this.#options.languageCode,
+            }),
+            signal: AbortSignal.any(signals),
+        })
+
+        let status = response.status
+        let data: any
+
+        if (status !== 304) {
+            try {
+                data = await response.json()
+            } catch {
+                data = undefined
+            }
+        }
+
+        const responseEtag = response.headers.get('etag') ?? undefined
 
         let config = data?.entries
 
@@ -237,12 +264,6 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
             default:
                 throw new Error(`Failed to fetch RemoteConfig status: ${status}`)
 
-        }
-
-        this.#semaphoreFetch = null
-
-        if (resolveSemaphore !== null) {
-            ;(resolveSemaphore as (value: void | PromiseLike<void>) => void)()
         }
     }
 }

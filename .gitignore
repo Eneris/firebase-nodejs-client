@@ -1,4 +1,6 @@
 dist
 node_modules
 example_private
+example/storage.json
 tsconfig.tsbuildinfo
+*.tgz

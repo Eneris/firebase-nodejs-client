@@ -76,7 +76,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         this.#config = {
             heartbeatIntervalMs: 5 * 60 * 1000, // 5 min
             maxRetryAttempts: this.#DEFAULT_MAX_RETRY_ATTEMPTS,
-            ...(config || {}),
+            ...config,
         }
 
         this.#storage = {
@@ -91,7 +91,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
     }
 
     get #lastPersistentIds(): string[] {
-        return this.#storage.get('last_persistent_ids')
+        return this.#storage.get('last_persistent_ids') ?? []
     }
 
     set #lastPersistentIds(data: string[]) {
@@ -137,21 +137,30 @@ export default class PushReceiver extends Emitter<ClientEvents> {
 
         try {
             this.#gcmData = await this.#gcm.getRegistration()
-            this.#fcmData = await this.#fcm.getRegistration()
+            this.#fcmData = await this.#fcm.getRegistration(this.#gcmData)
 
             this.#app.logger.debug('connect')
 
             this.#lastStreamIdReported = -1
 
-            this.#socket = new tls.TLSSocket(null as any)
+            this.#socket = tls.connect({
+                host: this.#HOST,
+                port: this.#PORT,
+                servername: this.#HOST,
+            })
             this.#socket.setKeepAlive(true)
-            this.#socket.on('connect', () => this.#handleSocketConnect())
+            this.#socket.on('secureConnect', () => this.#handleSocketConnect())
             this.#socket.on('close', () => this.#handleSocketClose())
             this.#socket.on('error', (err) => this.#handleSocketError(err))
-            this.#socket.connect({ host: this.#HOST, port: this.#PORT })
 
             this.#parser = new Parser(this.#app, this.#socket)
-            this.#parser.on('message', (data) => this.#handleMessage(data))
+            this.#parser.on('message', (data) => {
+                try {
+                    this.#handleMessage(data)
+                } catch (error) {
+                    this.#handleParserError(error)
+                }
+            })
             this.#parser.on('error', (err) => this.#handleParserError(err))
 
             await this.#sendLogin()
@@ -212,7 +221,6 @@ export default class PushReceiver extends Emitter<ClientEvents> {
     }
 
     #handleSocketConnect = (): void => {
-        this.#retryCount = 0
         this.emit('ON_CONNECT')
         this.#startHeartbeat()
     }
@@ -382,6 +390,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         switch (tag) {
             case MCSProtoTag.kLoginResponseTag:
                 // clear persistent ids, as we just sent them to the server while logging in
+                this.#retryCount = 0
                 this.#lastPersistentIds = []
                 this.emit('ON_READY')
                 this.#startHeartbeat()

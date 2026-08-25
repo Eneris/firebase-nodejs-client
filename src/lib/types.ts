@@ -1,25 +1,3 @@
-export interface StorageInterface<T = Record<string, any>> {
-    get<K extends keyof T>(key: K): T[K]
-    set<K extends keyof T>(key: K, value: T[K]): void
-}
-
-export interface Logger {
-    log: (...args: any[]) => void
-    debug: (...args: any[]) => void
-    warn: (...args: any[]) => void
-    error: (...args: any[]) => void
-}
-
-export interface InstallationEntry {
-    fid: string
-    refreshToken: string
-    authToken: {
-        token: string
-        creationTime: number
-        expiresIn: number
-    }
-}
-
 export interface InstallationData {
     token: string
     createdAt: number
@@ -36,7 +14,7 @@ export interface FcmData {
 
 export type PersistentId = string
 
-export type DisposeFunction = CallableFunction
+export type DisposeFunction = () => void
 
 // table 2b. - https://firebase.google.com/docs/cloud-messaging/http-server-ref
 export interface Notification {

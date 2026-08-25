@@ -8,6 +8,8 @@ Provides the Firebase installation id (FID) with its auth token and the `x-fireb
 - Creates new Installation if needed
 - Generates new token if current one is expired
 
-### `deleteInstalation`
+### `deleteInstallation`
 - Deletes current installation if exists
 - Used mostly for cleaning up the server data
+
+The legacy misspelling `deleteInstalation` remains as a deprecated alias.
