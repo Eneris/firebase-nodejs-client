@@ -32,6 +32,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
     readonly #PORT = 5228
     readonly #DEFAULT_MAX_RETRY_ATTEMPTS = 5
     readonly #RETRY_DELAY_SECONDS = 15
+    readonly #KEEP_ALIVE_DELAY_MS = 30_000
 
     #app: FirebaseApp
     #storage: StorageInterface<PushReceiverStorage>
@@ -148,7 +149,9 @@ export default class PushReceiver extends Emitter<ClientEvents> {
                 port: this.#PORT,
                 servername: this.#HOST,
             })
-            this.#socket.setKeepAlive(true)
+            // Without an explicit delay the OS default applies (7200s on Linux), so half-open
+            // connections dropped by NAT aging stay undetected for hours instead of ~a minute.
+            this.#socket.setKeepAlive(true, this.#KEEP_ALIVE_DELAY_MS)
             this.#socket.on('secureConnect', () => this.#handleSocketConnect())
             this.#socket.on('close', () => this.#handleSocketClose())
             this.#socket.on('error', (err) => this.#handleSocketError(err))
@@ -457,7 +460,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
                     // NOTE(ibash) Periodically we're unable to decrypt notifications. In
                     // all cases we've been able to receive future notifications using the
                     // same keys. So, we silently drop this notification.
-                    this.#app.logger.warn('Message dropped as it could not be decrypted: ' + msg)
+                    this.#app.logger.debug('Message dropped as it could not be decrypted: ' + msg)
                     return
                 default:
                     throw error
