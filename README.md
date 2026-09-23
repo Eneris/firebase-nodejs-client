@@ -41,6 +41,7 @@ Will add more parts based on my project needs or upon request.
 | [`Installations`](wiki/Installations.md) | Firebase Installations (FID + auth token) and heartbeat header |
 | [`InstallationsRequestError`](wiki/Installations.md#errors) | Thrown by `Installations` methods on a non-ok FIS response, carries `status` |
 | [`RemoteConfig`](wiki/RemoteConfig.md) | Remote config fetch/activate with auto refresh (also the default export) |
+| [`Value`](wiki/Value.md) | Remote config value returned by `getValue`/`getAll`, with typed getters |
 | [`Analytics`](wiki/Analytics.md) | GA4 event logging through the `g/collect` endpoint |
 | [`PushReceiver`](wiki/PushReceiver.md) | Persistent MCS/FCM connection receiving push notifications |
 | [`PushSender`](wiki/PushSender.md) | Sending push notifications via the FCM HTTP v1 API |
