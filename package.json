@@ -1,6 +1,6 @@
 {
   "name": "@eneris/firebase-nodejs-client",
-  "version": "0.3.2",
+  "version": "1.0.0-push-receiver",
   "description": "Firebase NodeJS client",
   "author": "Eneris<eneris.cz@gmail.com>",
   "homepage": "https://github.com/Eneris/firebase-nodejs-client",
@@ -9,17 +9,32 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
+    "src",
+    "wiki",
     "package*",
-    "*.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/eneris/firebase-nodejs-client.git"
   },
+  "bugs": {
+    "url": "https://github.com/Eneris/firebase-nodejs-client/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "node",
     "firebase",
-    "remote-config"
+    "remote-config",
+    "analytics",
+    "cloud-messaging",
+    "fcm",
+    "gcm",
+    "push-notifications",
+    "push-receiver"
   ],
   "scripts": {
     "prepack": "yarn build",
