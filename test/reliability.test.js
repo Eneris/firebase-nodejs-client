@@ -18,6 +18,7 @@ const {
     PushReceiverLegacy,
     PushSender,
     RemoteConfig,
+    Value,
 } = require('../dist')
 const Parser = require('../dist/lib/parser').default
 const request = require('../dist/utils/request').default
@@ -924,5 +925,15 @@ test('release reliability regressions', async (t) => {
             0x80,
         ]))
         assert.ok(malformedError instanceof Error)
+    })
+
+    await t.test('Value.asConverted converts booleans, numbers, JSON and keeps empty strings', () => {
+        assert.equal(new Value('remote', 'true').asConverted(), true)
+        assert.equal(new Value('remote', 'false').asConverted(), false)
+        assert.equal(new Value('remote', '42').asConverted(), 42)
+        assert.deepEqual(new Value('remote', '{"a":1}').asConverted(), { a: 1 })
+        assert.equal(new Value('remote', 'text').asConverted(), 'text')
+        assert.equal(new Value('remote', '').asConverted(), '')
+        assert.equal(new Value('static').asConverted(), '')
     })
 })

@@ -23,6 +23,7 @@
  - GCM register retries are no longer reported as warnings: Google answers `PHONE_REGISTRATION_ERROR` for the first few attempts routinely, so a failed attempt is logged at debug level and only an exhausted retry budget throws, with the last server response included in the error
  - A cached FCM registration whose installation is gone (cleared or replaced) is now re-registered, instead of serving a token bound to an installation that no longer exists
  - Reworked the `fetch` retry policy: a rejected request retries until it succeeds, so a request made while offline completes once connectivity returns, while 429 and 5xx are bounded at 3 retries. The backoff doubles per attempt up to 10 minutes. `fetch-retry` ignores its own `retries` option when `retryOn` is a function, so the previous bound never applied and a persistent failure could retry forever
+ - Fixed `Value.asConverted` (and so `RemoteConfig.getAllConverted`) returning `true` for `'false'`, and converting an empty value to `0` instead of keeping it an empty string
  - Exported `Value` from the package root
 
 ## 0.4.0

@@ -73,7 +73,12 @@ export default class Value {
         }
 
         if (['true', 'false'].includes(this._value)) {
-            return Boolean(this._value)
+            return this._value === 'true'
+        }
+
+        // Number('') is 0, keep empty values as strings
+        if (this._value.trim() === '') {
+            return this._value
         }
 
         const asNumber = Number(this._value)
