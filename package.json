@@ -23,7 +23,8 @@
   ],
   "scripts": {
     "prepack": "yarn build",
-    "build": "yarn clean && yarn tsc --incremental",
+    "protobuf": "pbjs -t static-module -w commonjs -o src/protobuf/protos.js src/protobuf/*.proto && pbts -o src/protobuf/protos.d.ts src/protobuf/protos.js",
+    "build": "yarn clean && yarn protobuf && yarn tsc --incremental && mkdir -p dist/protobuf && cp src/protobuf/protos.js src/protobuf/protos.d.ts dist/protobuf/",
     "lint": "yarn eslint src",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "precommit": "yarn lint && yarn build"

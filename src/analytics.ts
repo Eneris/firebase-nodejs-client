@@ -148,7 +148,7 @@ export default class AnalyticsClient {
 
         // ── Base params (identical to what gtag.js sends) ──
         p.set('v', '2')
-        p.set('tid', this.#app.credentials.measurementId)
+        p.set('tid', this.#app.credentials.measurementId!)
         p.set('cid', clientId)
         p.set('_fid', fid)
         // Random page-load hash — gtag generates this once per page load
