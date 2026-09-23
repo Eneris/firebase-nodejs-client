@@ -3,6 +3,7 @@ import Installations, { InstallationsRequestError } from './installations'
 import RemoteConfig from './remoteConfig'
 import Analytics from './analytics'
 import PushReceiver from './pushReceiver'
+import PushReceiverLegacy from './pushReceiverLegacy'
 
 export default RemoteConfig;
 
@@ -13,4 +14,5 @@ export {
     RemoteConfig,
     Analytics,
     PushReceiver,
+    PushReceiverLegacy,
 }
