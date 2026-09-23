@@ -12,7 +12,9 @@ if (fs.existsSync(storageFileName)) {
 }
 
 const app = new FirebaseApp({
-    credentials: { /* CREDENTIALS HERE */ },
+    credentials: {
+        // Insert Firebase config here
+    },
     storage: {
         get: (key) => store[key],
         set: (key, value) => {

@@ -2,13 +2,17 @@
     "compilerOptions": {
         "rootDir": "src",
         "declaration": true,
+        "declarationMap": true,
         "outDir": "dist",
         "module": "CommonJS",
         "target": "ESNext",
-        "moduleResolution": "node",
+        "types": ["node"],
         "sourceMap": true,
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true
     },
     "exclude": [
         "dist"
