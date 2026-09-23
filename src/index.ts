@@ -4,6 +4,7 @@ import RemoteConfig from './remoteConfig'
 import Analytics from './analytics'
 import PushReceiver from './pushReceiver'
 import PushReceiverLegacy from './pushReceiverLegacy'
+import PushSender from './pushSender'
 
 export default RemoteConfig;
 
@@ -15,4 +16,5 @@ export {
     Analytics,
     PushReceiver,
     PushReceiverLegacy,
+    PushSender,
 }
