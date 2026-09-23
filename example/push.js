@@ -20,10 +20,6 @@ const main = async () => {
         credentials: {
             // Insert Firebase config here
         },
-        config: {
-            bundleId: 'receiver.push.com',
-            vapidKey: '',
-        },
         storage,
         crypto,
     });

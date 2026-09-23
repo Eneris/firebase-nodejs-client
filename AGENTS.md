@@ -1,0 +1,248 @@
+# AGENTS.md
+
+Guidance for an AI agent making changes in this repository. For user-facing docs see
+[`README.md`](README.md); for per-class API reference see [`wiki/`](wiki). This file covers
+what those don't: layout, conventions, and the design decisions that are expensive to
+rediscover from the diff alone.
+
+## What this is
+
+A Firebase client meant to run in any JavaScript environment, not just a browser or
+Node.js-as-admin. The constraint that shapes every module: there are no browser globals to
+lean on. Storage, logging and crypto are all supplied by the consumer through `FirebaseApp`
+(see [`wiki/FirebaseApp.md`](wiki/FirebaseApp.md)), and every module namespaces its own keys
+inside that one storage instance so several modules — or several apps — can share it.
+
+## Commands
+
+- `yarn lint` — ESLint over `src/` (flat config in `eslint.config.js`).
+- `yarn build` — cleans `dist/` and `tsconfig.tsbuildinfo`, regenerates the protobuf JS/typings
+  (`yarn protobuf`), then runs `tsc` and copies the protobuf output into `dist/protobuf`.
+- `yarn protobuf` — regenerates `src/protobuf/protos.js` and `protos.d.ts` from the `.proto`
+  files. Run this (via `yarn build`) after touching any `src/protobuf/*.proto` file.
+- `yarn test` — **runs `yarn build` first**, then `node --test test/*.test.js`. The suite is
+  plain `node:test`, currently a single file, `test/reliability.test.js`. It requires against
+  `../dist`, so it exercises compiled output, not `src/` directly — a source-only edit that
+  isn't built is invisible to the tests. The test file installs a module-level `fetchHandler`
+  variable and overrides `global.fetch` once at load time to call it, so individual tests swap
+  behaviour by reassigning `fetchHandler`, not by re-mocking `fetch`.
+- `yarn precommit` — `yarn lint && yarn test`. Run this before considering a change done.
+- `yarn npm publish --tag experimental` — publishes the package. Yarn 4 ignores
+  `publishConfig.tag` from `package.json` (verified: `yarn npm publish --dry-run` printed
+  "with tag latest" despite `publishConfig.tag: "experimental"` being set), so the tag has to
+  be passed explicitly on the command line. Run `yarn npm publish --dry-run` first to inspect
+  the file list that will actually be published.
+
+## Layout
+
+- `src/app.ts` — `FirebaseApp`, the shared instance every other class takes as its first
+  dependency. Holds `credentials`, `storage` (wrapped to prefix every key with `credentials.appId`),
+  `logger` (defaults to `console`) and `crypto` (defaults to `globalThis.crypto`). Also
+  exports `assertRequiredProperties()`, see Conventions.
+- `src/installations.ts` — Firebase Installations (FID + auth token) and the heartbeat cache/
+  header used by other requests. See Invariants below; this is the module with the most
+  non-obvious behaviour in the codebase.
+- `src/remoteConfig.ts` — Remote Config fetch/activate, cached in storage with an `etag`,
+  refreshed on an interval, one in-flight fetch shared via a semaphore promise.
+- `src/analytics.ts` — GA4 event logging through the same `g/collect` endpoint `gtag.js` uses.
+- `src/pushReceiver.ts` — `PushReceiver`: composes `lib/gcm.ts` + `lib/fcm.ts` for registration,
+  then owns the persistent MCS TLS connection (login, heartbeat, retry/backoff, message
+  decryption via `utils/decrypt.ts`, persistent-id dedup) using `lib/parser.ts` to frame
+  incoming bytes and `protobuf/` for the wire messages.
+- `src/pushReceiverLegacy.ts` — `PushReceiver` (exported as `PushReceiverLegacy` from
+  `index.ts`) wrapped with the flat config/credentials shape of `@eneris/push-receiver`. See
+  Invariants below for the storage adapter it injects.
+- `src/pushSender.ts` — sends via the FCM HTTP v1 API using a service account JWT; independent
+  of every other module (no `FirebaseApp`, no Installations).
+- `src/lib/gcm.ts` — GCM checkin + registration (`android.clients.google.com`). Produces the
+  `androidId`/`securityToken`/`token` that MCS login and FCM registration both depend on.
+- `src/lib/fcm.ts` — FCM web-push registration (create/update/delete against
+  `fcmregistrations.googleapis.com`), keyed off a GCM registration and a Firebase Installation.
+  See Invariants below for `installationFid` stamping.
+- `src/lib/parser.ts` — turns raw MCS TLS bytes into tagged protobuf messages (`Parser`),
+  mirroring Chromium's `WaitForData` state machine (see the comment at the top of the file for
+  what deliberately differs).
+- `src/utils/` — `fetch.ts` (retry policy for fetch-based calls, see Invariants), `request.ts`
+  (an older, separate linear-retry helper used only by the GCM checkin/registration and
+  `PushSender` paths, which still use plain `fetch` directly), `decrypt.ts` (web push
+  aesgcm decryption), `base64.ts`, `value.ts` (`Value`, used by `RemoteConfig.getValue`/`getAll`),
+  `constants.ts` (MCS/GCM protocol enums), `defer.ts`, `timeout.ts`.
+- `src/protobuf/` — `.proto` sources plus generated `protos.js`/`protos.d.ts` (regenerated by
+  `yarn protobuf`, do not hand-edit) and `index.ts`, which wires up `Long` for protobufjs.
+
+## Conventions
+
+- Four-space indentation, no semicolons (see any `src/*.ts` file for the prevailing style).
+- Private state uses real private `#` fields, not TypeScript's `private` keyword, except for
+  a few pre-existing `private` methods left as-is.
+- Every class that takes `FirebaseApp` (or another dependency object) calls
+  `assertRequiredProperties()` (from `src/app.ts`) at construction, listing every
+  `app.*`-rooted property path the class actually reads (e.g. `'credentials.apiKey'`,
+  `'storage.get'`, `'logger.warn'`). Keep this list in sync when you add or remove a use of
+  `app.*` inside the class — it's the only thing that turns a missing dependency into a clear
+  constructor-time error instead of a runtime `undefined` crash deep in a request.
+- Storage access is never ad hoc: each class builds a small local `#storage` object in its
+  constructor that namespaces every key under its own prefix (`` `installations.${key}` ``,
+  `` `fcm.${key}` ``, …) and delegates to `app.storage.get`/`set`. Add new persisted fields
+  through that wrapper, not by calling `app.storage` directly.
+- Defaults are applied once, in the constructor of the class that owns the concept (push
+  config, for example, is owned by `PushReceiver`, not `FirebaseApp`), by spreading the
+  matching `DEFAULT_*` constants from `utils/constants.ts` under the caller's options.
+  Dependents (`GCM`, `FCM`) take the already-resolved object as a constructor parameter,
+  assert it themselves, and read it with `!`. There is no `??` fallback at a read site.
+- Comments explain *why*, not *what*. Keep it that way — see the next section for what "why"
+  is worth knowing here that isn't in the diff.
+
+## Design decisions and invariants
+
+These are the parts of the design that cost real time to reconstruct from the code alone.
+Read this section before touching `installations.ts`, `lib/fcm.ts`, `utils/fetch.ts` or
+`pushReceiverLegacy.ts`.
+
+### Firebase Installations failure policy (`src/installations.ts`)
+
+`getInstallation()` has to decide, on every call, whether to serve the stored auth token,
+refresh it, or throw — while never losing a working FID/refresh token to a request that
+merely failed. The policy:
+
+- **Refresh margin.** A stored token is treated as expired `INSTALLATION_REFRESH_MARGIN`
+  (one hour) before it actually expires, so a refresh always has headroom before the real
+  deadline.
+- **Authoritative invalidity.** Only a `401` or `404` from the refresh (auth token generate)
+  request means "FIS no longer knows this installation" (`isInstallationInvalid()` /
+  `InstallationsRequestError.status`). Every other failure — network error, timeout, `429`,
+  `5xx`, `400`, `403`, or a response body that fails `parseAuthTokenResponse()` — is treated
+  as transient and must never discard stored credentials.
+- **Self-heal without data loss.** On an authoritative 401/404, `#getInstallation()` requests
+  a brand new installation (`#requestNewInstallation()`) and only overwrites storage
+  (`#create({ replace: true })`) once that request succeeds. `#requestNewInstallation()`
+  itself never reads or writes storage, so a failed replacement can never discard a working
+  FID or refresh token — the old entry is still there to retry with next time.
+- **Serve-stale-while-usable.** On a transient failure, the stored token is still returned as
+  long as it is "genuinely usable" (`#isUsableNow()`, expiry margin
+  `INSTALLATION_MIN_USABLE_MS`, one minute) — long enough to outlive the request about to use
+  it. Only once the token is within a minute of (or past) its real expiry does the transient
+  failure get rethrown to the caller.
+- **Refresh cool-down.** A failed refresh starts a 60 second cool-down
+  (`INSTALLATION_REFRESH_COOLDOWN_MS`, per `FirebaseApp` instance, in-memory only). While on
+  cool-down *and* the stored token is still usable, `#getInstallation()` skips the network
+  call entirely instead of paying the full `fetchWithRetry` backoff again.
+- **Backwards-clock guard.** `isInstallationExpired()` also treats an entry as expired if its
+  remaining lifetime is *implausibly long* — more than `MAX_INSTALLATION_LIFETIME` (7 days,
+  the real FIS token lifetime) past the refresh margin. FIS tokens can't legitimately outlive
+  a fresh token by that much, so a value like that means the system clock moved backwards or
+  the entry came from a restored backup; the fix is to refresh and let FIS overwrite
+  `expiresAt` with a sane value, using the constant margin regardless of how the caller was
+  invoked — a bogus entry is bogus at any margin.
+
+### FCM registration is bound to an installation FID (`src/lib/fcm.ts`)
+
+Every `FcmData` created or renewed by `#register()`/`#refreshRegistration()` is stamped with
+`installationFid`, the FID it was created under. On every subsequent `getRegistration()` call,
+`#refreshRegistration()` compares that stamp against `installations.storedFid` *before* doing
+anything else:
+
+- A **mismatch** — including a stored installation that no longer exists at all — means FIS
+  replaced or deleted the installation this registration belongs to (self-heal on a
+  rejected FID, or an explicit `deleteInstallation()`). The old registration is dead
+  server-side, so `#refreshRegistration()` re-registers from scratch rather than trying to
+  patch or delete the stale one. A missing stored FID counts as a mismatch too — otherwise a
+  deleted installation would keep being served from the zero-I/O steady-state path until the
+  7 day renewal check finally caught it.
+- A **missing stamp** on the stored registration (only possible via
+  `pushReceiverLegacy.ts`'s `LegacyStorageAdapter#getCurrentFcmRegistration()`, which has no
+  FID to supply) means "adopt the current FID without re-registering" — so a consumer
+  upgrading from `@eneris/push-receiver` doesn't have every existing FCM token rotate on
+  upgrade.
+
+`#refreshRegistration()` fetches the installation (`this.#app.installations.getInstallation()`)
+**only inside the branches that actually issue a request** (the subscription-options-changed
+branch and the token-renewal branch) — deliberately not once up front. This means a cached,
+already-valid registration lets `PushReceiver.connect()` succeed even while Firebase
+Installations itself is down. Do not hoist that call back to the top of the function.
+
+### `src/utils/fetch.ts` retry policy
+
+`fetch-retry`'s own `retries` option is silently ignored whenever `retryOn` is a function
+(only the array form of `retryOn` enforces it) — this library always passes a function, so
+every bound has to be applied by hand inside that function:
+
+- A **rejected** request (network error, or a malformed request, which `fetch` also rejects
+  with a `TypeError` and which is indistinguishable from a real network failure here) retries
+  **unbounded**, with exponential backoff capped at `MAX_RETRY_DELAY_MS` (10 minutes). This is
+  deliberate: an offline machine can stay offline for a while, and the request should complete
+  once connectivity returns rather than fail permanently.
+- A **429 or 5xx** response stops retrying after `HTTP_RETRIES` (3) attempts, so the caller
+  actually gets an answer and its own failure handling (see the Installations policy above)
+  runs instead of hanging forever behind an unbounded retry.
+
+`src/utils/request.ts` is a separate, older, linear-retry helper (fixed step, fixed max
+retries) used only by the GCM checkin/registration path (`lib/gcm.ts`) and `PushSender`. It
+was not folded into `fetchWithRetry`; don't assume the two share behaviour.
+
+### `src/pushReceiverLegacy.ts` is a compatibility shim
+
+It exists to let `@eneris/push-receiver` consumers switch without migrating their stored
+credentials shape. Its `LegacyStorageAdapter` implements the current `StorageInterface` but
+backs it with the old flat `Credentials` object: every read/write of
+`installations.installation` and `fcm.registration` is intercepted and translated field by
+field into/out of the legacy shape (`legacyInstallationToCurrent`/`currentInstallationToLegacy`,
+`LegacyStorageAdapter#getCurrentFcmRegistration()`/`currentFcmToLegacy`). Two consequences
+that are easy to miss:
+
+- Any **new optional field** added to `FcmData` (`src/lib/fcm.ts`) is silently dropped when it
+  passes through this adapter, because the translation is done field by field, not by passing
+  the object through. If a new field's absence changes behaviour (the way a missing
+  `installationFid` does, see above), that behaviour has to hold up under this shim too.
+- Anything written to `installations.installation` or `fcm.registration` must tolerate being
+  cleared (`undefined`): `deleteInstallation()` in `installations.ts` writes `undefined` to
+  clear the entry, and `#setInstallation()` here has to accept that without trying to shove
+  `undefined` into the legacy `InstallationData` shape.
+
+### MCS delivery does not depend on Firebase Installations
+
+`PushReceiver`'s persistent MCS connection (`connect()`, login, heartbeat) depends only on GCM
+checkin/registration (`lib/gcm.ts`, `androidId`/`securityToken`), never on Firebase
+Installations. FIS only comes into play through `lib/fcm.ts`'s registration flow. A FIS outage
+can therefore still allow a message-receiving connection to work (see the `refreshRegistration`
+short-circuit above) — don't introduce a dependency from the MCS/login path back onto
+`installations.getInstallation()`.
+
+## Vendor parity
+
+Large parts of `installations.ts` and `utils/fetch.ts` intentionally mirror
+[`firebase-js-sdk`](https://github.com/firebase/firebase-js-sdk). Where the mirroring is close
+enough to matter, the code carries a `Source:` URL at the point of use; this table collects
+them along with the one thing worth knowing about each: what's mirrored, and where this
+library deliberately deviates.
+
+| Area | Upstream source | Mirrors | Deviates |
+|---|---|---|---|
+| Heartbeat limits, payload version (`BUILD_TARGET`, `MAX_HEADER_BYTES`, `MAX_NUM_STORED_HEARTBEATS`, `HEARTBEAT_VERSION`) | [`packages/app/src/heartbeatService.ts`](https://github.com/firebase/firebase-js-sdk/blob/main/packages/app/src/heartbeatService.ts) | Constants and cache/header algorithm (`trigger`, `getHeader`, `extractHeartbeatsForHeader`, `countBytes`, `getEarliestHeartbeatIdx`, UTC date key) | Backed by this library's `storage` abstraction instead of IndexedDB |
+| Platform logger string (`HEARTBEAT_AGENT`) | [`registerCoreComponents.ts`](https://github.com/firebase/firebase-js-sdk/blob/main/packages/app/src/registerCoreComponents.ts), [`platformLoggerService.ts`](https://github.com/firebase/firebase-js-sdk/blob/main/packages/app/src/platformLoggerService.ts) | The `fire-*/version` token format | Hand-built Node/CommonJS approximation, **not** a verbatim upstream literal |
+| Heartbeat cache shape (`HeartbeatCacheEntry`) | [`packages/app/src/types.ts`](https://github.com/firebase/firebase-js-sdk/blob/main/packages/app/src/types.ts) | Persisted shape (`lastSentHeartbeatDate`, `heartbeats`) | Stored via `app.storage`, not IndexedDB |
+| Authoritative-invalidity signal (`InstallationsRequestError`, `isInstallationInvalid`) | [`functions/common.ts`](https://github.com/firebase/firebase-js-sdk/blob/main/packages/installations/src/functions/common.ts), [`helpers/refresh-auth-token.ts`](https://github.com/firebase/firebase-js-sdk/blob/main/packages/installations/src/helpers/refresh-auth-token.ts) | 401/404 → installation gone, everything else transient | Self-heal (create the replacement) happens inline in the same `getInstallation()` call instead of being deferred to the next call |
+| `x-firebase-client` heartbeat header attachment | [`create-installation-request.ts`](https://github.com/firebase/firebase-js-sdk/blob/main/packages/installations/src/functions/create-installation-request.ts), [`generate-auth-token-request.ts`](https://github.com/firebase/firebase-js-sdk/blob/main/packages/installations/src/functions/generate-auth-token-request.ts) | Attached on create + refresh, not on delete | — |
+| Empty/omitted `fid` handling on create | [`create-installation-request.ts`](https://github.com/firebase/firebase-js-sdk/blob/main/packages/installations/src/functions/create-installation-request.ts) | Server allocates a FID when the request's is omitted/empty; the requested FID is kept if the response doesn't echo one | This library additionally validates the response (`expiresIn` parsing, non-empty `fid`/`refreshToken`/token) and rejects an unusable body instead of storing it |
+| `fetch-retry`'s `retryOn`-as-function bypasses its own `retries` option | [`fetch-retry` source](https://github.com/JustinBeckwith/fetch-retry), `node_modules/fetch-retry/index.js` | — (this is a `fetch-retry` behaviour note, not a firebase-js-sdk one) | Bounds applied by hand: unbounded retry on network error, 3 retries on 429/5xx (upstream `firebase-js-sdk`'s own retry logic is not mirrored here at all) |
+
+The general deviations worth remembering across all of the above: this library validates
+`expiresIn` and response bodies more strictly than upstream, self-heals inside the same call
+rather than waiting for the next one, and lets network-error retries run unbounded rather than
+capping them like the HTTP-status retries.
+
+## Known traps
+
+- **Tests run against `dist/`.** `test/reliability.test.js` does `require('../dist')`; a
+  source change with no rebuild is invisible to `yarn test` (this is why `yarn test` runs
+  `yarn build` first — don't try to skip that when iterating).
+- **`deleteInstallation()` writes `undefined`.** It clears the stored key by setting it to
+  `undefined`, not by removing it — any consumer-supplied storage `set()` implementation must
+  tolerate being called with an `undefined` value.
+- **The unbounded network retry in `utils/fetch.ts` has no abort path.** `destroy()` (e.g. on
+  `RemoteConfig` or `PushReceiver`) does not cancel an in-flight request stuck in that retry
+  loop, and the pending retry timer keeps the event loop alive until the request eventually
+  settles.
+- **`src/index.ts` re-exports matter for `instanceof`.** Anything a consumer needs to run an
+  `instanceof` check against (e.g. `InstallationsRequestError`) must be re-exported from
+  `src/index.ts`, not just from the module that defines it.

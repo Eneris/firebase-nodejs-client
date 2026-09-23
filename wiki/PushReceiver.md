@@ -60,7 +60,6 @@ const { FirebaseApp, PushReceiver } = require('@eneris/firebase-nodejs-client')
 
 const app = new FirebaseApp({
     credentials: { /* CREDENTIALS HERE */ },
-    config: { bundleId: 'receiver.push.com', vapidKey: '' },
     storage,
     crypto,
 })

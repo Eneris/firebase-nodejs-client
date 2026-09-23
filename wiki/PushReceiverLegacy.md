@@ -10,12 +10,15 @@ const client = new PushReceiverLegacy({
     firebase: { projectId, appId, apiKey, messagingSenderId },
     credentials,        // previously persisted credentials, optional
     persistentIds: [],  // ids of already received messages
-    bundleId: 'receiver.push.com',
-    chromeId: 'org.chromium.linux',
-    chromeVersion: '94.0.4606.51',
-    timeZone: 'Europe/Prague',
-    vapidKey: '',
+    bundleId: undefined, // 'receiver.push.com',
+    chromeId: undefined, // 'org.chromium.linux',
+    chromePlatform: undefined,  // 1 = Windows, 2 = Darwin, 3 = Linux, 4 = Cros, 5 = iOS
+    chromeChannel: undefined,   // 1 = stable, 2 = beta, 3 = dev, 4 = canary, 5 = unknown
+    chromeVersion: undefined, // '148.0.7778.271',
+    timeZone: undefined, // 'Europe/Prague',
+    vapidKey: undefined,
     heartbeatIntervalMs: 5 * 60 * 1000,
+    maxRetryAttempts: 0,  // optional, defaults to 0; non-positive value disables the limit
     debug: false,
 })
 ```
