@@ -62,7 +62,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         return this.#fcmData?.registration.token
     }
 
-    constructor(app: FirebaseApp, options: Types.PushReceiverOptions = {}) {
+    constructor(app: FirebaseApp, config: Types.PushConfig, options: Types.PushReceiverOptions = {}) {
         super()
 
         assertRequiredProperties(app, [
@@ -77,21 +77,22 @@ export default class PushReceiver extends Emitter<ClientEvents> {
 
         this.#app = app
 
-        const { config, ...restOptions } = options
-
         this.#options = {
             heartbeatIntervalMs: DEFAULT_HEARTBEAT_INTERVAL_MS,
             maxRetryAttempts: this.#DEFAULT_MAX_RETRY_ATTEMPTS,
-            ...restOptions,
+            ...options,
         }
 
         const pushConfig: Types.PushConfig = {
-            bundleId: DEFAULT_BUNDLE_ID, chromeId: DEFAULT_CHROME_ID,
-            chromePlatform: DEFAULT_CHROME_PLATFORM, chromeChannel: DEFAULT_CHROME_CHANNEL,
-            chromeVersion: DEFAULT_CHROME_VERSION, timeZone: DEFAULT_TIME_ZONE, vapidKey: DEFAULT_VAPID_KEY,
+            bundleId: DEFAULT_BUNDLE_ID,
+            chromeId: DEFAULT_CHROME_ID,
+            chromePlatform: DEFAULT_CHROME_PLATFORM,
+            chromeChannel: DEFAULT_CHROME_CHANNEL,
+            chromeVersion: DEFAULT_CHROME_VERSION,
+            timeZone: DEFAULT_TIME_ZONE,
             ...config,
+            vapidKey: config.vapidKey ?? DEFAULT_VAPID_KEY,
         }
-        pushConfig.vapidKey ??= DEFAULT_VAPID_KEY
 
         assertRequiredProperties(pushConfig, [
             'bundleId', 'chromeId', 'chromePlatform', 'chromeChannel', 'chromeVersion', 'timeZone', 'vapidKey',

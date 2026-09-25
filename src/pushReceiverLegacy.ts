@@ -379,8 +379,7 @@ class PushReceiver extends PushReceiverRaw {
             vapidKey: normalizedConfig.vapidKey || DEFAULT_VAPID_KEY,
         }
 
-        super(app, {
-            config: pushConfig,
+        super(app, pushConfig, {
             heartbeatIntervalMs: normalizedConfig.heartbeatIntervalMs,
             maxRetryAttempts: normalizedConfig.maxRetryAttempts ?? 0,
         })
