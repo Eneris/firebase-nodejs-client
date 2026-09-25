@@ -1,10 +1,11 @@
-/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
+/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-mixed-operators, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars, default-case, jsdoc/require-param*/
 "use strict";
 
 var $protobuf = require("protobufjs/minimal");
 
 // Common aliases
 var $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
+var $Object = $util.global.Object, $undefined = $util.global.undefined, $Error = $util.global.Error, $RangeError = $util.global.RangeError, $TypeError = $util.global.TypeError, $String = $util.global.String, $parseInt = $util.global.parseInt, $Number = $util.global.Number, $BigInt = $util.global.BigInt, $Array = $util.global.Array, $Boolean = $util.global.Boolean;
 
 // Exported root namespace
 var $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});
@@ -22,27 +23,40 @@ $root.checkin_proto = (function() {
 
         /**
          * Properties of a ChromeBuildProto.
-         * @memberof checkin_proto
-         * @interface IChromeBuildProto
+         * @typedef {Object} checkin_proto.ChromeBuildProto.$Properties
          * @property {checkin_proto.ChromeBuildProto.Platform|null} [platform] ChromeBuildProto platform
          * @property {string|null} [chromeVersion] ChromeBuildProto chromeVersion
          * @property {checkin_proto.ChromeBuildProto.Channel|null} [channel] ChromeBuildProto channel
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a ChromeBuildProto.
+         * @memberof checkin_proto
+         * @interface IChromeBuildProto
+         * @augments checkin_proto.ChromeBuildProto.$Properties
+         * @deprecated Use checkin_proto.ChromeBuildProto.$Properties instead.
+         */
+
+        /**
+         * Shape of a ChromeBuildProto.
+         * @typedef {checkin_proto.ChromeBuildProto.$Properties} checkin_proto.ChromeBuildProto.$Shape
          */
 
         /**
          * Constructs a new ChromeBuildProto.
          * @memberof checkin_proto
          * @classdesc Represents a ChromeBuildProto.
-         * @implements IChromeBuildProto
          * @constructor
-         * @param {checkin_proto.IChromeBuildProto=} [properties] Properties to set
+         * @param {checkin_proto.ChromeBuildProto.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function ChromeBuildProto(properties) {
+        var ChromeBuildProto = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * ChromeBuildProto platform.
@@ -73,10 +87,14 @@ $root.checkin_proto = (function() {
          * @function create
          * @memberof checkin_proto.ChromeBuildProto
          * @static
-         * @param {checkin_proto.IChromeBuildProto=} [properties] Properties to set
+         * @param {checkin_proto.ChromeBuildProto.$Properties=} [properties] Properties to set
          * @returns {checkin_proto.ChromeBuildProto} ChromeBuildProto instance
+         * @type {{
+         *   (properties: checkin_proto.ChromeBuildProto.$Shape): checkin_proto.ChromeBuildProto & checkin_proto.ChromeBuildProto.$Shape;
+         *   (properties?: checkin_proto.ChromeBuildProto.$Properties): checkin_proto.ChromeBuildProto;
+         * }}
          */
-        ChromeBuildProto.create = function create(properties) {
+        ChromeBuildProto.create = function(properties) {
             return new ChromeBuildProto(properties);
         };
 
@@ -85,19 +103,26 @@ $root.checkin_proto = (function() {
          * @function encode
          * @memberof checkin_proto.ChromeBuildProto
          * @static
-         * @param {checkin_proto.IChromeBuildProto} message ChromeBuildProto message or plain object to encode
+         * @param {checkin_proto.ChromeBuildProto.$Properties} message ChromeBuildProto message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        ChromeBuildProto.encode = function encode(message, writer) {
+        ChromeBuildProto.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.platform != null && Object.hasOwnProperty.call(message, "platform"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
+            if (message.platform != null && $Object.hasOwnProperty.call(message, "platform"))
                 writer.uint32(/* id 1, wireType 0 =*/8).int32(message.platform);
-            if (message.chromeVersion != null && Object.hasOwnProperty.call(message, "chromeVersion"))
+            if (message.chromeVersion != null && $Object.hasOwnProperty.call(message, "chromeVersion"))
                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.chromeVersion);
-            if (message.channel != null && Object.hasOwnProperty.call(message, "channel"))
+            if (message.channel != null && $Object.hasOwnProperty.call(message, "channel"))
                 writer.uint32(/* id 3, wireType 0 =*/24).int32(message.channel);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -106,12 +131,12 @@ $root.checkin_proto = (function() {
          * @function encodeDelimited
          * @memberof checkin_proto.ChromeBuildProto
          * @static
-         * @param {checkin_proto.IChromeBuildProto} message ChromeBuildProto message or plain object to encode
+         * @param {checkin_proto.ChromeBuildProto.$Properties} message ChromeBuildProto message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        ChromeBuildProto.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        ChromeBuildProto.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -121,36 +146,81 @@ $root.checkin_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {checkin_proto.ChromeBuildProto} ChromeBuildProto
+         * @returns {checkin_proto.ChromeBuildProto & checkin_proto.ChromeBuildProto.$Shape} ChromeBuildProto
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        ChromeBuildProto.decode = function decode(reader, length, error) {
+        ChromeBuildProto.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.checkin_proto.ChromeBuildProto();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message, value;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.checkin_proto.ChromeBuildProto();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.platform = reader.int32();
-                        break;
-                    }
-                case 2: {
-                        message.chromeVersion = reader.string();
-                        break;
-                    }
-                case 3: {
-                        message.channel = reader.int32();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 0)
+                            break;
+                        value = reader.int32();
+                        if ($root.checkin_proto.ChromeBuildProto.Platform[value] !== $undefined)
+                            message.platform = value;
+                        else if (!reader.discardUnknown) {
+                            $util.makeProp(message, "$unknowns", false);
+                            (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                        }
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 2)
+                            break;
+                        message.chromeVersion = reader.string();
+                        continue;
+                    }
+                case 3: {
+                        if (wireType !== 0)
+                            break;
+                        value = reader.int32();
+                        if ($root.checkin_proto.ChromeBuildProto.Channel[value] !== $undefined)
+                            message.channel = value;
+                        else if (!reader.discardUnknown) {
+                            $util.makeProp(message, "$unknowns", false);
+                            (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                        }
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
             return message;
         };
 
@@ -160,11 +230,11 @@ $root.checkin_proto = (function() {
          * @memberof checkin_proto.ChromeBuildProto
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {checkin_proto.ChromeBuildProto} ChromeBuildProto
+         * @returns {checkin_proto.ChromeBuildProto & checkin_proto.ChromeBuildProto.$Shape} ChromeBuildProto
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        ChromeBuildProto.decodeDelimited = function decodeDelimited(reader) {
+        ChromeBuildProto.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -178,10 +248,14 @@ $root.checkin_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        ChromeBuildProto.verify = function verify(message) {
+        ChromeBuildProto.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.platform != null && message.hasOwnProperty("platform"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
+            if (message.platform != null && $Object.hasOwnProperty.call(message, "platform"))
                 switch (message.platform) {
                 default:
                     return "platform: enum value expected";
@@ -193,10 +267,10 @@ $root.checkin_proto = (function() {
                 case 6:
                     break;
                 }
-            if (message.chromeVersion != null && message.hasOwnProperty("chromeVersion"))
+            if (message.chromeVersion != null && $Object.hasOwnProperty.call(message, "chromeVersion"))
                 if (!$util.isString(message.chromeVersion))
                     return "chromeVersion: string expected";
-            if (message.channel != null && message.hasOwnProperty("channel"))
+            if (message.channel != null && $Object.hasOwnProperty.call(message, "channel"))
                 switch (message.channel) {
                 default:
                     return "channel: enum value expected";
@@ -218,17 +292,17 @@ $root.checkin_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {checkin_proto.ChromeBuildProto} ChromeBuildProto
          */
-        ChromeBuildProto.fromObject = function fromObject(object) {
+        ChromeBuildProto.fromObject = function (object, _depth) {
             if (object instanceof $root.checkin_proto.ChromeBuildProto)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".checkin_proto.ChromeBuildProto: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.checkin_proto.ChromeBuildProto();
             switch (object.platform) {
-            default:
-                if (typeof object.platform === "number") {
-                    message.platform = object.platform;
-                    break;
-                }
-                break;
             case "PLATFORM_WIN":
             case 1:
                 message.platform = 1;
@@ -253,16 +327,11 @@ $root.checkin_proto = (function() {
             case 6:
                 message.platform = 6;
                 break;
+            default:
             }
             if (object.chromeVersion != null)
-                message.chromeVersion = String(object.chromeVersion);
+                message.chromeVersion = $String(object.chromeVersion);
             switch (object.channel) {
-            default:
-                if (typeof object.channel === "number") {
-                    message.channel = object.channel;
-                    break;
-                }
-                break;
             case "CHANNEL_STABLE":
             case 1:
                 message.channel = 1;
@@ -283,6 +352,7 @@ $root.checkin_proto = (function() {
             case 5:
                 message.channel = 5;
                 break;
+            default:
             }
             return message;
         };
@@ -296,21 +366,25 @@ $root.checkin_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        ChromeBuildProto.toObject = function toObject(message, options) {
+        ChromeBuildProto.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
-                object.platform = options.enums === String ? "PLATFORM_WIN" : 1;
+                object.platform = options.enums === $String ? "PLATFORM_WIN" : 1;
                 object.chromeVersion = "";
-                object.channel = options.enums === String ? "CHANNEL_STABLE" : 1;
+                object.channel = options.enums === $String ? "CHANNEL_STABLE" : 1;
             }
-            if (message.platform != null && message.hasOwnProperty("platform"))
-                object.platform = options.enums === String ? $root.checkin_proto.ChromeBuildProto.Platform[message.platform] === undefined ? message.platform : $root.checkin_proto.ChromeBuildProto.Platform[message.platform] : message.platform;
-            if (message.chromeVersion != null && message.hasOwnProperty("chromeVersion"))
+            if (message.platform != null && $Object.hasOwnProperty.call(message, "platform"))
+                object.platform = options.enums === $String ? $root.checkin_proto.ChromeBuildProto.Platform[message.platform] === $undefined ? message.platform : $root.checkin_proto.ChromeBuildProto.Platform[message.platform] : message.platform;
+            if (message.chromeVersion != null && $Object.hasOwnProperty.call(message, "chromeVersion"))
                 object.chromeVersion = message.chromeVersion;
-            if (message.channel != null && message.hasOwnProperty("channel"))
-                object.channel = options.enums === String ? $root.checkin_proto.ChromeBuildProto.Channel[message.channel] === undefined ? message.channel : $root.checkin_proto.ChromeBuildProto.Channel[message.channel] : message.channel;
+            if (message.channel != null && $Object.hasOwnProperty.call(message, "channel"))
+                object.channel = options.enums === $String ? $root.checkin_proto.ChromeBuildProto.Channel[message.channel] === $undefined ? message.channel : $root.checkin_proto.ChromeBuildProto.Channel[message.channel] : message.channel;
             return object;
         };
 
@@ -321,23 +395,22 @@ $root.checkin_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        ChromeBuildProto.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        ChromeBuildProto.prototype.toJSON = function() {
+            return ChromeBuildProto.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for ChromeBuildProto
+         * Gets the type url for ChromeBuildProto
          * @function getTypeUrl
          * @memberof checkin_proto.ChromeBuildProto
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        ChromeBuildProto.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/checkin_proto.ChromeBuildProto";
+        ChromeBuildProto.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/checkin_proto.ChromeBuildProto";
         };
 
         /**
@@ -352,7 +425,7 @@ $root.checkin_proto = (function() {
          * @property {number} PLATFORM_ANDROID=6 PLATFORM_ANDROID value
          */
         ChromeBuildProto.Platform = (function() {
-            var valuesById = {}, values = Object.create(valuesById);
+            var valuesById = $Object.create(null), values = $Object.create(valuesById);
             values[valuesById[1] = "PLATFORM_WIN"] = 1;
             values[valuesById[2] = "PLATFORM_MAC"] = 2;
             values[valuesById[3] = "PLATFORM_LINUX"] = 3;
@@ -373,7 +446,7 @@ $root.checkin_proto = (function() {
          * @property {number} CHANNEL_UNKNOWN=5 CHANNEL_UNKNOWN value
          */
         ChromeBuildProto.Channel = (function() {
-            var valuesById = {}, values = Object.create(valuesById);
+            var valuesById = $Object.create(null), values = $Object.create(valuesById);
             values[valuesById[1] = "CHANNEL_STABLE"] = 1;
             values[valuesById[2] = "CHANNEL_BETA"] = 2;
             values[valuesById[3] = "CHANNEL_DEV"] = 3;
@@ -389,31 +462,44 @@ $root.checkin_proto = (function() {
 
         /**
          * Properties of an AndroidCheckinProto.
-         * @memberof checkin_proto
-         * @interface IAndroidCheckinProto
+         * @typedef {Object} checkin_proto.AndroidCheckinProto.$Properties
          * @property {number|Long|null} [lastCheckinMsec] AndroidCheckinProto lastCheckinMsec
          * @property {string|null} [cellOperator] AndroidCheckinProto cellOperator
          * @property {string|null} [simOperator] AndroidCheckinProto simOperator
          * @property {string|null} [roaming] AndroidCheckinProto roaming
          * @property {number|null} [userNumber] AndroidCheckinProto userNumber
          * @property {checkin_proto.DeviceType|null} [type] AndroidCheckinProto type
-         * @property {checkin_proto.IChromeBuildProto|null} [chromeBuild] AndroidCheckinProto chromeBuild
+         * @property {checkin_proto.ChromeBuildProto.$Properties|null} [chromeBuild] AndroidCheckinProto chromeBuild
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of an AndroidCheckinProto.
+         * @memberof checkin_proto
+         * @interface IAndroidCheckinProto
+         * @augments checkin_proto.AndroidCheckinProto.$Properties
+         * @deprecated Use checkin_proto.AndroidCheckinProto.$Properties instead.
+         */
+
+        /**
+         * Shape of an AndroidCheckinProto.
+         * @typedef {checkin_proto.AndroidCheckinProto.$Properties} checkin_proto.AndroidCheckinProto.$Shape
          */
 
         /**
          * Constructs a new AndroidCheckinProto.
          * @memberof checkin_proto
          * @classdesc Represents an AndroidCheckinProto.
-         * @implements IAndroidCheckinProto
          * @constructor
-         * @param {checkin_proto.IAndroidCheckinProto=} [properties] Properties to set
+         * @param {checkin_proto.AndroidCheckinProto.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function AndroidCheckinProto(properties) {
+        var AndroidCheckinProto = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * AndroidCheckinProto lastCheckinMsec.
@@ -465,7 +551,7 @@ $root.checkin_proto = (function() {
 
         /**
          * AndroidCheckinProto chromeBuild.
-         * @member {checkin_proto.IChromeBuildProto|null|undefined} chromeBuild
+         * @member {checkin_proto.ChromeBuildProto.$Properties|null|undefined} chromeBuild
          * @memberof checkin_proto.AndroidCheckinProto
          * @instance
          */
@@ -476,10 +562,14 @@ $root.checkin_proto = (function() {
          * @function create
          * @memberof checkin_proto.AndroidCheckinProto
          * @static
-         * @param {checkin_proto.IAndroidCheckinProto=} [properties] Properties to set
+         * @param {checkin_proto.AndroidCheckinProto.$Properties=} [properties] Properties to set
          * @returns {checkin_proto.AndroidCheckinProto} AndroidCheckinProto instance
+         * @type {{
+         *   (properties: checkin_proto.AndroidCheckinProto.$Shape): checkin_proto.AndroidCheckinProto & checkin_proto.AndroidCheckinProto.$Shape;
+         *   (properties?: checkin_proto.AndroidCheckinProto.$Properties): checkin_proto.AndroidCheckinProto;
+         * }}
          */
-        AndroidCheckinProto.create = function create(properties) {
+        AndroidCheckinProto.create = function(properties) {
             return new AndroidCheckinProto(properties);
         };
 
@@ -488,27 +578,34 @@ $root.checkin_proto = (function() {
          * @function encode
          * @memberof checkin_proto.AndroidCheckinProto
          * @static
-         * @param {checkin_proto.IAndroidCheckinProto} message AndroidCheckinProto message or plain object to encode
+         * @param {checkin_proto.AndroidCheckinProto.$Properties} message AndroidCheckinProto message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        AndroidCheckinProto.encode = function encode(message, writer) {
+        AndroidCheckinProto.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.lastCheckinMsec != null && Object.hasOwnProperty.call(message, "lastCheckinMsec"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
+            if (message.lastCheckinMsec != null && $Object.hasOwnProperty.call(message, "lastCheckinMsec"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int64(message.lastCheckinMsec);
-            if (message.cellOperator != null && Object.hasOwnProperty.call(message, "cellOperator"))
+            if (message.cellOperator != null && $Object.hasOwnProperty.call(message, "cellOperator"))
                 writer.uint32(/* id 6, wireType 2 =*/50).string(message.cellOperator);
-            if (message.simOperator != null && Object.hasOwnProperty.call(message, "simOperator"))
+            if (message.simOperator != null && $Object.hasOwnProperty.call(message, "simOperator"))
                 writer.uint32(/* id 7, wireType 2 =*/58).string(message.simOperator);
-            if (message.roaming != null && Object.hasOwnProperty.call(message, "roaming"))
+            if (message.roaming != null && $Object.hasOwnProperty.call(message, "roaming"))
                 writer.uint32(/* id 8, wireType 2 =*/66).string(message.roaming);
-            if (message.userNumber != null && Object.hasOwnProperty.call(message, "userNumber"))
+            if (message.userNumber != null && $Object.hasOwnProperty.call(message, "userNumber"))
                 writer.uint32(/* id 9, wireType 0 =*/72).int32(message.userNumber);
-            if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+            if (message.type != null && $Object.hasOwnProperty.call(message, "type"))
                 writer.uint32(/* id 12, wireType 0 =*/96).int32(message.type);
-            if (message.chromeBuild != null && Object.hasOwnProperty.call(message, "chromeBuild"))
-                $root.checkin_proto.ChromeBuildProto.encode(message.chromeBuild, writer.uint32(/* id 13, wireType 2 =*/106).fork()).ldelim();
+            if (message.chromeBuild != null && $Object.hasOwnProperty.call(message, "chromeBuild"))
+                $root.checkin_proto.ChromeBuildProto.encode(message.chromeBuild, writer.uint32(/* id 13, wireType 2 =*/106).fork(), _depth + 1).ldelim();
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -517,12 +614,12 @@ $root.checkin_proto = (function() {
          * @function encodeDelimited
          * @memberof checkin_proto.AndroidCheckinProto
          * @static
-         * @param {checkin_proto.IAndroidCheckinProto} message AndroidCheckinProto message or plain object to encode
+         * @param {checkin_proto.AndroidCheckinProto.$Properties} message AndroidCheckinProto message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        AndroidCheckinProto.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        AndroidCheckinProto.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -532,52 +629,99 @@ $root.checkin_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {checkin_proto.AndroidCheckinProto} AndroidCheckinProto
+         * @returns {checkin_proto.AndroidCheckinProto & checkin_proto.AndroidCheckinProto.$Shape} AndroidCheckinProto
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        AndroidCheckinProto.decode = function decode(reader, length, error) {
+        AndroidCheckinProto.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.checkin_proto.AndroidCheckinProto();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message, value;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.checkin_proto.AndroidCheckinProto();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 2: {
-                        message.lastCheckinMsec = reader.int64();
-                        break;
-                    }
-                case 6: {
-                        message.cellOperator = reader.string();
-                        break;
-                    }
-                case 7: {
-                        message.simOperator = reader.string();
-                        break;
-                    }
-                case 8: {
-                        message.roaming = reader.string();
-                        break;
-                    }
-                case 9: {
-                        message.userNumber = reader.int32();
-                        break;
-                    }
-                case 12: {
-                        message.type = reader.int32();
-                        break;
-                    }
-                case 13: {
-                        message.chromeBuild = $root.checkin_proto.ChromeBuildProto.decode(reader, reader.uint32());
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 2: {
+                        if (wireType !== 0)
+                            break;
+                        message.lastCheckinMsec = reader.int64();
+                        continue;
+                    }
+                case 6: {
+                        if (wireType !== 2)
+                            break;
+                        message.cellOperator = reader.string();
+                        continue;
+                    }
+                case 7: {
+                        if (wireType !== 2)
+                            break;
+                        message.simOperator = reader.string();
+                        continue;
+                    }
+                case 8: {
+                        if (wireType !== 2)
+                            break;
+                        message.roaming = reader.string();
+                        continue;
+                    }
+                case 9: {
+                        if (wireType !== 0)
+                            break;
+                        message.userNumber = reader.int32();
+                        continue;
+                    }
+                case 12: {
+                        if (wireType !== 0)
+                            break;
+                        value = reader.int32();
+                        if ($root.checkin_proto.DeviceType[value] !== $undefined)
+                            message.type = value;
+                        else if (!reader.discardUnknown) {
+                            $util.makeProp(message, "$unknowns", false);
+                            (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                        }
+                        continue;
+                    }
+                case 13: {
+                        if (wireType !== 2)
+                            break;
+                        message.chromeBuild = $root.checkin_proto.ChromeBuildProto.decode(reader, reader.uint32(), $undefined, _depth + 1, message.chromeBuild);
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
             return message;
         };
 
@@ -587,11 +731,11 @@ $root.checkin_proto = (function() {
          * @memberof checkin_proto.AndroidCheckinProto
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {checkin_proto.AndroidCheckinProto} AndroidCheckinProto
+         * @returns {checkin_proto.AndroidCheckinProto & checkin_proto.AndroidCheckinProto.$Shape} AndroidCheckinProto
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        AndroidCheckinProto.decodeDelimited = function decodeDelimited(reader) {
+        AndroidCheckinProto.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -605,25 +749,29 @@ $root.checkin_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        AndroidCheckinProto.verify = function verify(message) {
+        AndroidCheckinProto.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.lastCheckinMsec != null && message.hasOwnProperty("lastCheckinMsec"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
+            if (message.lastCheckinMsec != null && $Object.hasOwnProperty.call(message, "lastCheckinMsec"))
                 if (!$util.isInteger(message.lastCheckinMsec) && !(message.lastCheckinMsec && $util.isInteger(message.lastCheckinMsec.low) && $util.isInteger(message.lastCheckinMsec.high)))
                     return "lastCheckinMsec: integer|Long expected";
-            if (message.cellOperator != null && message.hasOwnProperty("cellOperator"))
+            if (message.cellOperator != null && $Object.hasOwnProperty.call(message, "cellOperator"))
                 if (!$util.isString(message.cellOperator))
                     return "cellOperator: string expected";
-            if (message.simOperator != null && message.hasOwnProperty("simOperator"))
+            if (message.simOperator != null && $Object.hasOwnProperty.call(message, "simOperator"))
                 if (!$util.isString(message.simOperator))
                     return "simOperator: string expected";
-            if (message.roaming != null && message.hasOwnProperty("roaming"))
+            if (message.roaming != null && $Object.hasOwnProperty.call(message, "roaming"))
                 if (!$util.isString(message.roaming))
                     return "roaming: string expected";
-            if (message.userNumber != null && message.hasOwnProperty("userNumber"))
+            if (message.userNumber != null && $Object.hasOwnProperty.call(message, "userNumber"))
                 if (!$util.isInteger(message.userNumber))
                     return "userNumber: integer expected";
-            if (message.type != null && message.hasOwnProperty("type"))
+            if (message.type != null && $Object.hasOwnProperty.call(message, "type"))
                 switch (message.type) {
                 default:
                     return "type: enum value expected";
@@ -633,8 +781,8 @@ $root.checkin_proto = (function() {
                 case 4:
                     break;
                 }
-            if (message.chromeBuild != null && message.hasOwnProperty("chromeBuild")) {
-                var error = $root.checkin_proto.ChromeBuildProto.verify(message.chromeBuild);
+            if (message.chromeBuild != null && $Object.hasOwnProperty.call(message, "chromeBuild")) {
+                var error = $root.checkin_proto.ChromeBuildProto.verify(message.chromeBuild, _depth + 1);
                 if (error)
                     return "chromeBuild." + error;
             }
@@ -649,34 +797,34 @@ $root.checkin_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {checkin_proto.AndroidCheckinProto} AndroidCheckinProto
          */
-        AndroidCheckinProto.fromObject = function fromObject(object) {
+        AndroidCheckinProto.fromObject = function (object, _depth) {
             if (object instanceof $root.checkin_proto.AndroidCheckinProto)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".checkin_proto.AndroidCheckinProto: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.checkin_proto.AndroidCheckinProto();
             if (object.lastCheckinMsec != null)
                 if ($util.Long)
-                    (message.lastCheckinMsec = $util.Long.fromValue(object.lastCheckinMsec)).unsigned = false;
+                    message.lastCheckinMsec = $util.Long.fromValue(object.lastCheckinMsec, false);
                 else if (typeof object.lastCheckinMsec === "string")
-                    message.lastCheckinMsec = parseInt(object.lastCheckinMsec, 10);
+                    message.lastCheckinMsec = $parseInt(object.lastCheckinMsec, 10);
                 else if (typeof object.lastCheckinMsec === "number")
                     message.lastCheckinMsec = object.lastCheckinMsec;
                 else if (typeof object.lastCheckinMsec === "object")
                     message.lastCheckinMsec = new $util.LongBits(object.lastCheckinMsec.low >>> 0, object.lastCheckinMsec.high >>> 0).toNumber();
             if (object.cellOperator != null)
-                message.cellOperator = String(object.cellOperator);
+                message.cellOperator = $String(object.cellOperator);
             if (object.simOperator != null)
-                message.simOperator = String(object.simOperator);
+                message.simOperator = $String(object.simOperator);
             if (object.roaming != null)
-                message.roaming = String(object.roaming);
+                message.roaming = $String(object.roaming);
             if (object.userNumber != null)
                 message.userNumber = object.userNumber | 0;
             switch (object.type) {
-            default:
-                if (typeof object.type === "number") {
-                    message.type = object.type;
-                    break;
-                }
-                break;
             case "DEVICE_ANDROID_OS":
             case 1:
                 message.type = 1;
@@ -693,11 +841,12 @@ $root.checkin_proto = (function() {
             case 4:
                 message.type = 4;
                 break;
+            default:
             }
             if (object.chromeBuild != null) {
-                if (typeof object.chromeBuild !== "object")
-                    throw TypeError(".checkin_proto.AndroidCheckinProto.chromeBuild: object expected");
-                message.chromeBuild = $root.checkin_proto.ChromeBuildProto.fromObject(object.chromeBuild);
+                if (!$util.isObject(object.chromeBuild))
+                    throw $TypeError(".checkin_proto.AndroidCheckinProto.chromeBuild: object expected");
+                message.chromeBuild = $root.checkin_proto.ChromeBuildProto.fromObject(object.chromeBuild, _depth + 1);
             }
             return message;
         };
@@ -711,40 +860,46 @@ $root.checkin_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        AndroidCheckinProto.toObject = function toObject(message, options) {
+        AndroidCheckinProto.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.lastCheckinMsec = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.lastCheckinMsec = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.lastCheckinMsec = options.longs === String ? "0" : 0;
+                    object.lastCheckinMsec = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 object.cellOperator = "";
                 object.simOperator = "";
                 object.roaming = "";
                 object.userNumber = 0;
-                object.type = options.enums === String ? "DEVICE_ANDROID_OS" : 1;
+                object.type = options.enums === $String ? "DEVICE_ANDROID_OS" : 1;
                 object.chromeBuild = null;
             }
-            if (message.lastCheckinMsec != null && message.hasOwnProperty("lastCheckinMsec"))
-                if (typeof message.lastCheckinMsec === "number")
-                    object.lastCheckinMsec = options.longs === String ? String(message.lastCheckinMsec) : message.lastCheckinMsec;
+            if (message.lastCheckinMsec != null && $Object.hasOwnProperty.call(message, "lastCheckinMsec"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.lastCheckinMsec = typeof message.lastCheckinMsec === "number" ? $BigInt(message.lastCheckinMsec) : $util.Long.fromBits(message.lastCheckinMsec.low >>> 0, message.lastCheckinMsec.high >>> 0, false).toBigInt();
+                else if (typeof message.lastCheckinMsec === "number")
+                    object.lastCheckinMsec = options.longs === $String ? $String(message.lastCheckinMsec) : message.lastCheckinMsec;
                 else
-                    object.lastCheckinMsec = options.longs === String ? $util.Long.prototype.toString.call(message.lastCheckinMsec) : options.longs === Number ? new $util.LongBits(message.lastCheckinMsec.low >>> 0, message.lastCheckinMsec.high >>> 0).toNumber() : message.lastCheckinMsec;
-            if (message.cellOperator != null && message.hasOwnProperty("cellOperator"))
+                    object.lastCheckinMsec = options.longs === $String ? $util.Long.prototype.toString.call(message.lastCheckinMsec) : options.longs === $Number ? new $util.LongBits(message.lastCheckinMsec.low >>> 0, message.lastCheckinMsec.high >>> 0).toNumber() : message.lastCheckinMsec;
+            if (message.cellOperator != null && $Object.hasOwnProperty.call(message, "cellOperator"))
                 object.cellOperator = message.cellOperator;
-            if (message.simOperator != null && message.hasOwnProperty("simOperator"))
+            if (message.simOperator != null && $Object.hasOwnProperty.call(message, "simOperator"))
                 object.simOperator = message.simOperator;
-            if (message.roaming != null && message.hasOwnProperty("roaming"))
+            if (message.roaming != null && $Object.hasOwnProperty.call(message, "roaming"))
                 object.roaming = message.roaming;
-            if (message.userNumber != null && message.hasOwnProperty("userNumber"))
+            if (message.userNumber != null && $Object.hasOwnProperty.call(message, "userNumber"))
                 object.userNumber = message.userNumber;
-            if (message.type != null && message.hasOwnProperty("type"))
-                object.type = options.enums === String ? $root.checkin_proto.DeviceType[message.type] === undefined ? message.type : $root.checkin_proto.DeviceType[message.type] : message.type;
-            if (message.chromeBuild != null && message.hasOwnProperty("chromeBuild"))
-                object.chromeBuild = $root.checkin_proto.ChromeBuildProto.toObject(message.chromeBuild, options);
+            if (message.type != null && $Object.hasOwnProperty.call(message, "type"))
+                object.type = options.enums === $String ? $root.checkin_proto.DeviceType[message.type] === $undefined ? message.type : $root.checkin_proto.DeviceType[message.type] : message.type;
+            if (message.chromeBuild != null && $Object.hasOwnProperty.call(message, "chromeBuild"))
+                object.chromeBuild = $root.checkin_proto.ChromeBuildProto.toObject(message.chromeBuild, options, _depth + 1);
             return object;
         };
 
@@ -755,23 +910,22 @@ $root.checkin_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        AndroidCheckinProto.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        AndroidCheckinProto.prototype.toJSON = function() {
+            return AndroidCheckinProto.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for AndroidCheckinProto
+         * Gets the type url for AndroidCheckinProto
          * @function getTypeUrl
          * @memberof checkin_proto.AndroidCheckinProto
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        AndroidCheckinProto.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/checkin_proto.AndroidCheckinProto";
+        AndroidCheckinProto.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/checkin_proto.AndroidCheckinProto";
         };
 
         return AndroidCheckinProto;
@@ -787,7 +941,7 @@ $root.checkin_proto = (function() {
      * @property {number} DEVICE_CHROME_OS=4 DEVICE_CHROME_OS value
      */
     checkin_proto.DeviceType = (function() {
-        var valuesById = {}, values = Object.create(valuesById);
+        var valuesById = $Object.create(null), values = $Object.create(valuesById);
         values[valuesById[1] = "DEVICE_ANDROID_OS"] = 1;
         values[valuesById[2] = "DEVICE_IOS_OS"] = 2;
         values[valuesById[3] = "DEVICE_CHROME_BROWSER"] = 3;
@@ -799,26 +953,39 @@ $root.checkin_proto = (function() {
 
         /**
          * Properties of a GservicesSetting.
-         * @memberof checkin_proto
-         * @interface IGservicesSetting
+         * @typedef {Object} checkin_proto.GservicesSetting.$Properties
          * @property {Uint8Array} name GservicesSetting name
          * @property {Uint8Array} value GservicesSetting value
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a GservicesSetting.
+         * @memberof checkin_proto
+         * @interface IGservicesSetting
+         * @augments checkin_proto.GservicesSetting.$Properties
+         * @deprecated Use checkin_proto.GservicesSetting.$Properties instead.
+         */
+
+        /**
+         * Shape of a GservicesSetting.
+         * @typedef {checkin_proto.GservicesSetting.$Properties} checkin_proto.GservicesSetting.$Shape
          */
 
         /**
          * Constructs a new GservicesSetting.
          * @memberof checkin_proto
          * @classdesc Represents a GservicesSetting.
-         * @implements IGservicesSetting
          * @constructor
-         * @param {checkin_proto.IGservicesSetting=} [properties] Properties to set
+         * @param {checkin_proto.GservicesSetting.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function GservicesSetting(properties) {
+        var GservicesSetting = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * GservicesSetting name.
@@ -841,10 +1008,14 @@ $root.checkin_proto = (function() {
          * @function create
          * @memberof checkin_proto.GservicesSetting
          * @static
-         * @param {checkin_proto.IGservicesSetting=} [properties] Properties to set
+         * @param {checkin_proto.GservicesSetting.$Properties=} [properties] Properties to set
          * @returns {checkin_proto.GservicesSetting} GservicesSetting instance
+         * @type {{
+         *   (properties: checkin_proto.GservicesSetting.$Shape): checkin_proto.GservicesSetting & checkin_proto.GservicesSetting.$Shape;
+         *   (properties?: checkin_proto.GservicesSetting.$Properties): checkin_proto.GservicesSetting;
+         * }}
          */
-        GservicesSetting.create = function create(properties) {
+        GservicesSetting.create = function(properties) {
             return new GservicesSetting(properties);
         };
 
@@ -853,15 +1024,22 @@ $root.checkin_proto = (function() {
          * @function encode
          * @memberof checkin_proto.GservicesSetting
          * @static
-         * @param {checkin_proto.IGservicesSetting} message GservicesSetting message or plain object to encode
+         * @param {checkin_proto.GservicesSetting.$Properties} message GservicesSetting message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        GservicesSetting.encode = function encode(message, writer) {
+        GservicesSetting.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.name);
             writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.value);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -870,12 +1048,12 @@ $root.checkin_proto = (function() {
          * @function encodeDelimited
          * @memberof checkin_proto.GservicesSetting
          * @static
-         * @param {checkin_proto.IGservicesSetting} message GservicesSetting message or plain object to encode
+         * @param {checkin_proto.GservicesSetting.$Properties} message GservicesSetting message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        GservicesSetting.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        GservicesSetting.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -885,35 +1063,66 @@ $root.checkin_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {checkin_proto.GservicesSetting} GservicesSetting
+         * @returns {checkin_proto.GservicesSetting & checkin_proto.GservicesSetting.$Shape} GservicesSetting
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        GservicesSetting.decode = function decode(reader, length, error) {
+        GservicesSetting.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.checkin_proto.GservicesSetting();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.checkin_proto.GservicesSetting();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.name = reader.bytes();
-                        break;
-                    }
-                case 2: {
-                        message.value = reader.bytes();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 2)
+                            break;
+                        message.name = reader.bytes();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 2)
+                            break;
+                        message.value = reader.bytes();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
-            if (!message.hasOwnProperty("name"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "name"))
                 throw $util.ProtocolError("missing required 'name'", { instance: message });
-            if (!message.hasOwnProperty("value"))
+            if (!$Object.hasOwnProperty.call(message, "value"))
                 throw $util.ProtocolError("missing required 'value'", { instance: message });
             return message;
         };
@@ -924,11 +1133,11 @@ $root.checkin_proto = (function() {
          * @memberof checkin_proto.GservicesSetting
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {checkin_proto.GservicesSetting} GservicesSetting
+         * @returns {checkin_proto.GservicesSetting & checkin_proto.GservicesSetting.$Shape} GservicesSetting
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        GservicesSetting.decodeDelimited = function decodeDelimited(reader) {
+        GservicesSetting.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -942,9 +1151,13 @@ $root.checkin_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        GservicesSetting.verify = function verify(message) {
+        GservicesSetting.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             if (!(message.name && typeof message.name.length === "number" || $util.isString(message.name)))
                 return "name: buffer expected";
             if (!(message.value && typeof message.value.length === "number" || $util.isString(message.value)))
@@ -960,9 +1173,15 @@ $root.checkin_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {checkin_proto.GservicesSetting} GservicesSetting
          */
-        GservicesSetting.fromObject = function fromObject(object) {
+        GservicesSetting.fromObject = function (object, _depth) {
             if (object instanceof $root.checkin_proto.GservicesSetting)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".checkin_proto.GservicesSetting: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.checkin_proto.GservicesSetting();
             if (object.name != null)
                 if (typeof object.name === "string")
@@ -986,30 +1205,34 @@ $root.checkin_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        GservicesSetting.toObject = function toObject(message, options) {
+        GservicesSetting.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
-                if (options.bytes === String)
+                if (options.bytes === $String)
                     object.name = "";
                 else {
                     object.name = [];
-                    if (options.bytes !== Array)
+                    if (options.bytes !== $Array)
                         object.name = $util.newBuffer(object.name);
                 }
-                if (options.bytes === String)
+                if (options.bytes === $String)
                     object.value = "";
                 else {
                     object.value = [];
-                    if (options.bytes !== Array)
+                    if (options.bytes !== $Array)
                         object.value = $util.newBuffer(object.value);
                 }
             }
-            if (message.name != null && message.hasOwnProperty("name"))
-                object.name = options.bytes === String ? $util.base64.encode(message.name, 0, message.name.length) : options.bytes === Array ? Array.prototype.slice.call(message.name) : message.name;
-            if (message.value != null && message.hasOwnProperty("value"))
-                object.value = options.bytes === String ? $util.base64.encode(message.value, 0, message.value.length) : options.bytes === Array ? Array.prototype.slice.call(message.value) : message.value;
+            if (message.name != null && $Object.hasOwnProperty.call(message, "name"))
+                object.name = options.bytes === $String ? $util.base64.encode(message.name, 0, message.name.length) : options.bytes === $Array ? $Array.prototype.slice.call(message.name) : message.name;
+            if (message.value != null && $Object.hasOwnProperty.call(message, "value"))
+                object.value = options.bytes === $String ? $util.base64.encode(message.value, 0, message.value.length) : options.bytes === $Array ? $Array.prototype.slice.call(message.value) : message.value;
             return object;
         };
 
@@ -1020,23 +1243,22 @@ $root.checkin_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        GservicesSetting.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        GservicesSetting.prototype.toJSON = function() {
+            return GservicesSetting.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for GservicesSetting
+         * Gets the type url for GservicesSetting
          * @function getTypeUrl
          * @memberof checkin_proto.GservicesSetting
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        GservicesSetting.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/checkin_proto.GservicesSetting";
+        GservicesSetting.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/checkin_proto.GservicesSetting";
         };
 
         return GservicesSetting;
@@ -1046,8 +1268,7 @@ $root.checkin_proto = (function() {
 
         /**
          * Properties of an AndroidCheckinRequest.
-         * @memberof checkin_proto
-         * @interface IAndroidCheckinRequest
+         * @typedef {Object} checkin_proto.AndroidCheckinRequest.$Properties
          * @property {string|null} [imei] AndroidCheckinRequest imei
          * @property {string|null} [meid] AndroidCheckinRequest meid
          * @property {Array.<string>|null} [macAddr] AndroidCheckinRequest macAddr
@@ -1058,7 +1279,7 @@ $root.checkin_proto = (function() {
          * @property {number|Long|null} [loggingId] AndroidCheckinRequest loggingId
          * @property {string|null} [digest] AndroidCheckinRequest digest
          * @property {string|null} [locale] AndroidCheckinRequest locale
-         * @property {checkin_proto.IAndroidCheckinProto} checkin AndroidCheckinRequest checkin
+         * @property {checkin_proto.AndroidCheckinProto.$Properties} checkin AndroidCheckinRequest checkin
          * @property {string|null} [desiredBuild] AndroidCheckinRequest desiredBuild
          * @property {string|null} [marketCheckin] AndroidCheckinRequest marketCheckin
          * @property {Array.<string>|null} [accountCookie] AndroidCheckinRequest accountCookie
@@ -1069,26 +1290,40 @@ $root.checkin_proto = (function() {
          * @property {number|null} [fragment] AndroidCheckinRequest fragment
          * @property {string|null} [userName] AndroidCheckinRequest userName
          * @property {number|null} [userSerialNumber] AndroidCheckinRequest userSerialNumber
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of an AndroidCheckinRequest.
+         * @memberof checkin_proto
+         * @interface IAndroidCheckinRequest
+         * @augments checkin_proto.AndroidCheckinRequest.$Properties
+         * @deprecated Use checkin_proto.AndroidCheckinRequest.$Properties instead.
+         */
+
+        /**
+         * Shape of an AndroidCheckinRequest.
+         * @typedef {checkin_proto.AndroidCheckinRequest.$Properties} checkin_proto.AndroidCheckinRequest.$Shape
          */
 
         /**
          * Constructs a new AndroidCheckinRequest.
          * @memberof checkin_proto
          * @classdesc Represents an AndroidCheckinRequest.
-         * @implements IAndroidCheckinRequest
          * @constructor
-         * @param {checkin_proto.IAndroidCheckinRequest=} [properties] Properties to set
+         * @param {checkin_proto.AndroidCheckinRequest.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function AndroidCheckinRequest(properties) {
+        var AndroidCheckinRequest = function (properties) {
             this.macAddr = [];
             this.macAddrType = [];
             this.accountCookie = [];
             this.otaCert = [];
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * AndroidCheckinRequest imei.
@@ -1172,7 +1407,7 @@ $root.checkin_proto = (function() {
 
         /**
          * AndroidCheckinRequest checkin.
-         * @member {checkin_proto.IAndroidCheckinProto} checkin
+         * @member {checkin_proto.AndroidCheckinProto.$Properties} checkin
          * @memberof checkin_proto.AndroidCheckinRequest
          * @instance
          */
@@ -1216,7 +1451,7 @@ $root.checkin_proto = (function() {
          * @memberof checkin_proto.AndroidCheckinRequest
          * @instance
          */
-        AndroidCheckinRequest.prototype.securityToken = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+        AndroidCheckinRequest.prototype.securityToken = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
 
         /**
          * AndroidCheckinRequest version.
@@ -1263,10 +1498,14 @@ $root.checkin_proto = (function() {
          * @function create
          * @memberof checkin_proto.AndroidCheckinRequest
          * @static
-         * @param {checkin_proto.IAndroidCheckinRequest=} [properties] Properties to set
+         * @param {checkin_proto.AndroidCheckinRequest.$Properties=} [properties] Properties to set
          * @returns {checkin_proto.AndroidCheckinRequest} AndroidCheckinRequest instance
+         * @type {{
+         *   (properties: checkin_proto.AndroidCheckinRequest.$Shape): checkin_proto.AndroidCheckinRequest & checkin_proto.AndroidCheckinRequest.$Shape;
+         *   (properties?: checkin_proto.AndroidCheckinRequest.$Properties): checkin_proto.AndroidCheckinRequest;
+         * }}
          */
-        AndroidCheckinRequest.create = function create(properties) {
+        AndroidCheckinRequest.create = function(properties) {
             return new AndroidCheckinRequest(properties);
         };
 
@@ -1275,58 +1514,65 @@ $root.checkin_proto = (function() {
          * @function encode
          * @memberof checkin_proto.AndroidCheckinRequest
          * @static
-         * @param {checkin_proto.IAndroidCheckinRequest} message AndroidCheckinRequest message or plain object to encode
+         * @param {checkin_proto.AndroidCheckinRequest.$Properties} message AndroidCheckinRequest message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        AndroidCheckinRequest.encode = function encode(message, writer) {
+        AndroidCheckinRequest.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.imei != null && Object.hasOwnProperty.call(message, "imei"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
+            if (message.imei != null && $Object.hasOwnProperty.call(message, "imei"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.imei);
-            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+            if (message.id != null && $Object.hasOwnProperty.call(message, "id"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int64(message.id);
-            if (message.digest != null && Object.hasOwnProperty.call(message, "digest"))
+            if (message.digest != null && $Object.hasOwnProperty.call(message, "digest"))
                 writer.uint32(/* id 3, wireType 2 =*/26).string(message.digest);
-            $root.checkin_proto.AndroidCheckinProto.encode(message.checkin, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-            if (message.desiredBuild != null && Object.hasOwnProperty.call(message, "desiredBuild"))
+            $root.checkin_proto.AndroidCheckinProto.encode(message.checkin, writer.uint32(/* id 4, wireType 2 =*/34).fork(), _depth + 1).ldelim();
+            if (message.desiredBuild != null && $Object.hasOwnProperty.call(message, "desiredBuild"))
                 writer.uint32(/* id 5, wireType 2 =*/42).string(message.desiredBuild);
-            if (message.locale != null && Object.hasOwnProperty.call(message, "locale"))
+            if (message.locale != null && $Object.hasOwnProperty.call(message, "locale"))
                 writer.uint32(/* id 6, wireType 2 =*/50).string(message.locale);
-            if (message.loggingId != null && Object.hasOwnProperty.call(message, "loggingId"))
+            if (message.loggingId != null && $Object.hasOwnProperty.call(message, "loggingId"))
                 writer.uint32(/* id 7, wireType 0 =*/56).int64(message.loggingId);
-            if (message.marketCheckin != null && Object.hasOwnProperty.call(message, "marketCheckin"))
+            if (message.marketCheckin != null && $Object.hasOwnProperty.call(message, "marketCheckin"))
                 writer.uint32(/* id 8, wireType 2 =*/66).string(message.marketCheckin);
             if (message.macAddr != null && message.macAddr.length)
                 for (var i = 0; i < message.macAddr.length; ++i)
                     writer.uint32(/* id 9, wireType 2 =*/74).string(message.macAddr[i]);
-            if (message.meid != null && Object.hasOwnProperty.call(message, "meid"))
+            if (message.meid != null && $Object.hasOwnProperty.call(message, "meid"))
                 writer.uint32(/* id 10, wireType 2 =*/82).string(message.meid);
             if (message.accountCookie != null && message.accountCookie.length)
                 for (var i = 0; i < message.accountCookie.length; ++i)
                     writer.uint32(/* id 11, wireType 2 =*/90).string(message.accountCookie[i]);
-            if (message.timeZone != null && Object.hasOwnProperty.call(message, "timeZone"))
+            if (message.timeZone != null && $Object.hasOwnProperty.call(message, "timeZone"))
                 writer.uint32(/* id 12, wireType 2 =*/98).string(message.timeZone);
-            if (message.securityToken != null && Object.hasOwnProperty.call(message, "securityToken"))
+            if (message.securityToken != null && $Object.hasOwnProperty.call(message, "securityToken"))
                 writer.uint32(/* id 13, wireType 1 =*/105).fixed64(message.securityToken);
-            if (message.version != null && Object.hasOwnProperty.call(message, "version"))
+            if (message.version != null && $Object.hasOwnProperty.call(message, "version"))
                 writer.uint32(/* id 14, wireType 0 =*/112).int32(message.version);
             if (message.otaCert != null && message.otaCert.length)
                 for (var i = 0; i < message.otaCert.length; ++i)
                     writer.uint32(/* id 15, wireType 2 =*/122).string(message.otaCert[i]);
-            if (message.serialNumber != null && Object.hasOwnProperty.call(message, "serialNumber"))
+            if (message.serialNumber != null && $Object.hasOwnProperty.call(message, "serialNumber"))
                 writer.uint32(/* id 16, wireType 2 =*/130).string(message.serialNumber);
-            if (message.esn != null && Object.hasOwnProperty.call(message, "esn"))
+            if (message.esn != null && $Object.hasOwnProperty.call(message, "esn"))
                 writer.uint32(/* id 17, wireType 2 =*/138).string(message.esn);
             if (message.macAddrType != null && message.macAddrType.length)
                 for (var i = 0; i < message.macAddrType.length; ++i)
                     writer.uint32(/* id 19, wireType 2 =*/154).string(message.macAddrType[i]);
-            if (message.fragment != null && Object.hasOwnProperty.call(message, "fragment"))
+            if (message.fragment != null && $Object.hasOwnProperty.call(message, "fragment"))
                 writer.uint32(/* id 20, wireType 0 =*/160).int32(message.fragment);
-            if (message.userName != null && Object.hasOwnProperty.call(message, "userName"))
+            if (message.userName != null && $Object.hasOwnProperty.call(message, "userName"))
                 writer.uint32(/* id 21, wireType 2 =*/170).string(message.userName);
-            if (message.userSerialNumber != null && Object.hasOwnProperty.call(message, "userSerialNumber"))
+            if (message.userSerialNumber != null && $Object.hasOwnProperty.call(message, "userSerialNumber"))
                 writer.uint32(/* id 22, wireType 0 =*/176).int32(message.userSerialNumber);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -1335,12 +1581,12 @@ $root.checkin_proto = (function() {
          * @function encodeDelimited
          * @memberof checkin_proto.AndroidCheckinRequest
          * @static
-         * @param {checkin_proto.IAndroidCheckinRequest} message AndroidCheckinRequest message or plain object to encode
+         * @param {checkin_proto.AndroidCheckinRequest.$Properties} message AndroidCheckinRequest message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        AndroidCheckinRequest.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        AndroidCheckinRequest.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -1350,117 +1596,186 @@ $root.checkin_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {checkin_proto.AndroidCheckinRequest} AndroidCheckinRequest
+         * @returns {checkin_proto.AndroidCheckinRequest & checkin_proto.AndroidCheckinRequest.$Shape} AndroidCheckinRequest
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        AndroidCheckinRequest.decode = function decode(reader, length, error) {
+        AndroidCheckinRequest.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.checkin_proto.AndroidCheckinRequest();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.checkin_proto.AndroidCheckinRequest();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
-                switch (tag >>> 3) {
+                }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
                 case 1: {
+                        if (wireType !== 2)
+                            break;
                         message.imei = reader.string();
-                        break;
+                        continue;
                     }
                 case 10: {
+                        if (wireType !== 2)
+                            break;
                         message.meid = reader.string();
-                        break;
+                        continue;
                     }
                 case 9: {
+                        if (wireType !== 2)
+                            break;
                         if (!(message.macAddr && message.macAddr.length))
                             message.macAddr = [];
                         message.macAddr.push(reader.string());
-                        break;
+                        continue;
                     }
                 case 19: {
+                        if (wireType !== 2)
+                            break;
                         if (!(message.macAddrType && message.macAddrType.length))
                             message.macAddrType = [];
                         message.macAddrType.push(reader.string());
-                        break;
+                        continue;
                     }
                 case 16: {
+                        if (wireType !== 2)
+                            break;
                         message.serialNumber = reader.string();
-                        break;
+                        continue;
                     }
                 case 17: {
+                        if (wireType !== 2)
+                            break;
                         message.esn = reader.string();
-                        break;
+                        continue;
                     }
                 case 2: {
+                        if (wireType !== 0)
+                            break;
                         message.id = reader.int64();
-                        break;
+                        continue;
                     }
                 case 7: {
+                        if (wireType !== 0)
+                            break;
                         message.loggingId = reader.int64();
-                        break;
+                        continue;
                     }
                 case 3: {
+                        if (wireType !== 2)
+                            break;
                         message.digest = reader.string();
-                        break;
+                        continue;
                     }
                 case 6: {
+                        if (wireType !== 2)
+                            break;
                         message.locale = reader.string();
-                        break;
+                        continue;
                     }
                 case 4: {
-                        message.checkin = $root.checkin_proto.AndroidCheckinProto.decode(reader, reader.uint32());
-                        break;
+                        if (wireType !== 2)
+                            break;
+                        message.checkin = $root.checkin_proto.AndroidCheckinProto.decode(reader, reader.uint32(), $undefined, _depth + 1, message.checkin);
+                        continue;
                     }
                 case 5: {
+                        if (wireType !== 2)
+                            break;
                         message.desiredBuild = reader.string();
-                        break;
+                        continue;
                     }
                 case 8: {
+                        if (wireType !== 2)
+                            break;
                         message.marketCheckin = reader.string();
-                        break;
+                        continue;
                     }
                 case 11: {
+                        if (wireType !== 2)
+                            break;
                         if (!(message.accountCookie && message.accountCookie.length))
                             message.accountCookie = [];
                         message.accountCookie.push(reader.string());
-                        break;
+                        continue;
                     }
                 case 12: {
+                        if (wireType !== 2)
+                            break;
                         message.timeZone = reader.string();
-                        break;
+                        continue;
                     }
                 case 13: {
+                        if (wireType !== 1)
+                            break;
                         message.securityToken = reader.fixed64();
-                        break;
+                        continue;
                     }
                 case 14: {
+                        if (wireType !== 0)
+                            break;
                         message.version = reader.int32();
-                        break;
+                        continue;
                     }
                 case 15: {
+                        if (wireType !== 2)
+                            break;
                         if (!(message.otaCert && message.otaCert.length))
                             message.otaCert = [];
                         message.otaCert.push(reader.string());
-                        break;
+                        continue;
                     }
                 case 20: {
+                        if (wireType !== 0)
+                            break;
                         message.fragment = reader.int32();
-                        break;
+                        continue;
                     }
                 case 21: {
+                        if (wireType !== 2)
+                            break;
                         message.userName = reader.string();
-                        break;
+                        continue;
                     }
                 case 22: {
+                        if (wireType !== 0)
+                            break;
                         message.userSerialNumber = reader.int32();
-                        break;
+                        continue;
                     }
-                default:
-                    reader.skipType(tag & 7);
-                    break;
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
                 }
             }
-            if (!message.hasOwnProperty("checkin"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "checkin"))
                 throw $util.ProtocolError("missing required 'checkin'", { instance: message });
             return message;
         };
@@ -1471,11 +1786,11 @@ $root.checkin_proto = (function() {
          * @memberof checkin_proto.AndroidCheckinRequest
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {checkin_proto.AndroidCheckinRequest} AndroidCheckinRequest
+         * @returns {checkin_proto.AndroidCheckinRequest & checkin_proto.AndroidCheckinRequest.$Shape} AndroidCheckinRequest
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        AndroidCheckinRequest.decodeDelimited = function decodeDelimited(reader) {
+        AndroidCheckinRequest.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -1489,88 +1804,92 @@ $root.checkin_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        AndroidCheckinRequest.verify = function verify(message) {
+        AndroidCheckinRequest.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.imei != null && message.hasOwnProperty("imei"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
+            if (message.imei != null && $Object.hasOwnProperty.call(message, "imei"))
                 if (!$util.isString(message.imei))
                     return "imei: string expected";
-            if (message.meid != null && message.hasOwnProperty("meid"))
+            if (message.meid != null && $Object.hasOwnProperty.call(message, "meid"))
                 if (!$util.isString(message.meid))
                     return "meid: string expected";
-            if (message.macAddr != null && message.hasOwnProperty("macAddr")) {
-                if (!Array.isArray(message.macAddr))
+            if (message.macAddr != null && $Object.hasOwnProperty.call(message, "macAddr")) {
+                if (!$Array.isArray(message.macAddr))
                     return "macAddr: array expected";
                 for (var i = 0; i < message.macAddr.length; ++i)
                     if (!$util.isString(message.macAddr[i]))
                         return "macAddr: string[] expected";
             }
-            if (message.macAddrType != null && message.hasOwnProperty("macAddrType")) {
-                if (!Array.isArray(message.macAddrType))
+            if (message.macAddrType != null && $Object.hasOwnProperty.call(message, "macAddrType")) {
+                if (!$Array.isArray(message.macAddrType))
                     return "macAddrType: array expected";
                 for (var i = 0; i < message.macAddrType.length; ++i)
                     if (!$util.isString(message.macAddrType[i]))
                         return "macAddrType: string[] expected";
             }
-            if (message.serialNumber != null && message.hasOwnProperty("serialNumber"))
+            if (message.serialNumber != null && $Object.hasOwnProperty.call(message, "serialNumber"))
                 if (!$util.isString(message.serialNumber))
                     return "serialNumber: string expected";
-            if (message.esn != null && message.hasOwnProperty("esn"))
+            if (message.esn != null && $Object.hasOwnProperty.call(message, "esn"))
                 if (!$util.isString(message.esn))
                     return "esn: string expected";
-            if (message.id != null && message.hasOwnProperty("id"))
+            if (message.id != null && $Object.hasOwnProperty.call(message, "id"))
                 if (!$util.isInteger(message.id) && !(message.id && $util.isInteger(message.id.low) && $util.isInteger(message.id.high)))
                     return "id: integer|Long expected";
-            if (message.loggingId != null && message.hasOwnProperty("loggingId"))
+            if (message.loggingId != null && $Object.hasOwnProperty.call(message, "loggingId"))
                 if (!$util.isInteger(message.loggingId) && !(message.loggingId && $util.isInteger(message.loggingId.low) && $util.isInteger(message.loggingId.high)))
                     return "loggingId: integer|Long expected";
-            if (message.digest != null && message.hasOwnProperty("digest"))
+            if (message.digest != null && $Object.hasOwnProperty.call(message, "digest"))
                 if (!$util.isString(message.digest))
                     return "digest: string expected";
-            if (message.locale != null && message.hasOwnProperty("locale"))
+            if (message.locale != null && $Object.hasOwnProperty.call(message, "locale"))
                 if (!$util.isString(message.locale))
                     return "locale: string expected";
             {
-                var error = $root.checkin_proto.AndroidCheckinProto.verify(message.checkin);
+                var error = $root.checkin_proto.AndroidCheckinProto.verify(message.checkin, _depth + 1);
                 if (error)
                     return "checkin." + error;
             }
-            if (message.desiredBuild != null && message.hasOwnProperty("desiredBuild"))
+            if (message.desiredBuild != null && $Object.hasOwnProperty.call(message, "desiredBuild"))
                 if (!$util.isString(message.desiredBuild))
                     return "desiredBuild: string expected";
-            if (message.marketCheckin != null && message.hasOwnProperty("marketCheckin"))
+            if (message.marketCheckin != null && $Object.hasOwnProperty.call(message, "marketCheckin"))
                 if (!$util.isString(message.marketCheckin))
                     return "marketCheckin: string expected";
-            if (message.accountCookie != null && message.hasOwnProperty("accountCookie")) {
-                if (!Array.isArray(message.accountCookie))
+            if (message.accountCookie != null && $Object.hasOwnProperty.call(message, "accountCookie")) {
+                if (!$Array.isArray(message.accountCookie))
                     return "accountCookie: array expected";
                 for (var i = 0; i < message.accountCookie.length; ++i)
                     if (!$util.isString(message.accountCookie[i]))
                         return "accountCookie: string[] expected";
             }
-            if (message.timeZone != null && message.hasOwnProperty("timeZone"))
+            if (message.timeZone != null && $Object.hasOwnProperty.call(message, "timeZone"))
                 if (!$util.isString(message.timeZone))
                     return "timeZone: string expected";
-            if (message.securityToken != null && message.hasOwnProperty("securityToken"))
+            if (message.securityToken != null && $Object.hasOwnProperty.call(message, "securityToken"))
                 if (!$util.isInteger(message.securityToken) && !(message.securityToken && $util.isInteger(message.securityToken.low) && $util.isInteger(message.securityToken.high)))
                     return "securityToken: integer|Long expected";
-            if (message.version != null && message.hasOwnProperty("version"))
+            if (message.version != null && $Object.hasOwnProperty.call(message, "version"))
                 if (!$util.isInteger(message.version))
                     return "version: integer expected";
-            if (message.otaCert != null && message.hasOwnProperty("otaCert")) {
-                if (!Array.isArray(message.otaCert))
+            if (message.otaCert != null && $Object.hasOwnProperty.call(message, "otaCert")) {
+                if (!$Array.isArray(message.otaCert))
                     return "otaCert: array expected";
                 for (var i = 0; i < message.otaCert.length; ++i)
                     if (!$util.isString(message.otaCert[i]))
                         return "otaCert: string[] expected";
             }
-            if (message.fragment != null && message.hasOwnProperty("fragment"))
+            if (message.fragment != null && $Object.hasOwnProperty.call(message, "fragment"))
                 if (!$util.isInteger(message.fragment))
                     return "fragment: integer expected";
-            if (message.userName != null && message.hasOwnProperty("userName"))
+            if (message.userName != null && $Object.hasOwnProperty.call(message, "userName"))
                 if (!$util.isString(message.userName))
                     return "userName: string expected";
-            if (message.userSerialNumber != null && message.hasOwnProperty("userSerialNumber"))
+            if (message.userSerialNumber != null && $Object.hasOwnProperty.call(message, "userSerialNumber"))
                 if (!$util.isInteger(message.userSerialNumber))
                     return "userSerialNumber: integer expected";
             return null;
@@ -1584,94 +1903,100 @@ $root.checkin_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {checkin_proto.AndroidCheckinRequest} AndroidCheckinRequest
          */
-        AndroidCheckinRequest.fromObject = function fromObject(object) {
+        AndroidCheckinRequest.fromObject = function (object, _depth) {
             if (object instanceof $root.checkin_proto.AndroidCheckinRequest)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".checkin_proto.AndroidCheckinRequest: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.checkin_proto.AndroidCheckinRequest();
             if (object.imei != null)
-                message.imei = String(object.imei);
+                message.imei = $String(object.imei);
             if (object.meid != null)
-                message.meid = String(object.meid);
+                message.meid = $String(object.meid);
             if (object.macAddr) {
-                if (!Array.isArray(object.macAddr))
-                    throw TypeError(".checkin_proto.AndroidCheckinRequest.macAddr: array expected");
-                message.macAddr = [];
+                if (!$Array.isArray(object.macAddr))
+                    throw $TypeError(".checkin_proto.AndroidCheckinRequest.macAddr: array expected");
+                message.macAddr = $Array(object.macAddr.length);
                 for (var i = 0; i < object.macAddr.length; ++i)
-                    message.macAddr[i] = String(object.macAddr[i]);
+                    message.macAddr[i] = $String(object.macAddr[i]);
             }
             if (object.macAddrType) {
-                if (!Array.isArray(object.macAddrType))
-                    throw TypeError(".checkin_proto.AndroidCheckinRequest.macAddrType: array expected");
-                message.macAddrType = [];
+                if (!$Array.isArray(object.macAddrType))
+                    throw $TypeError(".checkin_proto.AndroidCheckinRequest.macAddrType: array expected");
+                message.macAddrType = $Array(object.macAddrType.length);
                 for (var i = 0; i < object.macAddrType.length; ++i)
-                    message.macAddrType[i] = String(object.macAddrType[i]);
+                    message.macAddrType[i] = $String(object.macAddrType[i]);
             }
             if (object.serialNumber != null)
-                message.serialNumber = String(object.serialNumber);
+                message.serialNumber = $String(object.serialNumber);
             if (object.esn != null)
-                message.esn = String(object.esn);
+                message.esn = $String(object.esn);
             if (object.id != null)
                 if ($util.Long)
-                    (message.id = $util.Long.fromValue(object.id)).unsigned = false;
+                    message.id = $util.Long.fromValue(object.id, false);
                 else if (typeof object.id === "string")
-                    message.id = parseInt(object.id, 10);
+                    message.id = $parseInt(object.id, 10);
                 else if (typeof object.id === "number")
                     message.id = object.id;
                 else if (typeof object.id === "object")
                     message.id = new $util.LongBits(object.id.low >>> 0, object.id.high >>> 0).toNumber();
             if (object.loggingId != null)
                 if ($util.Long)
-                    (message.loggingId = $util.Long.fromValue(object.loggingId)).unsigned = false;
+                    message.loggingId = $util.Long.fromValue(object.loggingId, false);
                 else if (typeof object.loggingId === "string")
-                    message.loggingId = parseInt(object.loggingId, 10);
+                    message.loggingId = $parseInt(object.loggingId, 10);
                 else if (typeof object.loggingId === "number")
                     message.loggingId = object.loggingId;
                 else if (typeof object.loggingId === "object")
                     message.loggingId = new $util.LongBits(object.loggingId.low >>> 0, object.loggingId.high >>> 0).toNumber();
             if (object.digest != null)
-                message.digest = String(object.digest);
+                message.digest = $String(object.digest);
             if (object.locale != null)
-                message.locale = String(object.locale);
+                message.locale = $String(object.locale);
             if (object.checkin != null) {
-                if (typeof object.checkin !== "object")
-                    throw TypeError(".checkin_proto.AndroidCheckinRequest.checkin: object expected");
-                message.checkin = $root.checkin_proto.AndroidCheckinProto.fromObject(object.checkin);
+                if (!$util.isObject(object.checkin))
+                    throw $TypeError(".checkin_proto.AndroidCheckinRequest.checkin: object expected");
+                message.checkin = $root.checkin_proto.AndroidCheckinProto.fromObject(object.checkin, _depth + 1);
             }
             if (object.desiredBuild != null)
-                message.desiredBuild = String(object.desiredBuild);
+                message.desiredBuild = $String(object.desiredBuild);
             if (object.marketCheckin != null)
-                message.marketCheckin = String(object.marketCheckin);
+                message.marketCheckin = $String(object.marketCheckin);
             if (object.accountCookie) {
-                if (!Array.isArray(object.accountCookie))
-                    throw TypeError(".checkin_proto.AndroidCheckinRequest.accountCookie: array expected");
-                message.accountCookie = [];
+                if (!$Array.isArray(object.accountCookie))
+                    throw $TypeError(".checkin_proto.AndroidCheckinRequest.accountCookie: array expected");
+                message.accountCookie = $Array(object.accountCookie.length);
                 for (var i = 0; i < object.accountCookie.length; ++i)
-                    message.accountCookie[i] = String(object.accountCookie[i]);
+                    message.accountCookie[i] = $String(object.accountCookie[i]);
             }
             if (object.timeZone != null)
-                message.timeZone = String(object.timeZone);
+                message.timeZone = $String(object.timeZone);
             if (object.securityToken != null)
                 if ($util.Long)
-                    (message.securityToken = $util.Long.fromValue(object.securityToken)).unsigned = false;
+                    message.securityToken = $util.Long.fromValue(object.securityToken, true);
                 else if (typeof object.securityToken === "string")
-                    message.securityToken = parseInt(object.securityToken, 10);
+                    message.securityToken = $parseInt(object.securityToken, 10);
                 else if (typeof object.securityToken === "number")
                     message.securityToken = object.securityToken;
                 else if (typeof object.securityToken === "object")
-                    message.securityToken = new $util.LongBits(object.securityToken.low >>> 0, object.securityToken.high >>> 0).toNumber();
+                    message.securityToken = new $util.LongBits(object.securityToken.low >>> 0, object.securityToken.high >>> 0).toNumber(true);
             if (object.version != null)
                 message.version = object.version | 0;
             if (object.otaCert) {
-                if (!Array.isArray(object.otaCert))
-                    throw TypeError(".checkin_proto.AndroidCheckinRequest.otaCert: array expected");
-                message.otaCert = [];
+                if (!$Array.isArray(object.otaCert))
+                    throw $TypeError(".checkin_proto.AndroidCheckinRequest.otaCert: array expected");
+                message.otaCert = $Array(object.otaCert.length);
                 for (var i = 0; i < object.otaCert.length; ++i)
-                    message.otaCert[i] = String(object.otaCert[i]);
+                    message.otaCert[i] = $String(object.otaCert[i]);
             }
             if (object.fragment != null)
                 message.fragment = object.fragment | 0;
             if (object.userName != null)
-                message.userName = String(object.userName);
+                message.userName = $String(object.userName);
             if (object.userSerialNumber != null)
                 message.userSerialNumber = object.userSerialNumber | 0;
             return message;
@@ -1686,9 +2011,13 @@ $root.checkin_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        AndroidCheckinRequest.toObject = function toObject(message, options) {
+        AndroidCheckinRequest.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.arrays || options.defaults) {
                 object.macAddr = [];
@@ -1700,26 +2029,26 @@ $root.checkin_proto = (function() {
                 object.imei = "";
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.id = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.id = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.id = options.longs === String ? "0" : 0;
+                    object.id = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 object.digest = "";
                 object.checkin = null;
                 object.desiredBuild = "";
                 object.locale = "";
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.loggingId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.loggingId = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.loggingId = options.longs === String ? "0" : 0;
+                    object.loggingId = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 object.marketCheckin = "";
                 object.meid = "";
                 object.timeZone = "";
                 if ($util.Long) {
-                    var long = new $util.Long(0, 0, false);
-                    object.securityToken = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    var long = new $util.Long(0, 0, true);
+                    object.securityToken = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.securityToken = options.longs === String ? "0" : 0;
+                    object.securityToken = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 object.version = 0;
                 object.serialNumber = "";
                 object.esn = "";
@@ -1727,68 +2056,74 @@ $root.checkin_proto = (function() {
                 object.userName = "";
                 object.userSerialNumber = 0;
             }
-            if (message.imei != null && message.hasOwnProperty("imei"))
+            if (message.imei != null && $Object.hasOwnProperty.call(message, "imei"))
                 object.imei = message.imei;
-            if (message.id != null && message.hasOwnProperty("id"))
-                if (typeof message.id === "number")
-                    object.id = options.longs === String ? String(message.id) : message.id;
+            if (message.id != null && $Object.hasOwnProperty.call(message, "id"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.id = typeof message.id === "number" ? $BigInt(message.id) : $util.Long.fromBits(message.id.low >>> 0, message.id.high >>> 0, false).toBigInt();
+                else if (typeof message.id === "number")
+                    object.id = options.longs === $String ? $String(message.id) : message.id;
                 else
-                    object.id = options.longs === String ? $util.Long.prototype.toString.call(message.id) : options.longs === Number ? new $util.LongBits(message.id.low >>> 0, message.id.high >>> 0).toNumber() : message.id;
-            if (message.digest != null && message.hasOwnProperty("digest"))
+                    object.id = options.longs === $String ? $util.Long.prototype.toString.call(message.id) : options.longs === $Number ? new $util.LongBits(message.id.low >>> 0, message.id.high >>> 0).toNumber() : message.id;
+            if (message.digest != null && $Object.hasOwnProperty.call(message, "digest"))
                 object.digest = message.digest;
-            if (message.checkin != null && message.hasOwnProperty("checkin"))
-                object.checkin = $root.checkin_proto.AndroidCheckinProto.toObject(message.checkin, options);
-            if (message.desiredBuild != null && message.hasOwnProperty("desiredBuild"))
+            if (message.checkin != null && $Object.hasOwnProperty.call(message, "checkin"))
+                object.checkin = $root.checkin_proto.AndroidCheckinProto.toObject(message.checkin, options, _depth + 1);
+            if (message.desiredBuild != null && $Object.hasOwnProperty.call(message, "desiredBuild"))
                 object.desiredBuild = message.desiredBuild;
-            if (message.locale != null && message.hasOwnProperty("locale"))
+            if (message.locale != null && $Object.hasOwnProperty.call(message, "locale"))
                 object.locale = message.locale;
-            if (message.loggingId != null && message.hasOwnProperty("loggingId"))
-                if (typeof message.loggingId === "number")
-                    object.loggingId = options.longs === String ? String(message.loggingId) : message.loggingId;
+            if (message.loggingId != null && $Object.hasOwnProperty.call(message, "loggingId"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.loggingId = typeof message.loggingId === "number" ? $BigInt(message.loggingId) : $util.Long.fromBits(message.loggingId.low >>> 0, message.loggingId.high >>> 0, false).toBigInt();
+                else if (typeof message.loggingId === "number")
+                    object.loggingId = options.longs === $String ? $String(message.loggingId) : message.loggingId;
                 else
-                    object.loggingId = options.longs === String ? $util.Long.prototype.toString.call(message.loggingId) : options.longs === Number ? new $util.LongBits(message.loggingId.low >>> 0, message.loggingId.high >>> 0).toNumber() : message.loggingId;
-            if (message.marketCheckin != null && message.hasOwnProperty("marketCheckin"))
+                    object.loggingId = options.longs === $String ? $util.Long.prototype.toString.call(message.loggingId) : options.longs === $Number ? new $util.LongBits(message.loggingId.low >>> 0, message.loggingId.high >>> 0).toNumber() : message.loggingId;
+            if (message.marketCheckin != null && $Object.hasOwnProperty.call(message, "marketCheckin"))
                 object.marketCheckin = message.marketCheckin;
             if (message.macAddr && message.macAddr.length) {
-                object.macAddr = [];
+                object.macAddr = $Array(message.macAddr.length);
                 for (var j = 0; j < message.macAddr.length; ++j)
                     object.macAddr[j] = message.macAddr[j];
             }
-            if (message.meid != null && message.hasOwnProperty("meid"))
+            if (message.meid != null && $Object.hasOwnProperty.call(message, "meid"))
                 object.meid = message.meid;
             if (message.accountCookie && message.accountCookie.length) {
-                object.accountCookie = [];
+                object.accountCookie = $Array(message.accountCookie.length);
                 for (var j = 0; j < message.accountCookie.length; ++j)
                     object.accountCookie[j] = message.accountCookie[j];
             }
-            if (message.timeZone != null && message.hasOwnProperty("timeZone"))
+            if (message.timeZone != null && $Object.hasOwnProperty.call(message, "timeZone"))
                 object.timeZone = message.timeZone;
-            if (message.securityToken != null && message.hasOwnProperty("securityToken"))
-                if (typeof message.securityToken === "number")
-                    object.securityToken = options.longs === String ? String(message.securityToken) : message.securityToken;
+            if (message.securityToken != null && $Object.hasOwnProperty.call(message, "securityToken"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.securityToken = typeof message.securityToken === "number" ? $BigInt(message.securityToken) : $util.Long.fromBits(message.securityToken.low >>> 0, message.securityToken.high >>> 0, true).toBigInt();
+                else if (typeof message.securityToken === "number")
+                    object.securityToken = options.longs === $String ? $String(message.securityToken) : message.securityToken;
                 else
-                    object.securityToken = options.longs === String ? $util.Long.prototype.toString.call(message.securityToken) : options.longs === Number ? new $util.LongBits(message.securityToken.low >>> 0, message.securityToken.high >>> 0).toNumber() : message.securityToken;
-            if (message.version != null && message.hasOwnProperty("version"))
+                    object.securityToken = options.longs === $String ? $util.Long.prototype.toString.call(message.securityToken) : options.longs === $Number ? new $util.LongBits(message.securityToken.low >>> 0, message.securityToken.high >>> 0).toNumber(true) : message.securityToken;
+            if (message.version != null && $Object.hasOwnProperty.call(message, "version"))
                 object.version = message.version;
             if (message.otaCert && message.otaCert.length) {
-                object.otaCert = [];
+                object.otaCert = $Array(message.otaCert.length);
                 for (var j = 0; j < message.otaCert.length; ++j)
                     object.otaCert[j] = message.otaCert[j];
             }
-            if (message.serialNumber != null && message.hasOwnProperty("serialNumber"))
+            if (message.serialNumber != null && $Object.hasOwnProperty.call(message, "serialNumber"))
                 object.serialNumber = message.serialNumber;
-            if (message.esn != null && message.hasOwnProperty("esn"))
+            if (message.esn != null && $Object.hasOwnProperty.call(message, "esn"))
                 object.esn = message.esn;
             if (message.macAddrType && message.macAddrType.length) {
-                object.macAddrType = [];
+                object.macAddrType = $Array(message.macAddrType.length);
                 for (var j = 0; j < message.macAddrType.length; ++j)
                     object.macAddrType[j] = message.macAddrType[j];
             }
-            if (message.fragment != null && message.hasOwnProperty("fragment"))
+            if (message.fragment != null && $Object.hasOwnProperty.call(message, "fragment"))
                 object.fragment = message.fragment;
-            if (message.userName != null && message.hasOwnProperty("userName"))
+            if (message.userName != null && $Object.hasOwnProperty.call(message, "userName"))
                 object.userName = message.userName;
-            if (message.userSerialNumber != null && message.hasOwnProperty("userSerialNumber"))
+            if (message.userSerialNumber != null && $Object.hasOwnProperty.call(message, "userSerialNumber"))
                 object.userSerialNumber = message.userSerialNumber;
             return object;
         };
@@ -1800,23 +2135,22 @@ $root.checkin_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        AndroidCheckinRequest.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        AndroidCheckinRequest.prototype.toJSON = function() {
+            return AndroidCheckinRequest.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for AndroidCheckinRequest
+         * Gets the type url for AndroidCheckinRequest
          * @function getTypeUrl
          * @memberof checkin_proto.AndroidCheckinRequest
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        AndroidCheckinRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/checkin_proto.AndroidCheckinRequest";
+        AndroidCheckinRequest.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/checkin_proto.AndroidCheckinRequest";
         };
 
         return AndroidCheckinRequest;
@@ -1826,36 +2160,49 @@ $root.checkin_proto = (function() {
 
         /**
          * Properties of an AndroidCheckinResponse.
-         * @memberof checkin_proto
-         * @interface IAndroidCheckinResponse
+         * @typedef {Object} checkin_proto.AndroidCheckinResponse.$Properties
          * @property {boolean} statsOk AndroidCheckinResponse statsOk
          * @property {number|Long|null} [timeMsec] AndroidCheckinResponse timeMsec
          * @property {string|null} [digest] AndroidCheckinResponse digest
          * @property {boolean|null} [settingsDiff] AndroidCheckinResponse settingsDiff
          * @property {Array.<string>|null} [deleteSetting] AndroidCheckinResponse deleteSetting
-         * @property {Array.<checkin_proto.IGservicesSetting>|null} [setting] AndroidCheckinResponse setting
+         * @property {Array.<checkin_proto.GservicesSetting.$Properties>|null} [setting] AndroidCheckinResponse setting
          * @property {boolean|null} [marketOk] AndroidCheckinResponse marketOk
          * @property {number|Long|null} [androidId] AndroidCheckinResponse androidId
          * @property {number|Long|null} [securityToken] AndroidCheckinResponse securityToken
          * @property {string|null} [versionInfo] AndroidCheckinResponse versionInfo
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of an AndroidCheckinResponse.
+         * @memberof checkin_proto
+         * @interface IAndroidCheckinResponse
+         * @augments checkin_proto.AndroidCheckinResponse.$Properties
+         * @deprecated Use checkin_proto.AndroidCheckinResponse.$Properties instead.
+         */
+
+        /**
+         * Shape of an AndroidCheckinResponse.
+         * @typedef {checkin_proto.AndroidCheckinResponse.$Properties} checkin_proto.AndroidCheckinResponse.$Shape
          */
 
         /**
          * Constructs a new AndroidCheckinResponse.
          * @memberof checkin_proto
          * @classdesc Represents an AndroidCheckinResponse.
-         * @implements IAndroidCheckinResponse
          * @constructor
-         * @param {checkin_proto.IAndroidCheckinResponse=} [properties] Properties to set
+         * @param {checkin_proto.AndroidCheckinResponse.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function AndroidCheckinResponse(properties) {
+        var AndroidCheckinResponse = function (properties) {
             this.deleteSetting = [];
             this.setting = [];
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * AndroidCheckinResponse statsOk.
@@ -1899,7 +2246,7 @@ $root.checkin_proto = (function() {
 
         /**
          * AndroidCheckinResponse setting.
-         * @member {Array.<checkin_proto.IGservicesSetting>} setting
+         * @member {Array.<checkin_proto.GservicesSetting.$Properties>} setting
          * @memberof checkin_proto.AndroidCheckinResponse
          * @instance
          */
@@ -1919,7 +2266,7 @@ $root.checkin_proto = (function() {
          * @memberof checkin_proto.AndroidCheckinResponse
          * @instance
          */
-        AndroidCheckinResponse.prototype.androidId = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+        AndroidCheckinResponse.prototype.androidId = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
 
         /**
          * AndroidCheckinResponse securityToken.
@@ -1927,7 +2274,7 @@ $root.checkin_proto = (function() {
          * @memberof checkin_proto.AndroidCheckinResponse
          * @instance
          */
-        AndroidCheckinResponse.prototype.securityToken = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+        AndroidCheckinResponse.prototype.securityToken = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
 
         /**
          * AndroidCheckinResponse versionInfo.
@@ -1942,10 +2289,14 @@ $root.checkin_proto = (function() {
          * @function create
          * @memberof checkin_proto.AndroidCheckinResponse
          * @static
-         * @param {checkin_proto.IAndroidCheckinResponse=} [properties] Properties to set
+         * @param {checkin_proto.AndroidCheckinResponse.$Properties=} [properties] Properties to set
          * @returns {checkin_proto.AndroidCheckinResponse} AndroidCheckinResponse instance
+         * @type {{
+         *   (properties: checkin_proto.AndroidCheckinResponse.$Shape): checkin_proto.AndroidCheckinResponse & checkin_proto.AndroidCheckinResponse.$Shape;
+         *   (properties?: checkin_proto.AndroidCheckinResponse.$Properties): checkin_proto.AndroidCheckinResponse;
+         * }}
          */
-        AndroidCheckinResponse.create = function create(properties) {
+        AndroidCheckinResponse.create = function(properties) {
             return new AndroidCheckinResponse(properties);
         };
 
@@ -1954,34 +2305,41 @@ $root.checkin_proto = (function() {
          * @function encode
          * @memberof checkin_proto.AndroidCheckinResponse
          * @static
-         * @param {checkin_proto.IAndroidCheckinResponse} message AndroidCheckinResponse message or plain object to encode
+         * @param {checkin_proto.AndroidCheckinResponse.$Properties} message AndroidCheckinResponse message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        AndroidCheckinResponse.encode = function encode(message, writer) {
+        AndroidCheckinResponse.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             writer.uint32(/* id 1, wireType 0 =*/8).bool(message.statsOk);
-            if (message.timeMsec != null && Object.hasOwnProperty.call(message, "timeMsec"))
+            if (message.timeMsec != null && $Object.hasOwnProperty.call(message, "timeMsec"))
                 writer.uint32(/* id 3, wireType 0 =*/24).int64(message.timeMsec);
-            if (message.digest != null && Object.hasOwnProperty.call(message, "digest"))
+            if (message.digest != null && $Object.hasOwnProperty.call(message, "digest"))
                 writer.uint32(/* id 4, wireType 2 =*/34).string(message.digest);
             if (message.setting != null && message.setting.length)
                 for (var i = 0; i < message.setting.length; ++i)
-                    $root.checkin_proto.GservicesSetting.encode(message.setting[i], writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-            if (message.marketOk != null && Object.hasOwnProperty.call(message, "marketOk"))
+                    $root.checkin_proto.GservicesSetting.encode(message.setting[i], writer.uint32(/* id 5, wireType 2 =*/42).fork(), _depth + 1).ldelim();
+            if (message.marketOk != null && $Object.hasOwnProperty.call(message, "marketOk"))
                 writer.uint32(/* id 6, wireType 0 =*/48).bool(message.marketOk);
-            if (message.androidId != null && Object.hasOwnProperty.call(message, "androidId"))
+            if (message.androidId != null && $Object.hasOwnProperty.call(message, "androidId"))
                 writer.uint32(/* id 7, wireType 1 =*/57).fixed64(message.androidId);
-            if (message.securityToken != null && Object.hasOwnProperty.call(message, "securityToken"))
+            if (message.securityToken != null && $Object.hasOwnProperty.call(message, "securityToken"))
                 writer.uint32(/* id 8, wireType 1 =*/65).fixed64(message.securityToken);
-            if (message.settingsDiff != null && Object.hasOwnProperty.call(message, "settingsDiff"))
+            if (message.settingsDiff != null && $Object.hasOwnProperty.call(message, "settingsDiff"))
                 writer.uint32(/* id 9, wireType 0 =*/72).bool(message.settingsDiff);
             if (message.deleteSetting != null && message.deleteSetting.length)
                 for (var i = 0; i < message.deleteSetting.length; ++i)
                     writer.uint32(/* id 10, wireType 2 =*/82).string(message.deleteSetting[i]);
-            if (message.versionInfo != null && Object.hasOwnProperty.call(message, "versionInfo"))
+            if (message.versionInfo != null && $Object.hasOwnProperty.call(message, "versionInfo"))
                 writer.uint32(/* id 11, wireType 2 =*/90).string(message.versionInfo);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -1990,12 +2348,12 @@ $root.checkin_proto = (function() {
          * @function encodeDelimited
          * @memberof checkin_proto.AndroidCheckinResponse
          * @static
-         * @param {checkin_proto.IAndroidCheckinResponse} message AndroidCheckinResponse message or plain object to encode
+         * @param {checkin_proto.AndroidCheckinResponse.$Properties} message AndroidCheckinResponse message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        AndroidCheckinResponse.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        AndroidCheckinResponse.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -2005,69 +2363,116 @@ $root.checkin_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {checkin_proto.AndroidCheckinResponse} AndroidCheckinResponse
+         * @returns {checkin_proto.AndroidCheckinResponse & checkin_proto.AndroidCheckinResponse.$Shape} AndroidCheckinResponse
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        AndroidCheckinResponse.decode = function decode(reader, length, error) {
+        AndroidCheckinResponse.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.checkin_proto.AndroidCheckinResponse();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.checkin_proto.AndroidCheckinResponse();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
-                switch (tag >>> 3) {
+                }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
                 case 1: {
+                        if (wireType !== 0)
+                            break;
                         message.statsOk = reader.bool();
-                        break;
+                        continue;
                     }
                 case 3: {
+                        if (wireType !== 0)
+                            break;
                         message.timeMsec = reader.int64();
-                        break;
+                        continue;
                     }
                 case 4: {
+                        if (wireType !== 2)
+                            break;
                         message.digest = reader.string();
-                        break;
+                        continue;
                     }
                 case 9: {
+                        if (wireType !== 0)
+                            break;
                         message.settingsDiff = reader.bool();
-                        break;
+                        continue;
                     }
                 case 10: {
+                        if (wireType !== 2)
+                            break;
                         if (!(message.deleteSetting && message.deleteSetting.length))
                             message.deleteSetting = [];
                         message.deleteSetting.push(reader.string());
-                        break;
+                        continue;
                     }
                 case 5: {
+                        if (wireType !== 2)
+                            break;
                         if (!(message.setting && message.setting.length))
                             message.setting = [];
-                        message.setting.push($root.checkin_proto.GservicesSetting.decode(reader, reader.uint32()));
-                        break;
+                        message.setting.push($root.checkin_proto.GservicesSetting.decode(reader, reader.uint32(), $undefined, _depth + 1));
+                        continue;
                     }
                 case 6: {
+                        if (wireType !== 0)
+                            break;
                         message.marketOk = reader.bool();
-                        break;
+                        continue;
                     }
                 case 7: {
+                        if (wireType !== 1)
+                            break;
                         message.androidId = reader.fixed64();
-                        break;
+                        continue;
                     }
                 case 8: {
+                        if (wireType !== 1)
+                            break;
                         message.securityToken = reader.fixed64();
-                        break;
+                        continue;
                     }
                 case 11: {
+                        if (wireType !== 2)
+                            break;
                         message.versionInfo = reader.string();
-                        break;
+                        continue;
                     }
-                default:
-                    reader.skipType(tag & 7);
-                    break;
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
                 }
             }
-            if (!message.hasOwnProperty("statsOk"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "statsOk"))
                 throw $util.ProtocolError("missing required 'statsOk'", { instance: message });
             return message;
         };
@@ -2078,11 +2483,11 @@ $root.checkin_proto = (function() {
          * @memberof checkin_proto.AndroidCheckinResponse
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {checkin_proto.AndroidCheckinResponse} AndroidCheckinResponse
+         * @returns {checkin_proto.AndroidCheckinResponse & checkin_proto.AndroidCheckinResponse.$Shape} AndroidCheckinResponse
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        AndroidCheckinResponse.decodeDelimited = function decodeDelimited(reader) {
+        AndroidCheckinResponse.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -2096,46 +2501,50 @@ $root.checkin_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        AndroidCheckinResponse.verify = function verify(message) {
+        AndroidCheckinResponse.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             if (typeof message.statsOk !== "boolean")
                 return "statsOk: boolean expected";
-            if (message.timeMsec != null && message.hasOwnProperty("timeMsec"))
+            if (message.timeMsec != null && $Object.hasOwnProperty.call(message, "timeMsec"))
                 if (!$util.isInteger(message.timeMsec) && !(message.timeMsec && $util.isInteger(message.timeMsec.low) && $util.isInteger(message.timeMsec.high)))
                     return "timeMsec: integer|Long expected";
-            if (message.digest != null && message.hasOwnProperty("digest"))
+            if (message.digest != null && $Object.hasOwnProperty.call(message, "digest"))
                 if (!$util.isString(message.digest))
                     return "digest: string expected";
-            if (message.settingsDiff != null && message.hasOwnProperty("settingsDiff"))
+            if (message.settingsDiff != null && $Object.hasOwnProperty.call(message, "settingsDiff"))
                 if (typeof message.settingsDiff !== "boolean")
                     return "settingsDiff: boolean expected";
-            if (message.deleteSetting != null && message.hasOwnProperty("deleteSetting")) {
-                if (!Array.isArray(message.deleteSetting))
+            if (message.deleteSetting != null && $Object.hasOwnProperty.call(message, "deleteSetting")) {
+                if (!$Array.isArray(message.deleteSetting))
                     return "deleteSetting: array expected";
                 for (var i = 0; i < message.deleteSetting.length; ++i)
                     if (!$util.isString(message.deleteSetting[i]))
                         return "deleteSetting: string[] expected";
             }
-            if (message.setting != null && message.hasOwnProperty("setting")) {
-                if (!Array.isArray(message.setting))
+            if (message.setting != null && $Object.hasOwnProperty.call(message, "setting")) {
+                if (!$Array.isArray(message.setting))
                     return "setting: array expected";
                 for (var i = 0; i < message.setting.length; ++i) {
-                    var error = $root.checkin_proto.GservicesSetting.verify(message.setting[i]);
+                    var error = $root.checkin_proto.GservicesSetting.verify(message.setting[i], _depth + 1);
                     if (error)
                         return "setting." + error;
                 }
             }
-            if (message.marketOk != null && message.hasOwnProperty("marketOk"))
+            if (message.marketOk != null && $Object.hasOwnProperty.call(message, "marketOk"))
                 if (typeof message.marketOk !== "boolean")
                     return "marketOk: boolean expected";
-            if (message.androidId != null && message.hasOwnProperty("androidId"))
+            if (message.androidId != null && $Object.hasOwnProperty.call(message, "androidId"))
                 if (!$util.isInteger(message.androidId) && !(message.androidId && $util.isInteger(message.androidId.low) && $util.isInteger(message.androidId.high)))
                     return "androidId: integer|Long expected";
-            if (message.securityToken != null && message.hasOwnProperty("securityToken"))
+            if (message.securityToken != null && $Object.hasOwnProperty.call(message, "securityToken"))
                 if (!$util.isInteger(message.securityToken) && !(message.securityToken && $util.isInteger(message.securityToken.low) && $util.isInteger(message.securityToken.high)))
                     return "securityToken: integer|Long expected";
-            if (message.versionInfo != null && message.hasOwnProperty("versionInfo"))
+            if (message.versionInfo != null && $Object.hasOwnProperty.call(message, "versionInfo"))
                 if (!$util.isString(message.versionInfo))
                     return "versionInfo: string expected";
             return null;
@@ -2149,64 +2558,70 @@ $root.checkin_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {checkin_proto.AndroidCheckinResponse} AndroidCheckinResponse
          */
-        AndroidCheckinResponse.fromObject = function fromObject(object) {
+        AndroidCheckinResponse.fromObject = function (object, _depth) {
             if (object instanceof $root.checkin_proto.AndroidCheckinResponse)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".checkin_proto.AndroidCheckinResponse: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.checkin_proto.AndroidCheckinResponse();
             if (object.statsOk != null)
-                message.statsOk = Boolean(object.statsOk);
+                message.statsOk = $Boolean(object.statsOk);
             if (object.timeMsec != null)
                 if ($util.Long)
-                    (message.timeMsec = $util.Long.fromValue(object.timeMsec)).unsigned = false;
+                    message.timeMsec = $util.Long.fromValue(object.timeMsec, false);
                 else if (typeof object.timeMsec === "string")
-                    message.timeMsec = parseInt(object.timeMsec, 10);
+                    message.timeMsec = $parseInt(object.timeMsec, 10);
                 else if (typeof object.timeMsec === "number")
                     message.timeMsec = object.timeMsec;
                 else if (typeof object.timeMsec === "object")
                     message.timeMsec = new $util.LongBits(object.timeMsec.low >>> 0, object.timeMsec.high >>> 0).toNumber();
             if (object.digest != null)
-                message.digest = String(object.digest);
+                message.digest = $String(object.digest);
             if (object.settingsDiff != null)
-                message.settingsDiff = Boolean(object.settingsDiff);
+                message.settingsDiff = $Boolean(object.settingsDiff);
             if (object.deleteSetting) {
-                if (!Array.isArray(object.deleteSetting))
-                    throw TypeError(".checkin_proto.AndroidCheckinResponse.deleteSetting: array expected");
-                message.deleteSetting = [];
+                if (!$Array.isArray(object.deleteSetting))
+                    throw $TypeError(".checkin_proto.AndroidCheckinResponse.deleteSetting: array expected");
+                message.deleteSetting = $Array(object.deleteSetting.length);
                 for (var i = 0; i < object.deleteSetting.length; ++i)
-                    message.deleteSetting[i] = String(object.deleteSetting[i]);
+                    message.deleteSetting[i] = $String(object.deleteSetting[i]);
             }
             if (object.setting) {
-                if (!Array.isArray(object.setting))
-                    throw TypeError(".checkin_proto.AndroidCheckinResponse.setting: array expected");
-                message.setting = [];
+                if (!$Array.isArray(object.setting))
+                    throw $TypeError(".checkin_proto.AndroidCheckinResponse.setting: array expected");
+                message.setting = $Array(object.setting.length);
                 for (var i = 0; i < object.setting.length; ++i) {
-                    if (typeof object.setting[i] !== "object")
-                        throw TypeError(".checkin_proto.AndroidCheckinResponse.setting: object expected");
-                    message.setting[i] = $root.checkin_proto.GservicesSetting.fromObject(object.setting[i]);
+                    if (!$util.isObject(object.setting[i]))
+                        throw $TypeError(".checkin_proto.AndroidCheckinResponse.setting: object expected");
+                    message.setting[i] = $root.checkin_proto.GservicesSetting.fromObject(object.setting[i], _depth + 1);
                 }
             }
             if (object.marketOk != null)
-                message.marketOk = Boolean(object.marketOk);
+                message.marketOk = $Boolean(object.marketOk);
             if (object.androidId != null)
                 if ($util.Long)
-                    (message.androidId = $util.Long.fromValue(object.androidId)).unsigned = false;
+                    message.androidId = $util.Long.fromValue(object.androidId, true);
                 else if (typeof object.androidId === "string")
-                    message.androidId = parseInt(object.androidId, 10);
+                    message.androidId = $parseInt(object.androidId, 10);
                 else if (typeof object.androidId === "number")
                     message.androidId = object.androidId;
                 else if (typeof object.androidId === "object")
-                    message.androidId = new $util.LongBits(object.androidId.low >>> 0, object.androidId.high >>> 0).toNumber();
+                    message.androidId = new $util.LongBits(object.androidId.low >>> 0, object.androidId.high >>> 0).toNumber(true);
             if (object.securityToken != null)
                 if ($util.Long)
-                    (message.securityToken = $util.Long.fromValue(object.securityToken)).unsigned = false;
+                    message.securityToken = $util.Long.fromValue(object.securityToken, true);
                 else if (typeof object.securityToken === "string")
-                    message.securityToken = parseInt(object.securityToken, 10);
+                    message.securityToken = $parseInt(object.securityToken, 10);
                 else if (typeof object.securityToken === "number")
                     message.securityToken = object.securityToken;
                 else if (typeof object.securityToken === "object")
-                    message.securityToken = new $util.LongBits(object.securityToken.low >>> 0, object.securityToken.high >>> 0).toNumber();
+                    message.securityToken = new $util.LongBits(object.securityToken.low >>> 0, object.securityToken.high >>> 0).toNumber(true);
             if (object.versionInfo != null)
-                message.versionInfo = String(object.versionInfo);
+                message.versionInfo = $String(object.versionInfo);
             return message;
         };
 
@@ -2219,9 +2634,13 @@ $root.checkin_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        AndroidCheckinResponse.toObject = function toObject(message, options) {
+        AndroidCheckinResponse.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.arrays || options.defaults) {
                 object.setting = [];
@@ -2231,58 +2650,64 @@ $root.checkin_proto = (function() {
                 object.statsOk = false;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.timeMsec = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.timeMsec = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.timeMsec = options.longs === String ? "0" : 0;
+                    object.timeMsec = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 object.digest = "";
                 object.marketOk = false;
                 if ($util.Long) {
-                    var long = new $util.Long(0, 0, false);
-                    object.androidId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    var long = new $util.Long(0, 0, true);
+                    object.androidId = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.androidId = options.longs === String ? "0" : 0;
+                    object.androidId = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 if ($util.Long) {
-                    var long = new $util.Long(0, 0, false);
-                    object.securityToken = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    var long = new $util.Long(0, 0, true);
+                    object.securityToken = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.securityToken = options.longs === String ? "0" : 0;
+                    object.securityToken = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 object.settingsDiff = false;
                 object.versionInfo = "";
             }
-            if (message.statsOk != null && message.hasOwnProperty("statsOk"))
+            if (message.statsOk != null && $Object.hasOwnProperty.call(message, "statsOk"))
                 object.statsOk = message.statsOk;
-            if (message.timeMsec != null && message.hasOwnProperty("timeMsec"))
-                if (typeof message.timeMsec === "number")
-                    object.timeMsec = options.longs === String ? String(message.timeMsec) : message.timeMsec;
+            if (message.timeMsec != null && $Object.hasOwnProperty.call(message, "timeMsec"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.timeMsec = typeof message.timeMsec === "number" ? $BigInt(message.timeMsec) : $util.Long.fromBits(message.timeMsec.low >>> 0, message.timeMsec.high >>> 0, false).toBigInt();
+                else if (typeof message.timeMsec === "number")
+                    object.timeMsec = options.longs === $String ? $String(message.timeMsec) : message.timeMsec;
                 else
-                    object.timeMsec = options.longs === String ? $util.Long.prototype.toString.call(message.timeMsec) : options.longs === Number ? new $util.LongBits(message.timeMsec.low >>> 0, message.timeMsec.high >>> 0).toNumber() : message.timeMsec;
-            if (message.digest != null && message.hasOwnProperty("digest"))
+                    object.timeMsec = options.longs === $String ? $util.Long.prototype.toString.call(message.timeMsec) : options.longs === $Number ? new $util.LongBits(message.timeMsec.low >>> 0, message.timeMsec.high >>> 0).toNumber() : message.timeMsec;
+            if (message.digest != null && $Object.hasOwnProperty.call(message, "digest"))
                 object.digest = message.digest;
             if (message.setting && message.setting.length) {
-                object.setting = [];
+                object.setting = $Array(message.setting.length);
                 for (var j = 0; j < message.setting.length; ++j)
-                    object.setting[j] = $root.checkin_proto.GservicesSetting.toObject(message.setting[j], options);
+                    object.setting[j] = $root.checkin_proto.GservicesSetting.toObject(message.setting[j], options, _depth + 1);
             }
-            if (message.marketOk != null && message.hasOwnProperty("marketOk"))
+            if (message.marketOk != null && $Object.hasOwnProperty.call(message, "marketOk"))
                 object.marketOk = message.marketOk;
-            if (message.androidId != null && message.hasOwnProperty("androidId"))
-                if (typeof message.androidId === "number")
-                    object.androidId = options.longs === String ? String(message.androidId) : message.androidId;
+            if (message.androidId != null && $Object.hasOwnProperty.call(message, "androidId"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.androidId = typeof message.androidId === "number" ? $BigInt(message.androidId) : $util.Long.fromBits(message.androidId.low >>> 0, message.androidId.high >>> 0, true).toBigInt();
+                else if (typeof message.androidId === "number")
+                    object.androidId = options.longs === $String ? $String(message.androidId) : message.androidId;
                 else
-                    object.androidId = options.longs === String ? $util.Long.prototype.toString.call(message.androidId) : options.longs === Number ? new $util.LongBits(message.androidId.low >>> 0, message.androidId.high >>> 0).toNumber() : message.androidId;
-            if (message.securityToken != null && message.hasOwnProperty("securityToken"))
-                if (typeof message.securityToken === "number")
-                    object.securityToken = options.longs === String ? String(message.securityToken) : message.securityToken;
+                    object.androidId = options.longs === $String ? $util.Long.prototype.toString.call(message.androidId) : options.longs === $Number ? new $util.LongBits(message.androidId.low >>> 0, message.androidId.high >>> 0).toNumber(true) : message.androidId;
+            if (message.securityToken != null && $Object.hasOwnProperty.call(message, "securityToken"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.securityToken = typeof message.securityToken === "number" ? $BigInt(message.securityToken) : $util.Long.fromBits(message.securityToken.low >>> 0, message.securityToken.high >>> 0, true).toBigInt();
+                else if (typeof message.securityToken === "number")
+                    object.securityToken = options.longs === $String ? $String(message.securityToken) : message.securityToken;
                 else
-                    object.securityToken = options.longs === String ? $util.Long.prototype.toString.call(message.securityToken) : options.longs === Number ? new $util.LongBits(message.securityToken.low >>> 0, message.securityToken.high >>> 0).toNumber() : message.securityToken;
-            if (message.settingsDiff != null && message.hasOwnProperty("settingsDiff"))
+                    object.securityToken = options.longs === $String ? $util.Long.prototype.toString.call(message.securityToken) : options.longs === $Number ? new $util.LongBits(message.securityToken.low >>> 0, message.securityToken.high >>> 0).toNumber(true) : message.securityToken;
+            if (message.settingsDiff != null && $Object.hasOwnProperty.call(message, "settingsDiff"))
                 object.settingsDiff = message.settingsDiff;
             if (message.deleteSetting && message.deleteSetting.length) {
-                object.deleteSetting = [];
+                object.deleteSetting = $Array(message.deleteSetting.length);
                 for (var j = 0; j < message.deleteSetting.length; ++j)
                     object.deleteSetting[j] = message.deleteSetting[j];
             }
-            if (message.versionInfo != null && message.hasOwnProperty("versionInfo"))
+            if (message.versionInfo != null && $Object.hasOwnProperty.call(message, "versionInfo"))
                 object.versionInfo = message.versionInfo;
             return object;
         };
@@ -2294,23 +2719,22 @@ $root.checkin_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        AndroidCheckinResponse.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        AndroidCheckinResponse.prototype.toJSON = function() {
+            return AndroidCheckinResponse.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for AndroidCheckinResponse
+         * Gets the type url for AndroidCheckinResponse
          * @function getTypeUrl
          * @memberof checkin_proto.AndroidCheckinResponse
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        AndroidCheckinResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/checkin_proto.AndroidCheckinResponse";
+        AndroidCheckinResponse.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/checkin_proto.AndroidCheckinResponse";
         };
 
         return AndroidCheckinResponse;
@@ -2332,27 +2756,40 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a HeartbeatPing.
-         * @memberof mcs_proto
-         * @interface IHeartbeatPing
+         * @typedef {Object} mcs_proto.HeartbeatPing.$Properties
          * @property {number|null} [streamId] HeartbeatPing streamId
          * @property {number|null} [lastStreamIdReceived] HeartbeatPing lastStreamIdReceived
          * @property {number|Long|null} [status] HeartbeatPing status
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a HeartbeatPing.
+         * @memberof mcs_proto
+         * @interface IHeartbeatPing
+         * @augments mcs_proto.HeartbeatPing.$Properties
+         * @deprecated Use mcs_proto.HeartbeatPing.$Properties instead.
+         */
+
+        /**
+         * Shape of a HeartbeatPing.
+         * @typedef {mcs_proto.HeartbeatPing.$Properties} mcs_proto.HeartbeatPing.$Shape
          */
 
         /**
          * Constructs a new HeartbeatPing.
          * @memberof mcs_proto
          * @classdesc TAG: 0
-         * @implements IHeartbeatPing
          * @constructor
-         * @param {mcs_proto.IHeartbeatPing=} [properties] Properties to set
+         * @param {mcs_proto.HeartbeatPing.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function HeartbeatPing(properties) {
+        var HeartbeatPing = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * HeartbeatPing streamId.
@@ -2383,10 +2820,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.HeartbeatPing
          * @static
-         * @param {mcs_proto.IHeartbeatPing=} [properties] Properties to set
+         * @param {mcs_proto.HeartbeatPing.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.HeartbeatPing} HeartbeatPing instance
+         * @type {{
+         *   (properties: mcs_proto.HeartbeatPing.$Shape): mcs_proto.HeartbeatPing & mcs_proto.HeartbeatPing.$Shape;
+         *   (properties?: mcs_proto.HeartbeatPing.$Properties): mcs_proto.HeartbeatPing;
+         * }}
          */
-        HeartbeatPing.create = function create(properties) {
+        HeartbeatPing.create = function(properties) {
             return new HeartbeatPing(properties);
         };
 
@@ -2395,19 +2836,26 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.HeartbeatPing
          * @static
-         * @param {mcs_proto.IHeartbeatPing} message HeartbeatPing message or plain object to encode
+         * @param {mcs_proto.HeartbeatPing.$Properties} message HeartbeatPing message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        HeartbeatPing.encode = function encode(message, writer) {
+        HeartbeatPing.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.streamId != null && Object.hasOwnProperty.call(message, "streamId"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 writer.uint32(/* id 1, wireType 0 =*/8).int32(message.streamId);
-            if (message.lastStreamIdReceived != null && Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.lastStreamIdReceived);
-            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
                 writer.uint32(/* id 3, wireType 0 =*/24).int64(message.status);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -2416,12 +2864,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.HeartbeatPing
          * @static
-         * @param {mcs_proto.IHeartbeatPing} message HeartbeatPing message or plain object to encode
+         * @param {mcs_proto.HeartbeatPing.$Properties} message HeartbeatPing message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        HeartbeatPing.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        HeartbeatPing.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -2431,36 +2879,69 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.HeartbeatPing} HeartbeatPing
+         * @returns {mcs_proto.HeartbeatPing & mcs_proto.HeartbeatPing.$Shape} HeartbeatPing
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        HeartbeatPing.decode = function decode(reader, length, error) {
+        HeartbeatPing.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.HeartbeatPing();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.HeartbeatPing();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.streamId = reader.int32();
-                        break;
-                    }
-                case 2: {
-                        message.lastStreamIdReceived = reader.int32();
-                        break;
-                    }
-                case 3: {
-                        message.status = reader.int64();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 0)
+                            break;
+                        message.streamId = reader.int32();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 0)
+                            break;
+                        message.lastStreamIdReceived = reader.int32();
+                        continue;
+                    }
+                case 3: {
+                        if (wireType !== 0)
+                            break;
+                        message.status = reader.int64();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
             return message;
         };
 
@@ -2470,11 +2951,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.HeartbeatPing
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.HeartbeatPing} HeartbeatPing
+         * @returns {mcs_proto.HeartbeatPing & mcs_proto.HeartbeatPing.$Shape} HeartbeatPing
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        HeartbeatPing.decodeDelimited = function decodeDelimited(reader) {
+        HeartbeatPing.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -2488,16 +2969,20 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        HeartbeatPing.verify = function verify(message) {
+        HeartbeatPing.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.streamId != null && message.hasOwnProperty("streamId"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 if (!$util.isInteger(message.streamId))
                     return "streamId: integer expected";
-            if (message.lastStreamIdReceived != null && message.hasOwnProperty("lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 if (!$util.isInteger(message.lastStreamIdReceived))
                     return "lastStreamIdReceived: integer expected";
-            if (message.status != null && message.hasOwnProperty("status"))
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
                 if (!$util.isInteger(message.status) && !(message.status && $util.isInteger(message.status.low) && $util.isInteger(message.status.high)))
                     return "status: integer|Long expected";
             return null;
@@ -2511,9 +2996,15 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.HeartbeatPing} HeartbeatPing
          */
-        HeartbeatPing.fromObject = function fromObject(object) {
+        HeartbeatPing.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.HeartbeatPing)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.HeartbeatPing: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.HeartbeatPing();
             if (object.streamId != null)
                 message.streamId = object.streamId | 0;
@@ -2521,9 +3012,9 @@ $root.mcs_proto = (function() {
                 message.lastStreamIdReceived = object.lastStreamIdReceived | 0;
             if (object.status != null)
                 if ($util.Long)
-                    (message.status = $util.Long.fromValue(object.status)).unsigned = false;
+                    message.status = $util.Long.fromValue(object.status, false);
                 else if (typeof object.status === "string")
-                    message.status = parseInt(object.status, 10);
+                    message.status = $parseInt(object.status, 10);
                 else if (typeof object.status === "number")
                     message.status = object.status;
                 else if (typeof object.status === "object")
@@ -2540,28 +3031,34 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        HeartbeatPing.toObject = function toObject(message, options) {
+        HeartbeatPing.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
                 object.streamId = 0;
                 object.lastStreamIdReceived = 0;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.status = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.status = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.status = options.longs === String ? "0" : 0;
+                    object.status = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
             }
-            if (message.streamId != null && message.hasOwnProperty("streamId"))
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 object.streamId = message.streamId;
-            if (message.lastStreamIdReceived != null && message.hasOwnProperty("lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 object.lastStreamIdReceived = message.lastStreamIdReceived;
-            if (message.status != null && message.hasOwnProperty("status"))
-                if (typeof message.status === "number")
-                    object.status = options.longs === String ? String(message.status) : message.status;
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.status = typeof message.status === "number" ? $BigInt(message.status) : $util.Long.fromBits(message.status.low >>> 0, message.status.high >>> 0, false).toBigInt();
+                else if (typeof message.status === "number")
+                    object.status = options.longs === $String ? $String(message.status) : message.status;
                 else
-                    object.status = options.longs === String ? $util.Long.prototype.toString.call(message.status) : options.longs === Number ? new $util.LongBits(message.status.low >>> 0, message.status.high >>> 0).toNumber() : message.status;
+                    object.status = options.longs === $String ? $util.Long.prototype.toString.call(message.status) : options.longs === $Number ? new $util.LongBits(message.status.low >>> 0, message.status.high >>> 0).toNumber() : message.status;
             return object;
         };
 
@@ -2572,23 +3069,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        HeartbeatPing.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        HeartbeatPing.prototype.toJSON = function() {
+            return HeartbeatPing.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for HeartbeatPing
+         * Gets the type url for HeartbeatPing
          * @function getTypeUrl
          * @memberof mcs_proto.HeartbeatPing
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        HeartbeatPing.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.HeartbeatPing";
+        HeartbeatPing.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.HeartbeatPing";
         };
 
         return HeartbeatPing;
@@ -2598,27 +3094,40 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a HeartbeatAck.
-         * @memberof mcs_proto
-         * @interface IHeartbeatAck
+         * @typedef {Object} mcs_proto.HeartbeatAck.$Properties
          * @property {number|null} [streamId] HeartbeatAck streamId
          * @property {number|null} [lastStreamIdReceived] HeartbeatAck lastStreamIdReceived
          * @property {number|Long|null} [status] HeartbeatAck status
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a HeartbeatAck.
+         * @memberof mcs_proto
+         * @interface IHeartbeatAck
+         * @augments mcs_proto.HeartbeatAck.$Properties
+         * @deprecated Use mcs_proto.HeartbeatAck.$Properties instead.
+         */
+
+        /**
+         * Shape of a HeartbeatAck.
+         * @typedef {mcs_proto.HeartbeatAck.$Properties} mcs_proto.HeartbeatAck.$Shape
          */
 
         /**
          * Constructs a new HeartbeatAck.
          * @memberof mcs_proto
          * @classdesc TAG: 1
-         * @implements IHeartbeatAck
          * @constructor
-         * @param {mcs_proto.IHeartbeatAck=} [properties] Properties to set
+         * @param {mcs_proto.HeartbeatAck.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function HeartbeatAck(properties) {
+        var HeartbeatAck = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * HeartbeatAck streamId.
@@ -2649,10 +3158,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.HeartbeatAck
          * @static
-         * @param {mcs_proto.IHeartbeatAck=} [properties] Properties to set
+         * @param {mcs_proto.HeartbeatAck.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.HeartbeatAck} HeartbeatAck instance
+         * @type {{
+         *   (properties: mcs_proto.HeartbeatAck.$Shape): mcs_proto.HeartbeatAck & mcs_proto.HeartbeatAck.$Shape;
+         *   (properties?: mcs_proto.HeartbeatAck.$Properties): mcs_proto.HeartbeatAck;
+         * }}
          */
-        HeartbeatAck.create = function create(properties) {
+        HeartbeatAck.create = function(properties) {
             return new HeartbeatAck(properties);
         };
 
@@ -2661,19 +3174,26 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.HeartbeatAck
          * @static
-         * @param {mcs_proto.IHeartbeatAck} message HeartbeatAck message or plain object to encode
+         * @param {mcs_proto.HeartbeatAck.$Properties} message HeartbeatAck message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        HeartbeatAck.encode = function encode(message, writer) {
+        HeartbeatAck.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.streamId != null && Object.hasOwnProperty.call(message, "streamId"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 writer.uint32(/* id 1, wireType 0 =*/8).int32(message.streamId);
-            if (message.lastStreamIdReceived != null && Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.lastStreamIdReceived);
-            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
                 writer.uint32(/* id 3, wireType 0 =*/24).int64(message.status);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -2682,12 +3202,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.HeartbeatAck
          * @static
-         * @param {mcs_proto.IHeartbeatAck} message HeartbeatAck message or plain object to encode
+         * @param {mcs_proto.HeartbeatAck.$Properties} message HeartbeatAck message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        HeartbeatAck.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        HeartbeatAck.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -2697,36 +3217,69 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.HeartbeatAck} HeartbeatAck
+         * @returns {mcs_proto.HeartbeatAck & mcs_proto.HeartbeatAck.$Shape} HeartbeatAck
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        HeartbeatAck.decode = function decode(reader, length, error) {
+        HeartbeatAck.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.HeartbeatAck();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.HeartbeatAck();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.streamId = reader.int32();
-                        break;
-                    }
-                case 2: {
-                        message.lastStreamIdReceived = reader.int32();
-                        break;
-                    }
-                case 3: {
-                        message.status = reader.int64();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 0)
+                            break;
+                        message.streamId = reader.int32();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 0)
+                            break;
+                        message.lastStreamIdReceived = reader.int32();
+                        continue;
+                    }
+                case 3: {
+                        if (wireType !== 0)
+                            break;
+                        message.status = reader.int64();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
             return message;
         };
 
@@ -2736,11 +3289,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.HeartbeatAck
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.HeartbeatAck} HeartbeatAck
+         * @returns {mcs_proto.HeartbeatAck & mcs_proto.HeartbeatAck.$Shape} HeartbeatAck
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        HeartbeatAck.decodeDelimited = function decodeDelimited(reader) {
+        HeartbeatAck.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -2754,16 +3307,20 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        HeartbeatAck.verify = function verify(message) {
+        HeartbeatAck.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.streamId != null && message.hasOwnProperty("streamId"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 if (!$util.isInteger(message.streamId))
                     return "streamId: integer expected";
-            if (message.lastStreamIdReceived != null && message.hasOwnProperty("lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 if (!$util.isInteger(message.lastStreamIdReceived))
                     return "lastStreamIdReceived: integer expected";
-            if (message.status != null && message.hasOwnProperty("status"))
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
                 if (!$util.isInteger(message.status) && !(message.status && $util.isInteger(message.status.low) && $util.isInteger(message.status.high)))
                     return "status: integer|Long expected";
             return null;
@@ -2777,9 +3334,15 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.HeartbeatAck} HeartbeatAck
          */
-        HeartbeatAck.fromObject = function fromObject(object) {
+        HeartbeatAck.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.HeartbeatAck)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.HeartbeatAck: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.HeartbeatAck();
             if (object.streamId != null)
                 message.streamId = object.streamId | 0;
@@ -2787,9 +3350,9 @@ $root.mcs_proto = (function() {
                 message.lastStreamIdReceived = object.lastStreamIdReceived | 0;
             if (object.status != null)
                 if ($util.Long)
-                    (message.status = $util.Long.fromValue(object.status)).unsigned = false;
+                    message.status = $util.Long.fromValue(object.status, false);
                 else if (typeof object.status === "string")
-                    message.status = parseInt(object.status, 10);
+                    message.status = $parseInt(object.status, 10);
                 else if (typeof object.status === "number")
                     message.status = object.status;
                 else if (typeof object.status === "object")
@@ -2806,28 +3369,34 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        HeartbeatAck.toObject = function toObject(message, options) {
+        HeartbeatAck.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
                 object.streamId = 0;
                 object.lastStreamIdReceived = 0;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.status = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.status = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.status = options.longs === String ? "0" : 0;
+                    object.status = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
             }
-            if (message.streamId != null && message.hasOwnProperty("streamId"))
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 object.streamId = message.streamId;
-            if (message.lastStreamIdReceived != null && message.hasOwnProperty("lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 object.lastStreamIdReceived = message.lastStreamIdReceived;
-            if (message.status != null && message.hasOwnProperty("status"))
-                if (typeof message.status === "number")
-                    object.status = options.longs === String ? String(message.status) : message.status;
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.status = typeof message.status === "number" ? $BigInt(message.status) : $util.Long.fromBits(message.status.low >>> 0, message.status.high >>> 0, false).toBigInt();
+                else if (typeof message.status === "number")
+                    object.status = options.longs === $String ? $String(message.status) : message.status;
                 else
-                    object.status = options.longs === String ? $util.Long.prototype.toString.call(message.status) : options.longs === Number ? new $util.LongBits(message.status.low >>> 0, message.status.high >>> 0).toNumber() : message.status;
+                    object.status = options.longs === $String ? $util.Long.prototype.toString.call(message.status) : options.longs === $Number ? new $util.LongBits(message.status.low >>> 0, message.status.high >>> 0).toNumber() : message.status;
             return object;
         };
 
@@ -2838,23 +3407,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        HeartbeatAck.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        HeartbeatAck.prototype.toJSON = function() {
+            return HeartbeatAck.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for HeartbeatAck
+         * Gets the type url for HeartbeatAck
          * @function getTypeUrl
          * @memberof mcs_proto.HeartbeatAck
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        HeartbeatAck.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.HeartbeatAck";
+        HeartbeatAck.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.HeartbeatAck";
         };
 
         return HeartbeatAck;
@@ -2864,28 +3432,41 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of an ErrorInfo.
-         * @memberof mcs_proto
-         * @interface IErrorInfo
+         * @typedef {Object} mcs_proto.ErrorInfo.$Properties
          * @property {number} code ErrorInfo code
          * @property {string|null} [message] ErrorInfo message
          * @property {string|null} [type] ErrorInfo type
-         * @property {mcs_proto.IExtension|null} [extension] ErrorInfo extension
+         * @property {mcs_proto.Extension.$Properties|null} [extension] ErrorInfo extension
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of an ErrorInfo.
+         * @memberof mcs_proto
+         * @interface IErrorInfo
+         * @augments mcs_proto.ErrorInfo.$Properties
+         * @deprecated Use mcs_proto.ErrorInfo.$Properties instead.
+         */
+
+        /**
+         * Shape of an ErrorInfo.
+         * @typedef {mcs_proto.ErrorInfo.$Properties} mcs_proto.ErrorInfo.$Shape
          */
 
         /**
          * Constructs a new ErrorInfo.
          * @memberof mcs_proto
          * @classdesc Represents an ErrorInfo.
-         * @implements IErrorInfo
          * @constructor
-         * @param {mcs_proto.IErrorInfo=} [properties] Properties to set
+         * @param {mcs_proto.ErrorInfo.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function ErrorInfo(properties) {
+        var ErrorInfo = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * ErrorInfo code.
@@ -2913,7 +3494,7 @@ $root.mcs_proto = (function() {
 
         /**
          * ErrorInfo extension.
-         * @member {mcs_proto.IExtension|null|undefined} extension
+         * @member {mcs_proto.Extension.$Properties|null|undefined} extension
          * @memberof mcs_proto.ErrorInfo
          * @instance
          */
@@ -2924,10 +3505,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.ErrorInfo
          * @static
-         * @param {mcs_proto.IErrorInfo=} [properties] Properties to set
+         * @param {mcs_proto.ErrorInfo.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.ErrorInfo} ErrorInfo instance
+         * @type {{
+         *   (properties: mcs_proto.ErrorInfo.$Shape): mcs_proto.ErrorInfo & mcs_proto.ErrorInfo.$Shape;
+         *   (properties?: mcs_proto.ErrorInfo.$Properties): mcs_proto.ErrorInfo;
+         * }}
          */
-        ErrorInfo.create = function create(properties) {
+        ErrorInfo.create = function(properties) {
             return new ErrorInfo(properties);
         };
 
@@ -2936,20 +3521,27 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.ErrorInfo
          * @static
-         * @param {mcs_proto.IErrorInfo} message ErrorInfo message or plain object to encode
+         * @param {mcs_proto.ErrorInfo.$Properties} message ErrorInfo message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        ErrorInfo.encode = function encode(message, writer) {
+        ErrorInfo.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             writer.uint32(/* id 1, wireType 0 =*/8).int32(message.code);
-            if (message.message != null && Object.hasOwnProperty.call(message, "message"))
+            if (message.message != null && $Object.hasOwnProperty.call(message, "message"))
                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.message);
-            if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+            if (message.type != null && $Object.hasOwnProperty.call(message, "type"))
                 writer.uint32(/* id 3, wireType 2 =*/26).string(message.type);
-            if (message.extension != null && Object.hasOwnProperty.call(message, "extension"))
-                $root.mcs_proto.Extension.encode(message.extension, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+            if (message.extension != null && $Object.hasOwnProperty.call(message, "extension"))
+                $root.mcs_proto.Extension.encode(message.extension, writer.uint32(/* id 4, wireType 2 =*/34).fork(), _depth + 1).ldelim();
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -2958,12 +3550,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.ErrorInfo
          * @static
-         * @param {mcs_proto.IErrorInfo} message ErrorInfo message or plain object to encode
+         * @param {mcs_proto.ErrorInfo.$Properties} message ErrorInfo message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        ErrorInfo.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        ErrorInfo.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -2973,41 +3565,76 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.ErrorInfo} ErrorInfo
+         * @returns {mcs_proto.ErrorInfo & mcs_proto.ErrorInfo.$Shape} ErrorInfo
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        ErrorInfo.decode = function decode(reader, length, error) {
+        ErrorInfo.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.ErrorInfo();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.ErrorInfo();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.code = reader.int32();
-                        break;
-                    }
-                case 2: {
-                        message.message = reader.string();
-                        break;
-                    }
-                case 3: {
-                        message.type = reader.string();
-                        break;
-                    }
-                case 4: {
-                        message.extension = $root.mcs_proto.Extension.decode(reader, reader.uint32());
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 0)
+                            break;
+                        message.code = reader.int32();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 2)
+                            break;
+                        message.message = reader.string();
+                        continue;
+                    }
+                case 3: {
+                        if (wireType !== 2)
+                            break;
+                        message.type = reader.string();
+                        continue;
+                    }
+                case 4: {
+                        if (wireType !== 2)
+                            break;
+                        message.extension = $root.mcs_proto.Extension.decode(reader, reader.uint32(), $undefined, _depth + 1, message.extension);
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
-            if (!message.hasOwnProperty("code"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "code"))
                 throw $util.ProtocolError("missing required 'code'", { instance: message });
             return message;
         };
@@ -3018,11 +3645,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.ErrorInfo
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.ErrorInfo} ErrorInfo
+         * @returns {mcs_proto.ErrorInfo & mcs_proto.ErrorInfo.$Shape} ErrorInfo
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        ErrorInfo.decodeDelimited = function decodeDelimited(reader) {
+        ErrorInfo.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -3036,19 +3663,23 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        ErrorInfo.verify = function verify(message) {
+        ErrorInfo.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             if (!$util.isInteger(message.code))
                 return "code: integer expected";
-            if (message.message != null && message.hasOwnProperty("message"))
+            if (message.message != null && $Object.hasOwnProperty.call(message, "message"))
                 if (!$util.isString(message.message))
                     return "message: string expected";
-            if (message.type != null && message.hasOwnProperty("type"))
+            if (message.type != null && $Object.hasOwnProperty.call(message, "type"))
                 if (!$util.isString(message.type))
                     return "type: string expected";
-            if (message.extension != null && message.hasOwnProperty("extension")) {
-                var error = $root.mcs_proto.Extension.verify(message.extension);
+            if (message.extension != null && $Object.hasOwnProperty.call(message, "extension")) {
+                var error = $root.mcs_proto.Extension.verify(message.extension, _depth + 1);
                 if (error)
                     return "extension." + error;
             }
@@ -3063,20 +3694,26 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.ErrorInfo} ErrorInfo
          */
-        ErrorInfo.fromObject = function fromObject(object) {
+        ErrorInfo.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.ErrorInfo)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.ErrorInfo: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.ErrorInfo();
             if (object.code != null)
                 message.code = object.code | 0;
             if (object.message != null)
-                message.message = String(object.message);
+                message.message = $String(object.message);
             if (object.type != null)
-                message.type = String(object.type);
+                message.type = $String(object.type);
             if (object.extension != null) {
-                if (typeof object.extension !== "object")
-                    throw TypeError(".mcs_proto.ErrorInfo.extension: object expected");
-                message.extension = $root.mcs_proto.Extension.fromObject(object.extension);
+                if (!$util.isObject(object.extension))
+                    throw $TypeError(".mcs_proto.ErrorInfo.extension: object expected");
+                message.extension = $root.mcs_proto.Extension.fromObject(object.extension, _depth + 1);
             }
             return message;
         };
@@ -3090,9 +3727,13 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        ErrorInfo.toObject = function toObject(message, options) {
+        ErrorInfo.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
                 object.code = 0;
@@ -3100,14 +3741,14 @@ $root.mcs_proto = (function() {
                 object.type = "";
                 object.extension = null;
             }
-            if (message.code != null && message.hasOwnProperty("code"))
+            if (message.code != null && $Object.hasOwnProperty.call(message, "code"))
                 object.code = message.code;
-            if (message.message != null && message.hasOwnProperty("message"))
+            if (message.message != null && $Object.hasOwnProperty.call(message, "message"))
                 object.message = message.message;
-            if (message.type != null && message.hasOwnProperty("type"))
+            if (message.type != null && $Object.hasOwnProperty.call(message, "type"))
                 object.type = message.type;
-            if (message.extension != null && message.hasOwnProperty("extension"))
-                object.extension = $root.mcs_proto.Extension.toObject(message.extension, options);
+            if (message.extension != null && $Object.hasOwnProperty.call(message, "extension"))
+                object.extension = $root.mcs_proto.Extension.toObject(message.extension, options, _depth + 1);
             return object;
         };
 
@@ -3118,23 +3759,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        ErrorInfo.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        ErrorInfo.prototype.toJSON = function() {
+            return ErrorInfo.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for ErrorInfo
+         * Gets the type url for ErrorInfo
          * @function getTypeUrl
          * @memberof mcs_proto.ErrorInfo
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        ErrorInfo.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.ErrorInfo";
+        ErrorInfo.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.ErrorInfo";
         };
 
         return ErrorInfo;
@@ -3144,26 +3784,39 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a Setting.
-         * @memberof mcs_proto
-         * @interface ISetting
+         * @typedef {Object} mcs_proto.Setting.$Properties
          * @property {string} name Setting name
          * @property {string} value Setting value
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a Setting.
+         * @memberof mcs_proto
+         * @interface ISetting
+         * @augments mcs_proto.Setting.$Properties
+         * @deprecated Use mcs_proto.Setting.$Properties instead.
+         */
+
+        /**
+         * Shape of a Setting.
+         * @typedef {mcs_proto.Setting.$Properties} mcs_proto.Setting.$Shape
          */
 
         /**
          * Constructs a new Setting.
          * @memberof mcs_proto
          * @classdesc Represents a Setting.
-         * @implements ISetting
          * @constructor
-         * @param {mcs_proto.ISetting=} [properties] Properties to set
+         * @param {mcs_proto.Setting.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function Setting(properties) {
+        var Setting = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * Setting name.
@@ -3186,10 +3839,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.Setting
          * @static
-         * @param {mcs_proto.ISetting=} [properties] Properties to set
+         * @param {mcs_proto.Setting.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.Setting} Setting instance
+         * @type {{
+         *   (properties: mcs_proto.Setting.$Shape): mcs_proto.Setting & mcs_proto.Setting.$Shape;
+         *   (properties?: mcs_proto.Setting.$Properties): mcs_proto.Setting;
+         * }}
          */
-        Setting.create = function create(properties) {
+        Setting.create = function(properties) {
             return new Setting(properties);
         };
 
@@ -3198,15 +3855,22 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.Setting
          * @static
-         * @param {mcs_proto.ISetting} message Setting message or plain object to encode
+         * @param {mcs_proto.Setting.$Properties} message Setting message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        Setting.encode = function encode(message, writer) {
+        Setting.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
             writer.uint32(/* id 2, wireType 2 =*/18).string(message.value);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -3215,12 +3879,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.Setting
          * @static
-         * @param {mcs_proto.ISetting} message Setting message or plain object to encode
+         * @param {mcs_proto.Setting.$Properties} message Setting message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        Setting.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        Setting.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -3230,35 +3894,66 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.Setting} Setting
+         * @returns {mcs_proto.Setting & mcs_proto.Setting.$Shape} Setting
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        Setting.decode = function decode(reader, length, error) {
+        Setting.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.Setting();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.Setting();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.name = reader.string();
-                        break;
-                    }
-                case 2: {
-                        message.value = reader.string();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 2)
+                            break;
+                        message.name = reader.string();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 2)
+                            break;
+                        message.value = reader.string();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
-            if (!message.hasOwnProperty("name"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "name"))
                 throw $util.ProtocolError("missing required 'name'", { instance: message });
-            if (!message.hasOwnProperty("value"))
+            if (!$Object.hasOwnProperty.call(message, "value"))
                 throw $util.ProtocolError("missing required 'value'", { instance: message });
             return message;
         };
@@ -3269,11 +3964,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.Setting
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.Setting} Setting
+         * @returns {mcs_proto.Setting & mcs_proto.Setting.$Shape} Setting
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        Setting.decodeDelimited = function decodeDelimited(reader) {
+        Setting.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -3287,9 +3982,13 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        Setting.verify = function verify(message) {
+        Setting.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             if (!$util.isString(message.name))
                 return "name: string expected";
             if (!$util.isString(message.value))
@@ -3305,14 +4004,20 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.Setting} Setting
          */
-        Setting.fromObject = function fromObject(object) {
+        Setting.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.Setting)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.Setting: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.Setting();
             if (object.name != null)
-                message.name = String(object.name);
+                message.name = $String(object.name);
             if (object.value != null)
-                message.value = String(object.value);
+                message.value = $String(object.value);
             return message;
         };
 
@@ -3325,17 +4030,21 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        Setting.toObject = function toObject(message, options) {
+        Setting.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
                 object.name = "";
                 object.value = "";
             }
-            if (message.name != null && message.hasOwnProperty("name"))
+            if (message.name != null && $Object.hasOwnProperty.call(message, "name"))
                 object.name = message.name;
-            if (message.value != null && message.hasOwnProperty("value"))
+            if (message.value != null && $Object.hasOwnProperty.call(message, "value"))
                 object.value = message.value;
             return object;
         };
@@ -3347,23 +4056,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        Setting.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        Setting.prototype.toJSON = function() {
+            return Setting.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for Setting
+         * Gets the type url for Setting
          * @function getTypeUrl
          * @memberof mcs_proto.Setting
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        Setting.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.Setting";
+        Setting.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.Setting";
         };
 
         return Setting;
@@ -3373,27 +4081,40 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a HeartbeatStat.
-         * @memberof mcs_proto
-         * @interface IHeartbeatStat
+         * @typedef {Object} mcs_proto.HeartbeatStat.$Properties
          * @property {string} ip HeartbeatStat ip
          * @property {boolean} timeout HeartbeatStat timeout
          * @property {number} intervalMs HeartbeatStat intervalMs
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a HeartbeatStat.
+         * @memberof mcs_proto
+         * @interface IHeartbeatStat
+         * @augments mcs_proto.HeartbeatStat.$Properties
+         * @deprecated Use mcs_proto.HeartbeatStat.$Properties instead.
+         */
+
+        /**
+         * Shape of a HeartbeatStat.
+         * @typedef {mcs_proto.HeartbeatStat.$Properties} mcs_proto.HeartbeatStat.$Shape
          */
 
         /**
          * Constructs a new HeartbeatStat.
          * @memberof mcs_proto
          * @classdesc Represents a HeartbeatStat.
-         * @implements IHeartbeatStat
          * @constructor
-         * @param {mcs_proto.IHeartbeatStat=} [properties] Properties to set
+         * @param {mcs_proto.HeartbeatStat.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function HeartbeatStat(properties) {
+        var HeartbeatStat = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * HeartbeatStat ip.
@@ -3424,10 +4145,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.HeartbeatStat
          * @static
-         * @param {mcs_proto.IHeartbeatStat=} [properties] Properties to set
+         * @param {mcs_proto.HeartbeatStat.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.HeartbeatStat} HeartbeatStat instance
+         * @type {{
+         *   (properties: mcs_proto.HeartbeatStat.$Shape): mcs_proto.HeartbeatStat & mcs_proto.HeartbeatStat.$Shape;
+         *   (properties?: mcs_proto.HeartbeatStat.$Properties): mcs_proto.HeartbeatStat;
+         * }}
          */
-        HeartbeatStat.create = function create(properties) {
+        HeartbeatStat.create = function(properties) {
             return new HeartbeatStat(properties);
         };
 
@@ -3436,16 +4161,23 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.HeartbeatStat
          * @static
-         * @param {mcs_proto.IHeartbeatStat} message HeartbeatStat message or plain object to encode
+         * @param {mcs_proto.HeartbeatStat.$Properties} message HeartbeatStat message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        HeartbeatStat.encode = function encode(message, writer) {
+        HeartbeatStat.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.ip);
             writer.uint32(/* id 2, wireType 0 =*/16).bool(message.timeout);
             writer.uint32(/* id 3, wireType 0 =*/24).int32(message.intervalMs);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -3454,12 +4186,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.HeartbeatStat
          * @static
-         * @param {mcs_proto.IHeartbeatStat} message HeartbeatStat message or plain object to encode
+         * @param {mcs_proto.HeartbeatStat.$Properties} message HeartbeatStat message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        HeartbeatStat.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        HeartbeatStat.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -3469,41 +4201,74 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.HeartbeatStat} HeartbeatStat
+         * @returns {mcs_proto.HeartbeatStat & mcs_proto.HeartbeatStat.$Shape} HeartbeatStat
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        HeartbeatStat.decode = function decode(reader, length, error) {
+        HeartbeatStat.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.HeartbeatStat();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.HeartbeatStat();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.ip = reader.string();
-                        break;
-                    }
-                case 2: {
-                        message.timeout = reader.bool();
-                        break;
-                    }
-                case 3: {
-                        message.intervalMs = reader.int32();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 2)
+                            break;
+                        message.ip = reader.string();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 0)
+                            break;
+                        message.timeout = reader.bool();
+                        continue;
+                    }
+                case 3: {
+                        if (wireType !== 0)
+                            break;
+                        message.intervalMs = reader.int32();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
-            if (!message.hasOwnProperty("ip"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "ip"))
                 throw $util.ProtocolError("missing required 'ip'", { instance: message });
-            if (!message.hasOwnProperty("timeout"))
+            if (!$Object.hasOwnProperty.call(message, "timeout"))
                 throw $util.ProtocolError("missing required 'timeout'", { instance: message });
-            if (!message.hasOwnProperty("intervalMs"))
+            if (!$Object.hasOwnProperty.call(message, "intervalMs"))
                 throw $util.ProtocolError("missing required 'intervalMs'", { instance: message });
             return message;
         };
@@ -3514,11 +4279,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.HeartbeatStat
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.HeartbeatStat} HeartbeatStat
+         * @returns {mcs_proto.HeartbeatStat & mcs_proto.HeartbeatStat.$Shape} HeartbeatStat
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        HeartbeatStat.decodeDelimited = function decodeDelimited(reader) {
+        HeartbeatStat.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -3532,9 +4297,13 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        HeartbeatStat.verify = function verify(message) {
+        HeartbeatStat.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             if (!$util.isString(message.ip))
                 return "ip: string expected";
             if (typeof message.timeout !== "boolean")
@@ -3552,14 +4321,20 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.HeartbeatStat} HeartbeatStat
          */
-        HeartbeatStat.fromObject = function fromObject(object) {
+        HeartbeatStat.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.HeartbeatStat)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.HeartbeatStat: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.HeartbeatStat();
             if (object.ip != null)
-                message.ip = String(object.ip);
+                message.ip = $String(object.ip);
             if (object.timeout != null)
-                message.timeout = Boolean(object.timeout);
+                message.timeout = $Boolean(object.timeout);
             if (object.intervalMs != null)
                 message.intervalMs = object.intervalMs | 0;
             return message;
@@ -3574,20 +4349,24 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        HeartbeatStat.toObject = function toObject(message, options) {
+        HeartbeatStat.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
                 object.ip = "";
                 object.timeout = false;
                 object.intervalMs = 0;
             }
-            if (message.ip != null && message.hasOwnProperty("ip"))
+            if (message.ip != null && $Object.hasOwnProperty.call(message, "ip"))
                 object.ip = message.ip;
-            if (message.timeout != null && message.hasOwnProperty("timeout"))
+            if (message.timeout != null && $Object.hasOwnProperty.call(message, "timeout"))
                 object.timeout = message.timeout;
-            if (message.intervalMs != null && message.hasOwnProperty("intervalMs"))
+            if (message.intervalMs != null && $Object.hasOwnProperty.call(message, "intervalMs"))
                 object.intervalMs = message.intervalMs;
             return object;
         };
@@ -3599,23 +4378,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        HeartbeatStat.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        HeartbeatStat.prototype.toJSON = function() {
+            return HeartbeatStat.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for HeartbeatStat
+         * Gets the type url for HeartbeatStat
          * @function getTypeUrl
          * @memberof mcs_proto.HeartbeatStat
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        HeartbeatStat.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.HeartbeatStat";
+        HeartbeatStat.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.HeartbeatStat";
         };
 
         return HeartbeatStat;
@@ -3625,27 +4403,40 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a HeartbeatConfig.
-         * @memberof mcs_proto
-         * @interface IHeartbeatConfig
+         * @typedef {Object} mcs_proto.HeartbeatConfig.$Properties
          * @property {boolean|null} [uploadStat] HeartbeatConfig uploadStat
          * @property {string|null} [ip] HeartbeatConfig ip
          * @property {number|null} [intervalMs] HeartbeatConfig intervalMs
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a HeartbeatConfig.
+         * @memberof mcs_proto
+         * @interface IHeartbeatConfig
+         * @augments mcs_proto.HeartbeatConfig.$Properties
+         * @deprecated Use mcs_proto.HeartbeatConfig.$Properties instead.
+         */
+
+        /**
+         * Shape of a HeartbeatConfig.
+         * @typedef {mcs_proto.HeartbeatConfig.$Properties} mcs_proto.HeartbeatConfig.$Shape
          */
 
         /**
          * Constructs a new HeartbeatConfig.
          * @memberof mcs_proto
          * @classdesc Represents a HeartbeatConfig.
-         * @implements IHeartbeatConfig
          * @constructor
-         * @param {mcs_proto.IHeartbeatConfig=} [properties] Properties to set
+         * @param {mcs_proto.HeartbeatConfig.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function HeartbeatConfig(properties) {
+        var HeartbeatConfig = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * HeartbeatConfig uploadStat.
@@ -3676,10 +4467,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.HeartbeatConfig
          * @static
-         * @param {mcs_proto.IHeartbeatConfig=} [properties] Properties to set
+         * @param {mcs_proto.HeartbeatConfig.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.HeartbeatConfig} HeartbeatConfig instance
+         * @type {{
+         *   (properties: mcs_proto.HeartbeatConfig.$Shape): mcs_proto.HeartbeatConfig & mcs_proto.HeartbeatConfig.$Shape;
+         *   (properties?: mcs_proto.HeartbeatConfig.$Properties): mcs_proto.HeartbeatConfig;
+         * }}
          */
-        HeartbeatConfig.create = function create(properties) {
+        HeartbeatConfig.create = function(properties) {
             return new HeartbeatConfig(properties);
         };
 
@@ -3688,19 +4483,26 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.HeartbeatConfig
          * @static
-         * @param {mcs_proto.IHeartbeatConfig} message HeartbeatConfig message or plain object to encode
+         * @param {mcs_proto.HeartbeatConfig.$Properties} message HeartbeatConfig message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        HeartbeatConfig.encode = function encode(message, writer) {
+        HeartbeatConfig.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.uploadStat != null && Object.hasOwnProperty.call(message, "uploadStat"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
+            if (message.uploadStat != null && $Object.hasOwnProperty.call(message, "uploadStat"))
                 writer.uint32(/* id 1, wireType 0 =*/8).bool(message.uploadStat);
-            if (message.ip != null && Object.hasOwnProperty.call(message, "ip"))
+            if (message.ip != null && $Object.hasOwnProperty.call(message, "ip"))
                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.ip);
-            if (message.intervalMs != null && Object.hasOwnProperty.call(message, "intervalMs"))
+            if (message.intervalMs != null && $Object.hasOwnProperty.call(message, "intervalMs"))
                 writer.uint32(/* id 3, wireType 0 =*/24).int32(message.intervalMs);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -3709,12 +4511,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.HeartbeatConfig
          * @static
-         * @param {mcs_proto.IHeartbeatConfig} message HeartbeatConfig message or plain object to encode
+         * @param {mcs_proto.HeartbeatConfig.$Properties} message HeartbeatConfig message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        HeartbeatConfig.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        HeartbeatConfig.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -3724,36 +4526,69 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.HeartbeatConfig} HeartbeatConfig
+         * @returns {mcs_proto.HeartbeatConfig & mcs_proto.HeartbeatConfig.$Shape} HeartbeatConfig
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        HeartbeatConfig.decode = function decode(reader, length, error) {
+        HeartbeatConfig.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.HeartbeatConfig();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.HeartbeatConfig();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.uploadStat = reader.bool();
-                        break;
-                    }
-                case 2: {
-                        message.ip = reader.string();
-                        break;
-                    }
-                case 3: {
-                        message.intervalMs = reader.int32();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 0)
+                            break;
+                        message.uploadStat = reader.bool();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 2)
+                            break;
+                        message.ip = reader.string();
+                        continue;
+                    }
+                case 3: {
+                        if (wireType !== 0)
+                            break;
+                        message.intervalMs = reader.int32();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
             return message;
         };
 
@@ -3763,11 +4598,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.HeartbeatConfig
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.HeartbeatConfig} HeartbeatConfig
+         * @returns {mcs_proto.HeartbeatConfig & mcs_proto.HeartbeatConfig.$Shape} HeartbeatConfig
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        HeartbeatConfig.decodeDelimited = function decodeDelimited(reader) {
+        HeartbeatConfig.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -3781,16 +4616,20 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        HeartbeatConfig.verify = function verify(message) {
+        HeartbeatConfig.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.uploadStat != null && message.hasOwnProperty("uploadStat"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
+            if (message.uploadStat != null && $Object.hasOwnProperty.call(message, "uploadStat"))
                 if (typeof message.uploadStat !== "boolean")
                     return "uploadStat: boolean expected";
-            if (message.ip != null && message.hasOwnProperty("ip"))
+            if (message.ip != null && $Object.hasOwnProperty.call(message, "ip"))
                 if (!$util.isString(message.ip))
                     return "ip: string expected";
-            if (message.intervalMs != null && message.hasOwnProperty("intervalMs"))
+            if (message.intervalMs != null && $Object.hasOwnProperty.call(message, "intervalMs"))
                 if (!$util.isInteger(message.intervalMs))
                     return "intervalMs: integer expected";
             return null;
@@ -3804,14 +4643,20 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.HeartbeatConfig} HeartbeatConfig
          */
-        HeartbeatConfig.fromObject = function fromObject(object) {
+        HeartbeatConfig.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.HeartbeatConfig)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.HeartbeatConfig: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.HeartbeatConfig();
             if (object.uploadStat != null)
-                message.uploadStat = Boolean(object.uploadStat);
+                message.uploadStat = $Boolean(object.uploadStat);
             if (object.ip != null)
-                message.ip = String(object.ip);
+                message.ip = $String(object.ip);
             if (object.intervalMs != null)
                 message.intervalMs = object.intervalMs | 0;
             return message;
@@ -3826,20 +4671,24 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        HeartbeatConfig.toObject = function toObject(message, options) {
+        HeartbeatConfig.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
                 object.uploadStat = false;
                 object.ip = "";
                 object.intervalMs = 0;
             }
-            if (message.uploadStat != null && message.hasOwnProperty("uploadStat"))
+            if (message.uploadStat != null && $Object.hasOwnProperty.call(message, "uploadStat"))
                 object.uploadStat = message.uploadStat;
-            if (message.ip != null && message.hasOwnProperty("ip"))
+            if (message.ip != null && $Object.hasOwnProperty.call(message, "ip"))
                 object.ip = message.ip;
-            if (message.intervalMs != null && message.hasOwnProperty("intervalMs"))
+            if (message.intervalMs != null && $Object.hasOwnProperty.call(message, "intervalMs"))
                 object.intervalMs = message.intervalMs;
             return object;
         };
@@ -3851,23 +4700,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        HeartbeatConfig.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        HeartbeatConfig.prototype.toJSON = function() {
+            return HeartbeatConfig.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for HeartbeatConfig
+         * Gets the type url for HeartbeatConfig
          * @function getTypeUrl
          * @memberof mcs_proto.HeartbeatConfig
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        HeartbeatConfig.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.HeartbeatConfig";
+        HeartbeatConfig.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.HeartbeatConfig";
         };
 
         return HeartbeatConfig;
@@ -3877,8 +4725,7 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a ClientEvent.
-         * @memberof mcs_proto
-         * @interface IClientEvent
+         * @typedef {Object} mcs_proto.ClientEvent.$Properties
          * @property {mcs_proto.ClientEvent.Type|null} [type] ClientEvent type
          * @property {number|null} [numberDiscardedEvents] ClientEvent numberDiscardedEvents
          * @property {number|null} [networkType] ClientEvent networkType
@@ -3886,22 +4733,36 @@ $root.mcs_proto = (function() {
          * @property {number|Long|null} [timeConnectionEndedMs] ClientEvent timeConnectionEndedMs
          * @property {number|null} [errorCode] ClientEvent errorCode
          * @property {number|Long|null} [timeConnectionEstablishedMs] ClientEvent timeConnectionEstablishedMs
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a ClientEvent.
+         * @memberof mcs_proto
+         * @interface IClientEvent
+         * @augments mcs_proto.ClientEvent.$Properties
+         * @deprecated Use mcs_proto.ClientEvent.$Properties instead.
+         */
+
+        /**
+         * Shape of a ClientEvent.
+         * @typedef {mcs_proto.ClientEvent.$Properties} mcs_proto.ClientEvent.$Shape
          */
 
         /**
          * Constructs a new ClientEvent.
          * @memberof mcs_proto
          * @classdesc Represents a ClientEvent.
-         * @implements IClientEvent
          * @constructor
-         * @param {mcs_proto.IClientEvent=} [properties] Properties to set
+         * @param {mcs_proto.ClientEvent.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function ClientEvent(properties) {
+        var ClientEvent = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * ClientEvent type.
@@ -3964,10 +4825,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.ClientEvent
          * @static
-         * @param {mcs_proto.IClientEvent=} [properties] Properties to set
+         * @param {mcs_proto.ClientEvent.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.ClientEvent} ClientEvent instance
+         * @type {{
+         *   (properties: mcs_proto.ClientEvent.$Shape): mcs_proto.ClientEvent & mcs_proto.ClientEvent.$Shape;
+         *   (properties?: mcs_proto.ClientEvent.$Properties): mcs_proto.ClientEvent;
+         * }}
          */
-        ClientEvent.create = function create(properties) {
+        ClientEvent.create = function(properties) {
             return new ClientEvent(properties);
         };
 
@@ -3976,27 +4841,34 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.ClientEvent
          * @static
-         * @param {mcs_proto.IClientEvent} message ClientEvent message or plain object to encode
+         * @param {mcs_proto.ClientEvent.$Properties} message ClientEvent message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        ClientEvent.encode = function encode(message, writer) {
+        ClientEvent.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
+            if (message.type != null && $Object.hasOwnProperty.call(message, "type"))
                 writer.uint32(/* id 1, wireType 0 =*/8).int32(message.type);
-            if (message.numberDiscardedEvents != null && Object.hasOwnProperty.call(message, "numberDiscardedEvents"))
+            if (message.numberDiscardedEvents != null && $Object.hasOwnProperty.call(message, "numberDiscardedEvents"))
                 writer.uint32(/* id 100, wireType 0 =*/800).uint32(message.numberDiscardedEvents);
-            if (message.networkType != null && Object.hasOwnProperty.call(message, "networkType"))
+            if (message.networkType != null && $Object.hasOwnProperty.call(message, "networkType"))
                 writer.uint32(/* id 200, wireType 0 =*/1600).int32(message.networkType);
-            if (message.timeConnectionStartedMs != null && Object.hasOwnProperty.call(message, "timeConnectionStartedMs"))
+            if (message.timeConnectionStartedMs != null && $Object.hasOwnProperty.call(message, "timeConnectionStartedMs"))
                 writer.uint32(/* id 202, wireType 0 =*/1616).uint64(message.timeConnectionStartedMs);
-            if (message.timeConnectionEndedMs != null && Object.hasOwnProperty.call(message, "timeConnectionEndedMs"))
+            if (message.timeConnectionEndedMs != null && $Object.hasOwnProperty.call(message, "timeConnectionEndedMs"))
                 writer.uint32(/* id 203, wireType 0 =*/1624).uint64(message.timeConnectionEndedMs);
-            if (message.errorCode != null && Object.hasOwnProperty.call(message, "errorCode"))
+            if (message.errorCode != null && $Object.hasOwnProperty.call(message, "errorCode"))
                 writer.uint32(/* id 204, wireType 0 =*/1632).int32(message.errorCode);
-            if (message.timeConnectionEstablishedMs != null && Object.hasOwnProperty.call(message, "timeConnectionEstablishedMs"))
+            if (message.timeConnectionEstablishedMs != null && $Object.hasOwnProperty.call(message, "timeConnectionEstablishedMs"))
                 writer.uint32(/* id 300, wireType 0 =*/2400).uint64(message.timeConnectionEstablishedMs);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -4005,12 +4877,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.ClientEvent
          * @static
-         * @param {mcs_proto.IClientEvent} message ClientEvent message or plain object to encode
+         * @param {mcs_proto.ClientEvent.$Properties} message ClientEvent message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        ClientEvent.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        ClientEvent.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -4020,52 +4892,99 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.ClientEvent} ClientEvent
+         * @returns {mcs_proto.ClientEvent & mcs_proto.ClientEvent.$Shape} ClientEvent
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        ClientEvent.decode = function decode(reader, length, error) {
+        ClientEvent.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.ClientEvent();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message, value;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.ClientEvent();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.type = reader.int32();
-                        break;
-                    }
-                case 100: {
-                        message.numberDiscardedEvents = reader.uint32();
-                        break;
-                    }
-                case 200: {
-                        message.networkType = reader.int32();
-                        break;
-                    }
-                case 202: {
-                        message.timeConnectionStartedMs = reader.uint64();
-                        break;
-                    }
-                case 203: {
-                        message.timeConnectionEndedMs = reader.uint64();
-                        break;
-                    }
-                case 204: {
-                        message.errorCode = reader.int32();
-                        break;
-                    }
-                case 300: {
-                        message.timeConnectionEstablishedMs = reader.uint64();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 0)
+                            break;
+                        value = reader.int32();
+                        if ($root.mcs_proto.ClientEvent.Type[value] !== $undefined)
+                            message.type = value;
+                        else if (!reader.discardUnknown) {
+                            $util.makeProp(message, "$unknowns", false);
+                            (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                        }
+                        continue;
+                    }
+                case 100: {
+                        if (wireType !== 0)
+                            break;
+                        message.numberDiscardedEvents = reader.uint32();
+                        continue;
+                    }
+                case 200: {
+                        if (wireType !== 0)
+                            break;
+                        message.networkType = reader.int32();
+                        continue;
+                    }
+                case 202: {
+                        if (wireType !== 0)
+                            break;
+                        message.timeConnectionStartedMs = reader.uint64();
+                        continue;
+                    }
+                case 203: {
+                        if (wireType !== 0)
+                            break;
+                        message.timeConnectionEndedMs = reader.uint64();
+                        continue;
+                    }
+                case 204: {
+                        if (wireType !== 0)
+                            break;
+                        message.errorCode = reader.int32();
+                        continue;
+                    }
+                case 300: {
+                        if (wireType !== 0)
+                            break;
+                        message.timeConnectionEstablishedMs = reader.uint64();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
             return message;
         };
 
@@ -4075,11 +4994,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.ClientEvent
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.ClientEvent} ClientEvent
+         * @returns {mcs_proto.ClientEvent & mcs_proto.ClientEvent.$Shape} ClientEvent
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        ClientEvent.decodeDelimited = function decodeDelimited(reader) {
+        ClientEvent.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -4093,10 +5012,14 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        ClientEvent.verify = function verify(message) {
+        ClientEvent.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.type != null && message.hasOwnProperty("type"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
+            if (message.type != null && $Object.hasOwnProperty.call(message, "type"))
                 switch (message.type) {
                 default:
                     return "type: enum value expected";
@@ -4106,22 +5029,22 @@ $root.mcs_proto = (function() {
                 case 3:
                     break;
                 }
-            if (message.numberDiscardedEvents != null && message.hasOwnProperty("numberDiscardedEvents"))
+            if (message.numberDiscardedEvents != null && $Object.hasOwnProperty.call(message, "numberDiscardedEvents"))
                 if (!$util.isInteger(message.numberDiscardedEvents))
                     return "numberDiscardedEvents: integer expected";
-            if (message.networkType != null && message.hasOwnProperty("networkType"))
+            if (message.networkType != null && $Object.hasOwnProperty.call(message, "networkType"))
                 if (!$util.isInteger(message.networkType))
                     return "networkType: integer expected";
-            if (message.timeConnectionStartedMs != null && message.hasOwnProperty("timeConnectionStartedMs"))
+            if (message.timeConnectionStartedMs != null && $Object.hasOwnProperty.call(message, "timeConnectionStartedMs"))
                 if (!$util.isInteger(message.timeConnectionStartedMs) && !(message.timeConnectionStartedMs && $util.isInteger(message.timeConnectionStartedMs.low) && $util.isInteger(message.timeConnectionStartedMs.high)))
                     return "timeConnectionStartedMs: integer|Long expected";
-            if (message.timeConnectionEndedMs != null && message.hasOwnProperty("timeConnectionEndedMs"))
+            if (message.timeConnectionEndedMs != null && $Object.hasOwnProperty.call(message, "timeConnectionEndedMs"))
                 if (!$util.isInteger(message.timeConnectionEndedMs) && !(message.timeConnectionEndedMs && $util.isInteger(message.timeConnectionEndedMs.low) && $util.isInteger(message.timeConnectionEndedMs.high)))
                     return "timeConnectionEndedMs: integer|Long expected";
-            if (message.errorCode != null && message.hasOwnProperty("errorCode"))
+            if (message.errorCode != null && $Object.hasOwnProperty.call(message, "errorCode"))
                 if (!$util.isInteger(message.errorCode))
                     return "errorCode: integer expected";
-            if (message.timeConnectionEstablishedMs != null && message.hasOwnProperty("timeConnectionEstablishedMs"))
+            if (message.timeConnectionEstablishedMs != null && $Object.hasOwnProperty.call(message, "timeConnectionEstablishedMs"))
                 if (!$util.isInteger(message.timeConnectionEstablishedMs) && !(message.timeConnectionEstablishedMs && $util.isInteger(message.timeConnectionEstablishedMs.low) && $util.isInteger(message.timeConnectionEstablishedMs.high)))
                     return "timeConnectionEstablishedMs: integer|Long expected";
             return null;
@@ -4135,17 +5058,17 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.ClientEvent} ClientEvent
          */
-        ClientEvent.fromObject = function fromObject(object) {
+        ClientEvent.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.ClientEvent)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.ClientEvent: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.ClientEvent();
             switch (object.type) {
-            default:
-                if (typeof object.type === "number") {
-                    message.type = object.type;
-                    break;
-                }
-                break;
             case "UNKNOWN":
             case 0:
                 message.type = 0;
@@ -4162,6 +5085,7 @@ $root.mcs_proto = (function() {
             case 3:
                 message.type = 3;
                 break;
+            default:
             }
             if (object.numberDiscardedEvents != null)
                 message.numberDiscardedEvents = object.numberDiscardedEvents >>> 0;
@@ -4169,18 +5093,18 @@ $root.mcs_proto = (function() {
                 message.networkType = object.networkType | 0;
             if (object.timeConnectionStartedMs != null)
                 if ($util.Long)
-                    (message.timeConnectionStartedMs = $util.Long.fromValue(object.timeConnectionStartedMs)).unsigned = true;
+                    message.timeConnectionStartedMs = $util.Long.fromValue(object.timeConnectionStartedMs, true);
                 else if (typeof object.timeConnectionStartedMs === "string")
-                    message.timeConnectionStartedMs = parseInt(object.timeConnectionStartedMs, 10);
+                    message.timeConnectionStartedMs = $parseInt(object.timeConnectionStartedMs, 10);
                 else if (typeof object.timeConnectionStartedMs === "number")
                     message.timeConnectionStartedMs = object.timeConnectionStartedMs;
                 else if (typeof object.timeConnectionStartedMs === "object")
                     message.timeConnectionStartedMs = new $util.LongBits(object.timeConnectionStartedMs.low >>> 0, object.timeConnectionStartedMs.high >>> 0).toNumber(true);
             if (object.timeConnectionEndedMs != null)
                 if ($util.Long)
-                    (message.timeConnectionEndedMs = $util.Long.fromValue(object.timeConnectionEndedMs)).unsigned = true;
+                    message.timeConnectionEndedMs = $util.Long.fromValue(object.timeConnectionEndedMs, true);
                 else if (typeof object.timeConnectionEndedMs === "string")
-                    message.timeConnectionEndedMs = parseInt(object.timeConnectionEndedMs, 10);
+                    message.timeConnectionEndedMs = $parseInt(object.timeConnectionEndedMs, 10);
                 else if (typeof object.timeConnectionEndedMs === "number")
                     message.timeConnectionEndedMs = object.timeConnectionEndedMs;
                 else if (typeof object.timeConnectionEndedMs === "object")
@@ -4189,9 +5113,9 @@ $root.mcs_proto = (function() {
                 message.errorCode = object.errorCode | 0;
             if (object.timeConnectionEstablishedMs != null)
                 if ($util.Long)
-                    (message.timeConnectionEstablishedMs = $util.Long.fromValue(object.timeConnectionEstablishedMs)).unsigned = true;
+                    message.timeConnectionEstablishedMs = $util.Long.fromValue(object.timeConnectionEstablishedMs, true);
                 else if (typeof object.timeConnectionEstablishedMs === "string")
-                    message.timeConnectionEstablishedMs = parseInt(object.timeConnectionEstablishedMs, 10);
+                    message.timeConnectionEstablishedMs = $parseInt(object.timeConnectionEstablishedMs, 10);
                 else if (typeof object.timeConnectionEstablishedMs === "number")
                     message.timeConnectionEstablishedMs = object.timeConnectionEstablishedMs;
                 else if (typeof object.timeConnectionEstablishedMs === "object")
@@ -4208,54 +5132,64 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        ClientEvent.toObject = function toObject(message, options) {
+        ClientEvent.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
-                object.type = options.enums === String ? "UNKNOWN" : 0;
+                object.type = options.enums === $String ? "UNKNOWN" : 0;
                 object.numberDiscardedEvents = 0;
                 object.networkType = 0;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, true);
-                    object.timeConnectionStartedMs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.timeConnectionStartedMs = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.timeConnectionStartedMs = options.longs === String ? "0" : 0;
+                    object.timeConnectionStartedMs = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, true);
-                    object.timeConnectionEndedMs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.timeConnectionEndedMs = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.timeConnectionEndedMs = options.longs === String ? "0" : 0;
+                    object.timeConnectionEndedMs = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 object.errorCode = 0;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, true);
-                    object.timeConnectionEstablishedMs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.timeConnectionEstablishedMs = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.timeConnectionEstablishedMs = options.longs === String ? "0" : 0;
+                    object.timeConnectionEstablishedMs = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
             }
-            if (message.type != null && message.hasOwnProperty("type"))
-                object.type = options.enums === String ? $root.mcs_proto.ClientEvent.Type[message.type] === undefined ? message.type : $root.mcs_proto.ClientEvent.Type[message.type] : message.type;
-            if (message.numberDiscardedEvents != null && message.hasOwnProperty("numberDiscardedEvents"))
+            if (message.type != null && $Object.hasOwnProperty.call(message, "type"))
+                object.type = options.enums === $String ? $root.mcs_proto.ClientEvent.Type[message.type] === $undefined ? message.type : $root.mcs_proto.ClientEvent.Type[message.type] : message.type;
+            if (message.numberDiscardedEvents != null && $Object.hasOwnProperty.call(message, "numberDiscardedEvents"))
                 object.numberDiscardedEvents = message.numberDiscardedEvents;
-            if (message.networkType != null && message.hasOwnProperty("networkType"))
+            if (message.networkType != null && $Object.hasOwnProperty.call(message, "networkType"))
                 object.networkType = message.networkType;
-            if (message.timeConnectionStartedMs != null && message.hasOwnProperty("timeConnectionStartedMs"))
-                if (typeof message.timeConnectionStartedMs === "number")
-                    object.timeConnectionStartedMs = options.longs === String ? String(message.timeConnectionStartedMs) : message.timeConnectionStartedMs;
+            if (message.timeConnectionStartedMs != null && $Object.hasOwnProperty.call(message, "timeConnectionStartedMs"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.timeConnectionStartedMs = typeof message.timeConnectionStartedMs === "number" ? $BigInt(message.timeConnectionStartedMs) : $util.Long.fromBits(message.timeConnectionStartedMs.low >>> 0, message.timeConnectionStartedMs.high >>> 0, true).toBigInt();
+                else if (typeof message.timeConnectionStartedMs === "number")
+                    object.timeConnectionStartedMs = options.longs === $String ? $String(message.timeConnectionStartedMs) : message.timeConnectionStartedMs;
                 else
-                    object.timeConnectionStartedMs = options.longs === String ? $util.Long.prototype.toString.call(message.timeConnectionStartedMs) : options.longs === Number ? new $util.LongBits(message.timeConnectionStartedMs.low >>> 0, message.timeConnectionStartedMs.high >>> 0).toNumber(true) : message.timeConnectionStartedMs;
-            if (message.timeConnectionEndedMs != null && message.hasOwnProperty("timeConnectionEndedMs"))
-                if (typeof message.timeConnectionEndedMs === "number")
-                    object.timeConnectionEndedMs = options.longs === String ? String(message.timeConnectionEndedMs) : message.timeConnectionEndedMs;
+                    object.timeConnectionStartedMs = options.longs === $String ? $util.Long.prototype.toString.call(message.timeConnectionStartedMs) : options.longs === $Number ? new $util.LongBits(message.timeConnectionStartedMs.low >>> 0, message.timeConnectionStartedMs.high >>> 0).toNumber(true) : message.timeConnectionStartedMs;
+            if (message.timeConnectionEndedMs != null && $Object.hasOwnProperty.call(message, "timeConnectionEndedMs"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.timeConnectionEndedMs = typeof message.timeConnectionEndedMs === "number" ? $BigInt(message.timeConnectionEndedMs) : $util.Long.fromBits(message.timeConnectionEndedMs.low >>> 0, message.timeConnectionEndedMs.high >>> 0, true).toBigInt();
+                else if (typeof message.timeConnectionEndedMs === "number")
+                    object.timeConnectionEndedMs = options.longs === $String ? $String(message.timeConnectionEndedMs) : message.timeConnectionEndedMs;
                 else
-                    object.timeConnectionEndedMs = options.longs === String ? $util.Long.prototype.toString.call(message.timeConnectionEndedMs) : options.longs === Number ? new $util.LongBits(message.timeConnectionEndedMs.low >>> 0, message.timeConnectionEndedMs.high >>> 0).toNumber(true) : message.timeConnectionEndedMs;
-            if (message.errorCode != null && message.hasOwnProperty("errorCode"))
+                    object.timeConnectionEndedMs = options.longs === $String ? $util.Long.prototype.toString.call(message.timeConnectionEndedMs) : options.longs === $Number ? new $util.LongBits(message.timeConnectionEndedMs.low >>> 0, message.timeConnectionEndedMs.high >>> 0).toNumber(true) : message.timeConnectionEndedMs;
+            if (message.errorCode != null && $Object.hasOwnProperty.call(message, "errorCode"))
                 object.errorCode = message.errorCode;
-            if (message.timeConnectionEstablishedMs != null && message.hasOwnProperty("timeConnectionEstablishedMs"))
-                if (typeof message.timeConnectionEstablishedMs === "number")
-                    object.timeConnectionEstablishedMs = options.longs === String ? String(message.timeConnectionEstablishedMs) : message.timeConnectionEstablishedMs;
+            if (message.timeConnectionEstablishedMs != null && $Object.hasOwnProperty.call(message, "timeConnectionEstablishedMs"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.timeConnectionEstablishedMs = typeof message.timeConnectionEstablishedMs === "number" ? $BigInt(message.timeConnectionEstablishedMs) : $util.Long.fromBits(message.timeConnectionEstablishedMs.low >>> 0, message.timeConnectionEstablishedMs.high >>> 0, true).toBigInt();
+                else if (typeof message.timeConnectionEstablishedMs === "number")
+                    object.timeConnectionEstablishedMs = options.longs === $String ? $String(message.timeConnectionEstablishedMs) : message.timeConnectionEstablishedMs;
                 else
-                    object.timeConnectionEstablishedMs = options.longs === String ? $util.Long.prototype.toString.call(message.timeConnectionEstablishedMs) : options.longs === Number ? new $util.LongBits(message.timeConnectionEstablishedMs.low >>> 0, message.timeConnectionEstablishedMs.high >>> 0).toNumber(true) : message.timeConnectionEstablishedMs;
+                    object.timeConnectionEstablishedMs = options.longs === $String ? $util.Long.prototype.toString.call(message.timeConnectionEstablishedMs) : options.longs === $Number ? new $util.LongBits(message.timeConnectionEstablishedMs.low >>> 0, message.timeConnectionEstablishedMs.high >>> 0).toNumber(true) : message.timeConnectionEstablishedMs;
             return object;
         };
 
@@ -4266,23 +5200,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        ClientEvent.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        ClientEvent.prototype.toJSON = function() {
+            return ClientEvent.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for ClientEvent
+         * Gets the type url for ClientEvent
          * @function getTypeUrl
          * @memberof mcs_proto.ClientEvent
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        ClientEvent.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.ClientEvent";
+        ClientEvent.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.ClientEvent";
         };
 
         /**
@@ -4295,7 +5228,7 @@ $root.mcs_proto = (function() {
          * @property {number} SUCCESSFUL_CONNECTION=3 SUCCESSFUL_CONNECTION value
          */
         ClientEvent.Type = (function() {
-            var valuesById = {}, values = Object.create(valuesById);
+            var valuesById = $Object.create(null), values = $Object.create(valuesById);
             values[valuesById[0] = "UNKNOWN"] = 0;
             values[valuesById[1] = "DISCARDED_EVENTS"] = 1;
             values[valuesById[2] = "FAILED_CONNECTION"] = 2;
@@ -4310,8 +5243,7 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a LoginRequest.
-         * @memberof mcs_proto
-         * @interface ILoginRequest
+         * @typedef {Object} mcs_proto.LoginRequest.$Properties
          * @property {string} id LoginRequest id
          * @property {string} domain LoginRequest domain
          * @property {string} user LoginRequest user
@@ -4319,35 +5251,49 @@ $root.mcs_proto = (function() {
          * @property {string} authToken LoginRequest authToken
          * @property {string|null} [deviceId] LoginRequest deviceId
          * @property {number|Long|null} [lastRmqId] LoginRequest lastRmqId
-         * @property {Array.<mcs_proto.ISetting>|null} [setting] LoginRequest setting
+         * @property {Array.<mcs_proto.Setting.$Properties>|null} [setting] LoginRequest setting
          * @property {Array.<string>|null} [receivedPersistentId] LoginRequest receivedPersistentId
          * @property {boolean|null} [adaptiveHeartbeat] LoginRequest adaptiveHeartbeat
-         * @property {mcs_proto.IHeartbeatStat|null} [heartbeatStat] LoginRequest heartbeatStat
+         * @property {mcs_proto.HeartbeatStat.$Properties|null} [heartbeatStat] LoginRequest heartbeatStat
          * @property {boolean|null} [useRmq2] LoginRequest useRmq2
          * @property {number|Long|null} [accountId] LoginRequest accountId
          * @property {mcs_proto.LoginRequest.AuthService|null} [authService] LoginRequest authService
          * @property {number|null} [networkType] LoginRequest networkType
          * @property {number|Long|null} [status] LoginRequest status
-         * @property {Array.<mcs_proto.IClientEvent>|null} [clientEvent] LoginRequest clientEvent
+         * @property {Array.<mcs_proto.ClientEvent.$Properties>|null} [clientEvent] LoginRequest clientEvent
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a LoginRequest.
+         * @memberof mcs_proto
+         * @interface ILoginRequest
+         * @augments mcs_proto.LoginRequest.$Properties
+         * @deprecated Use mcs_proto.LoginRequest.$Properties instead.
+         */
+
+        /**
+         * Shape of a LoginRequest.
+         * @typedef {mcs_proto.LoginRequest.$Properties} mcs_proto.LoginRequest.$Shape
          */
 
         /**
          * Constructs a new LoginRequest.
          * @memberof mcs_proto
          * @classdesc TAG: 2
-         * @implements ILoginRequest
          * @constructor
-         * @param {mcs_proto.ILoginRequest=} [properties] Properties to set
+         * @param {mcs_proto.LoginRequest.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function LoginRequest(properties) {
+        var LoginRequest = function (properties) {
             this.setting = [];
             this.receivedPersistentId = [];
             this.clientEvent = [];
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * LoginRequest id.
@@ -4407,7 +5353,7 @@ $root.mcs_proto = (function() {
 
         /**
          * LoginRequest setting.
-         * @member {Array.<mcs_proto.ISetting>} setting
+         * @member {Array.<mcs_proto.Setting.$Properties>} setting
          * @memberof mcs_proto.LoginRequest
          * @instance
          */
@@ -4431,7 +5377,7 @@ $root.mcs_proto = (function() {
 
         /**
          * LoginRequest heartbeatStat.
-         * @member {mcs_proto.IHeartbeatStat|null|undefined} heartbeatStat
+         * @member {mcs_proto.HeartbeatStat.$Properties|null|undefined} heartbeatStat
          * @memberof mcs_proto.LoginRequest
          * @instance
          */
@@ -4479,7 +5425,7 @@ $root.mcs_proto = (function() {
 
         /**
          * LoginRequest clientEvent.
-         * @member {Array.<mcs_proto.IClientEvent>} clientEvent
+         * @member {Array.<mcs_proto.ClientEvent.$Properties>} clientEvent
          * @memberof mcs_proto.LoginRequest
          * @instance
          */
@@ -4490,10 +5436,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.LoginRequest
          * @static
-         * @param {mcs_proto.ILoginRequest=} [properties] Properties to set
+         * @param {mcs_proto.LoginRequest.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.LoginRequest} LoginRequest instance
+         * @type {{
+         *   (properties: mcs_proto.LoginRequest.$Shape): mcs_proto.LoginRequest & mcs_proto.LoginRequest.$Shape;
+         *   (properties?: mcs_proto.LoginRequest.$Properties): mcs_proto.LoginRequest;
+         * }}
          */
-        LoginRequest.create = function create(properties) {
+        LoginRequest.create = function(properties) {
             return new LoginRequest(properties);
         };
 
@@ -4502,45 +5452,52 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.LoginRequest
          * @static
-         * @param {mcs_proto.ILoginRequest} message LoginRequest message or plain object to encode
+         * @param {mcs_proto.LoginRequest.$Properties} message LoginRequest message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        LoginRequest.encode = function encode(message, writer) {
+        LoginRequest.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
             writer.uint32(/* id 2, wireType 2 =*/18).string(message.domain);
             writer.uint32(/* id 3, wireType 2 =*/26).string(message.user);
             writer.uint32(/* id 4, wireType 2 =*/34).string(message.resource);
             writer.uint32(/* id 5, wireType 2 =*/42).string(message.authToken);
-            if (message.deviceId != null && Object.hasOwnProperty.call(message, "deviceId"))
+            if (message.deviceId != null && $Object.hasOwnProperty.call(message, "deviceId"))
                 writer.uint32(/* id 6, wireType 2 =*/50).string(message.deviceId);
-            if (message.lastRmqId != null && Object.hasOwnProperty.call(message, "lastRmqId"))
+            if (message.lastRmqId != null && $Object.hasOwnProperty.call(message, "lastRmqId"))
                 writer.uint32(/* id 7, wireType 0 =*/56).int64(message.lastRmqId);
             if (message.setting != null && message.setting.length)
                 for (var i = 0; i < message.setting.length; ++i)
-                    $root.mcs_proto.Setting.encode(message.setting[i], writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+                    $root.mcs_proto.Setting.encode(message.setting[i], writer.uint32(/* id 8, wireType 2 =*/66).fork(), _depth + 1).ldelim();
             if (message.receivedPersistentId != null && message.receivedPersistentId.length)
                 for (var i = 0; i < message.receivedPersistentId.length; ++i)
                     writer.uint32(/* id 10, wireType 2 =*/82).string(message.receivedPersistentId[i]);
-            if (message.adaptiveHeartbeat != null && Object.hasOwnProperty.call(message, "adaptiveHeartbeat"))
+            if (message.adaptiveHeartbeat != null && $Object.hasOwnProperty.call(message, "adaptiveHeartbeat"))
                 writer.uint32(/* id 12, wireType 0 =*/96).bool(message.adaptiveHeartbeat);
-            if (message.heartbeatStat != null && Object.hasOwnProperty.call(message, "heartbeatStat"))
-                $root.mcs_proto.HeartbeatStat.encode(message.heartbeatStat, writer.uint32(/* id 13, wireType 2 =*/106).fork()).ldelim();
-            if (message.useRmq2 != null && Object.hasOwnProperty.call(message, "useRmq2"))
+            if (message.heartbeatStat != null && $Object.hasOwnProperty.call(message, "heartbeatStat"))
+                $root.mcs_proto.HeartbeatStat.encode(message.heartbeatStat, writer.uint32(/* id 13, wireType 2 =*/106).fork(), _depth + 1).ldelim();
+            if (message.useRmq2 != null && $Object.hasOwnProperty.call(message, "useRmq2"))
                 writer.uint32(/* id 14, wireType 0 =*/112).bool(message.useRmq2);
-            if (message.accountId != null && Object.hasOwnProperty.call(message, "accountId"))
+            if (message.accountId != null && $Object.hasOwnProperty.call(message, "accountId"))
                 writer.uint32(/* id 15, wireType 0 =*/120).int64(message.accountId);
-            if (message.authService != null && Object.hasOwnProperty.call(message, "authService"))
+            if (message.authService != null && $Object.hasOwnProperty.call(message, "authService"))
                 writer.uint32(/* id 16, wireType 0 =*/128).int32(message.authService);
-            if (message.networkType != null && Object.hasOwnProperty.call(message, "networkType"))
+            if (message.networkType != null && $Object.hasOwnProperty.call(message, "networkType"))
                 writer.uint32(/* id 17, wireType 0 =*/136).int32(message.networkType);
-            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
                 writer.uint32(/* id 18, wireType 0 =*/144).int64(message.status);
             if (message.clientEvent != null && message.clientEvent.length)
                 for (var i = 0; i < message.clientEvent.length; ++i)
-                    $root.mcs_proto.ClientEvent.encode(message.clientEvent[i], writer.uint32(/* id 22, wireType 2 =*/178).fork()).ldelim();
+                    $root.mcs_proto.ClientEvent.encode(message.clientEvent[i], writer.uint32(/* id 22, wireType 2 =*/178).fork(), _depth + 1).ldelim();
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -4549,12 +5506,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.LoginRequest
          * @static
-         * @param {mcs_proto.ILoginRequest} message LoginRequest message or plain object to encode
+         * @param {mcs_proto.LoginRequest.$Properties} message LoginRequest message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        LoginRequest.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        LoginRequest.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -4564,107 +5521,174 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.LoginRequest} LoginRequest
+         * @returns {mcs_proto.LoginRequest & mcs_proto.LoginRequest.$Shape} LoginRequest
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        LoginRequest.decode = function decode(reader, length, error) {
+        LoginRequest.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.LoginRequest();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message, value;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.LoginRequest();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
-                switch (tag >>> 3) {
+                }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
                 case 1: {
+                        if (wireType !== 2)
+                            break;
                         message.id = reader.string();
-                        break;
+                        continue;
                     }
                 case 2: {
+                        if (wireType !== 2)
+                            break;
                         message.domain = reader.string();
-                        break;
+                        continue;
                     }
                 case 3: {
+                        if (wireType !== 2)
+                            break;
                         message.user = reader.string();
-                        break;
+                        continue;
                     }
                 case 4: {
+                        if (wireType !== 2)
+                            break;
                         message.resource = reader.string();
-                        break;
+                        continue;
                     }
                 case 5: {
+                        if (wireType !== 2)
+                            break;
                         message.authToken = reader.string();
-                        break;
+                        continue;
                     }
                 case 6: {
+                        if (wireType !== 2)
+                            break;
                         message.deviceId = reader.string();
-                        break;
+                        continue;
                     }
                 case 7: {
+                        if (wireType !== 0)
+                            break;
                         message.lastRmqId = reader.int64();
-                        break;
+                        continue;
                     }
                 case 8: {
+                        if (wireType !== 2)
+                            break;
                         if (!(message.setting && message.setting.length))
                             message.setting = [];
-                        message.setting.push($root.mcs_proto.Setting.decode(reader, reader.uint32()));
-                        break;
+                        message.setting.push($root.mcs_proto.Setting.decode(reader, reader.uint32(), $undefined, _depth + 1));
+                        continue;
                     }
                 case 10: {
+                        if (wireType !== 2)
+                            break;
                         if (!(message.receivedPersistentId && message.receivedPersistentId.length))
                             message.receivedPersistentId = [];
                         message.receivedPersistentId.push(reader.string());
-                        break;
+                        continue;
                     }
                 case 12: {
+                        if (wireType !== 0)
+                            break;
                         message.adaptiveHeartbeat = reader.bool();
-                        break;
+                        continue;
                     }
                 case 13: {
-                        message.heartbeatStat = $root.mcs_proto.HeartbeatStat.decode(reader, reader.uint32());
-                        break;
+                        if (wireType !== 2)
+                            break;
+                        message.heartbeatStat = $root.mcs_proto.HeartbeatStat.decode(reader, reader.uint32(), $undefined, _depth + 1, message.heartbeatStat);
+                        continue;
                     }
                 case 14: {
+                        if (wireType !== 0)
+                            break;
                         message.useRmq2 = reader.bool();
-                        break;
+                        continue;
                     }
                 case 15: {
+                        if (wireType !== 0)
+                            break;
                         message.accountId = reader.int64();
-                        break;
+                        continue;
                     }
                 case 16: {
-                        message.authService = reader.int32();
-                        break;
+                        if (wireType !== 0)
+                            break;
+                        value = reader.int32();
+                        if ($root.mcs_proto.LoginRequest.AuthService[value] !== $undefined)
+                            message.authService = value;
+                        else if (!reader.discardUnknown) {
+                            $util.makeProp(message, "$unknowns", false);
+                            (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                        }
+                        continue;
                     }
                 case 17: {
+                        if (wireType !== 0)
+                            break;
                         message.networkType = reader.int32();
-                        break;
+                        continue;
                     }
                 case 18: {
+                        if (wireType !== 0)
+                            break;
                         message.status = reader.int64();
-                        break;
+                        continue;
                     }
                 case 22: {
+                        if (wireType !== 2)
+                            break;
                         if (!(message.clientEvent && message.clientEvent.length))
                             message.clientEvent = [];
-                        message.clientEvent.push($root.mcs_proto.ClientEvent.decode(reader, reader.uint32()));
-                        break;
+                        message.clientEvent.push($root.mcs_proto.ClientEvent.decode(reader, reader.uint32(), $undefined, _depth + 1));
+                        continue;
                     }
-                default:
-                    reader.skipType(tag & 7);
-                    break;
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
                 }
             }
-            if (!message.hasOwnProperty("id"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "id"))
                 throw $util.ProtocolError("missing required 'id'", { instance: message });
-            if (!message.hasOwnProperty("domain"))
+            if (!$Object.hasOwnProperty.call(message, "domain"))
                 throw $util.ProtocolError("missing required 'domain'", { instance: message });
-            if (!message.hasOwnProperty("user"))
+            if (!$Object.hasOwnProperty.call(message, "user"))
                 throw $util.ProtocolError("missing required 'user'", { instance: message });
-            if (!message.hasOwnProperty("resource"))
+            if (!$Object.hasOwnProperty.call(message, "resource"))
                 throw $util.ProtocolError("missing required 'resource'", { instance: message });
-            if (!message.hasOwnProperty("authToken"))
+            if (!$Object.hasOwnProperty.call(message, "authToken"))
                 throw $util.ProtocolError("missing required 'authToken'", { instance: message });
             return message;
         };
@@ -4675,11 +5699,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.LoginRequest
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.LoginRequest} LoginRequest
+         * @returns {mcs_proto.LoginRequest & mcs_proto.LoginRequest.$Shape} LoginRequest
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        LoginRequest.decodeDelimited = function decodeDelimited(reader) {
+        LoginRequest.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -4693,9 +5717,13 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        LoginRequest.verify = function verify(message) {
+        LoginRequest.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             if (!$util.isString(message.id))
                 return "id: string expected";
             if (!$util.isString(message.domain))
@@ -4706,60 +5734,60 @@ $root.mcs_proto = (function() {
                 return "resource: string expected";
             if (!$util.isString(message.authToken))
                 return "authToken: string expected";
-            if (message.deviceId != null && message.hasOwnProperty("deviceId"))
+            if (message.deviceId != null && $Object.hasOwnProperty.call(message, "deviceId"))
                 if (!$util.isString(message.deviceId))
                     return "deviceId: string expected";
-            if (message.lastRmqId != null && message.hasOwnProperty("lastRmqId"))
+            if (message.lastRmqId != null && $Object.hasOwnProperty.call(message, "lastRmqId"))
                 if (!$util.isInteger(message.lastRmqId) && !(message.lastRmqId && $util.isInteger(message.lastRmqId.low) && $util.isInteger(message.lastRmqId.high)))
                     return "lastRmqId: integer|Long expected";
-            if (message.setting != null && message.hasOwnProperty("setting")) {
-                if (!Array.isArray(message.setting))
+            if (message.setting != null && $Object.hasOwnProperty.call(message, "setting")) {
+                if (!$Array.isArray(message.setting))
                     return "setting: array expected";
                 for (var i = 0; i < message.setting.length; ++i) {
-                    var error = $root.mcs_proto.Setting.verify(message.setting[i]);
+                    var error = $root.mcs_proto.Setting.verify(message.setting[i], _depth + 1);
                     if (error)
                         return "setting." + error;
                 }
             }
-            if (message.receivedPersistentId != null && message.hasOwnProperty("receivedPersistentId")) {
-                if (!Array.isArray(message.receivedPersistentId))
+            if (message.receivedPersistentId != null && $Object.hasOwnProperty.call(message, "receivedPersistentId")) {
+                if (!$Array.isArray(message.receivedPersistentId))
                     return "receivedPersistentId: array expected";
                 for (var i = 0; i < message.receivedPersistentId.length; ++i)
                     if (!$util.isString(message.receivedPersistentId[i]))
                         return "receivedPersistentId: string[] expected";
             }
-            if (message.adaptiveHeartbeat != null && message.hasOwnProperty("adaptiveHeartbeat"))
+            if (message.adaptiveHeartbeat != null && $Object.hasOwnProperty.call(message, "adaptiveHeartbeat"))
                 if (typeof message.adaptiveHeartbeat !== "boolean")
                     return "adaptiveHeartbeat: boolean expected";
-            if (message.heartbeatStat != null && message.hasOwnProperty("heartbeatStat")) {
-                var error = $root.mcs_proto.HeartbeatStat.verify(message.heartbeatStat);
+            if (message.heartbeatStat != null && $Object.hasOwnProperty.call(message, "heartbeatStat")) {
+                var error = $root.mcs_proto.HeartbeatStat.verify(message.heartbeatStat, _depth + 1);
                 if (error)
                     return "heartbeatStat." + error;
             }
-            if (message.useRmq2 != null && message.hasOwnProperty("useRmq2"))
+            if (message.useRmq2 != null && $Object.hasOwnProperty.call(message, "useRmq2"))
                 if (typeof message.useRmq2 !== "boolean")
                     return "useRmq2: boolean expected";
-            if (message.accountId != null && message.hasOwnProperty("accountId"))
+            if (message.accountId != null && $Object.hasOwnProperty.call(message, "accountId"))
                 if (!$util.isInteger(message.accountId) && !(message.accountId && $util.isInteger(message.accountId.low) && $util.isInteger(message.accountId.high)))
                     return "accountId: integer|Long expected";
-            if (message.authService != null && message.hasOwnProperty("authService"))
+            if (message.authService != null && $Object.hasOwnProperty.call(message, "authService"))
                 switch (message.authService) {
                 default:
                     return "authService: enum value expected";
                 case 2:
                     break;
                 }
-            if (message.networkType != null && message.hasOwnProperty("networkType"))
+            if (message.networkType != null && $Object.hasOwnProperty.call(message, "networkType"))
                 if (!$util.isInteger(message.networkType))
                     return "networkType: integer expected";
-            if (message.status != null && message.hasOwnProperty("status"))
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
                 if (!$util.isInteger(message.status) && !(message.status && $util.isInteger(message.status.low) && $util.isInteger(message.status.high)))
                     return "status: integer|Long expected";
-            if (message.clientEvent != null && message.hasOwnProperty("clientEvent")) {
-                if (!Array.isArray(message.clientEvent))
+            if (message.clientEvent != null && $Object.hasOwnProperty.call(message, "clientEvent")) {
+                if (!$Array.isArray(message.clientEvent))
                     return "clientEvent: array expected";
                 for (var i = 0; i < message.clientEvent.length; ++i) {
-                    var error = $root.mcs_proto.ClientEvent.verify(message.clientEvent[i]);
+                    var error = $root.mcs_proto.ClientEvent.verify(message.clientEvent[i], _depth + 1);
                     if (error)
                         return "clientEvent." + error;
                 }
@@ -4775,97 +5803,98 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.LoginRequest} LoginRequest
          */
-        LoginRequest.fromObject = function fromObject(object) {
+        LoginRequest.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.LoginRequest)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.LoginRequest: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.LoginRequest();
             if (object.id != null)
-                message.id = String(object.id);
+                message.id = $String(object.id);
             if (object.domain != null)
-                message.domain = String(object.domain);
+                message.domain = $String(object.domain);
             if (object.user != null)
-                message.user = String(object.user);
+                message.user = $String(object.user);
             if (object.resource != null)
-                message.resource = String(object.resource);
+                message.resource = $String(object.resource);
             if (object.authToken != null)
-                message.authToken = String(object.authToken);
+                message.authToken = $String(object.authToken);
             if (object.deviceId != null)
-                message.deviceId = String(object.deviceId);
+                message.deviceId = $String(object.deviceId);
             if (object.lastRmqId != null)
                 if ($util.Long)
-                    (message.lastRmqId = $util.Long.fromValue(object.lastRmqId)).unsigned = false;
+                    message.lastRmqId = $util.Long.fromValue(object.lastRmqId, false);
                 else if (typeof object.lastRmqId === "string")
-                    message.lastRmqId = parseInt(object.lastRmqId, 10);
+                    message.lastRmqId = $parseInt(object.lastRmqId, 10);
                 else if (typeof object.lastRmqId === "number")
                     message.lastRmqId = object.lastRmqId;
                 else if (typeof object.lastRmqId === "object")
                     message.lastRmqId = new $util.LongBits(object.lastRmqId.low >>> 0, object.lastRmqId.high >>> 0).toNumber();
             if (object.setting) {
-                if (!Array.isArray(object.setting))
-                    throw TypeError(".mcs_proto.LoginRequest.setting: array expected");
-                message.setting = [];
+                if (!$Array.isArray(object.setting))
+                    throw $TypeError(".mcs_proto.LoginRequest.setting: array expected");
+                message.setting = $Array(object.setting.length);
                 for (var i = 0; i < object.setting.length; ++i) {
-                    if (typeof object.setting[i] !== "object")
-                        throw TypeError(".mcs_proto.LoginRequest.setting: object expected");
-                    message.setting[i] = $root.mcs_proto.Setting.fromObject(object.setting[i]);
+                    if (!$util.isObject(object.setting[i]))
+                        throw $TypeError(".mcs_proto.LoginRequest.setting: object expected");
+                    message.setting[i] = $root.mcs_proto.Setting.fromObject(object.setting[i], _depth + 1);
                 }
             }
             if (object.receivedPersistentId) {
-                if (!Array.isArray(object.receivedPersistentId))
-                    throw TypeError(".mcs_proto.LoginRequest.receivedPersistentId: array expected");
-                message.receivedPersistentId = [];
+                if (!$Array.isArray(object.receivedPersistentId))
+                    throw $TypeError(".mcs_proto.LoginRequest.receivedPersistentId: array expected");
+                message.receivedPersistentId = $Array(object.receivedPersistentId.length);
                 for (var i = 0; i < object.receivedPersistentId.length; ++i)
-                    message.receivedPersistentId[i] = String(object.receivedPersistentId[i]);
+                    message.receivedPersistentId[i] = $String(object.receivedPersistentId[i]);
             }
             if (object.adaptiveHeartbeat != null)
-                message.adaptiveHeartbeat = Boolean(object.adaptiveHeartbeat);
+                message.adaptiveHeartbeat = $Boolean(object.adaptiveHeartbeat);
             if (object.heartbeatStat != null) {
-                if (typeof object.heartbeatStat !== "object")
-                    throw TypeError(".mcs_proto.LoginRequest.heartbeatStat: object expected");
-                message.heartbeatStat = $root.mcs_proto.HeartbeatStat.fromObject(object.heartbeatStat);
+                if (!$util.isObject(object.heartbeatStat))
+                    throw $TypeError(".mcs_proto.LoginRequest.heartbeatStat: object expected");
+                message.heartbeatStat = $root.mcs_proto.HeartbeatStat.fromObject(object.heartbeatStat, _depth + 1);
             }
             if (object.useRmq2 != null)
-                message.useRmq2 = Boolean(object.useRmq2);
+                message.useRmq2 = $Boolean(object.useRmq2);
             if (object.accountId != null)
                 if ($util.Long)
-                    (message.accountId = $util.Long.fromValue(object.accountId)).unsigned = false;
+                    message.accountId = $util.Long.fromValue(object.accountId, false);
                 else if (typeof object.accountId === "string")
-                    message.accountId = parseInt(object.accountId, 10);
+                    message.accountId = $parseInt(object.accountId, 10);
                 else if (typeof object.accountId === "number")
                     message.accountId = object.accountId;
                 else if (typeof object.accountId === "object")
                     message.accountId = new $util.LongBits(object.accountId.low >>> 0, object.accountId.high >>> 0).toNumber();
             switch (object.authService) {
-            default:
-                if (typeof object.authService === "number") {
-                    message.authService = object.authService;
-                    break;
-                }
-                break;
             case "ANDROID_ID":
             case 2:
                 message.authService = 2;
                 break;
+            default:
             }
             if (object.networkType != null)
                 message.networkType = object.networkType | 0;
             if (object.status != null)
                 if ($util.Long)
-                    (message.status = $util.Long.fromValue(object.status)).unsigned = false;
+                    message.status = $util.Long.fromValue(object.status, false);
                 else if (typeof object.status === "string")
-                    message.status = parseInt(object.status, 10);
+                    message.status = $parseInt(object.status, 10);
                 else if (typeof object.status === "number")
                     message.status = object.status;
                 else if (typeof object.status === "object")
                     message.status = new $util.LongBits(object.status.low >>> 0, object.status.high >>> 0).toNumber();
             if (object.clientEvent) {
-                if (!Array.isArray(object.clientEvent))
-                    throw TypeError(".mcs_proto.LoginRequest.clientEvent: array expected");
-                message.clientEvent = [];
+                if (!$Array.isArray(object.clientEvent))
+                    throw $TypeError(".mcs_proto.LoginRequest.clientEvent: array expected");
+                message.clientEvent = $Array(object.clientEvent.length);
                 for (var i = 0; i < object.clientEvent.length; ++i) {
-                    if (typeof object.clientEvent[i] !== "object")
-                        throw TypeError(".mcs_proto.LoginRequest.clientEvent: object expected");
-                    message.clientEvent[i] = $root.mcs_proto.ClientEvent.fromObject(object.clientEvent[i]);
+                    if (!$util.isObject(object.clientEvent[i]))
+                        throw $TypeError(".mcs_proto.LoginRequest.clientEvent: object expected");
+                    message.clientEvent[i] = $root.mcs_proto.ClientEvent.fromObject(object.clientEvent[i], _depth + 1);
                 }
             }
             return message;
@@ -4880,9 +5909,13 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        LoginRequest.toObject = function toObject(message, options) {
+        LoginRequest.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.arrays || options.defaults) {
                 object.setting = [];
@@ -4898,76 +5931,82 @@ $root.mcs_proto = (function() {
                 object.deviceId = "";
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.lastRmqId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.lastRmqId = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.lastRmqId = options.longs === String ? "0" : 0;
+                    object.lastRmqId = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 object.adaptiveHeartbeat = false;
                 object.heartbeatStat = null;
                 object.useRmq2 = false;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.accountId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.accountId = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.accountId = options.longs === String ? "0" : 0;
-                object.authService = options.enums === String ? "ANDROID_ID" : 2;
+                    object.accountId = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
+                object.authService = options.enums === $String ? "ANDROID_ID" : 2;
                 object.networkType = 0;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.status = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.status = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.status = options.longs === String ? "0" : 0;
+                    object.status = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
             }
-            if (message.id != null && message.hasOwnProperty("id"))
+            if (message.id != null && $Object.hasOwnProperty.call(message, "id"))
                 object.id = message.id;
-            if (message.domain != null && message.hasOwnProperty("domain"))
+            if (message.domain != null && $Object.hasOwnProperty.call(message, "domain"))
                 object.domain = message.domain;
-            if (message.user != null && message.hasOwnProperty("user"))
+            if (message.user != null && $Object.hasOwnProperty.call(message, "user"))
                 object.user = message.user;
-            if (message.resource != null && message.hasOwnProperty("resource"))
+            if (message.resource != null && $Object.hasOwnProperty.call(message, "resource"))
                 object.resource = message.resource;
-            if (message.authToken != null && message.hasOwnProperty("authToken"))
+            if (message.authToken != null && $Object.hasOwnProperty.call(message, "authToken"))
                 object.authToken = message.authToken;
-            if (message.deviceId != null && message.hasOwnProperty("deviceId"))
+            if (message.deviceId != null && $Object.hasOwnProperty.call(message, "deviceId"))
                 object.deviceId = message.deviceId;
-            if (message.lastRmqId != null && message.hasOwnProperty("lastRmqId"))
-                if (typeof message.lastRmqId === "number")
-                    object.lastRmqId = options.longs === String ? String(message.lastRmqId) : message.lastRmqId;
+            if (message.lastRmqId != null && $Object.hasOwnProperty.call(message, "lastRmqId"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.lastRmqId = typeof message.lastRmqId === "number" ? $BigInt(message.lastRmqId) : $util.Long.fromBits(message.lastRmqId.low >>> 0, message.lastRmqId.high >>> 0, false).toBigInt();
+                else if (typeof message.lastRmqId === "number")
+                    object.lastRmqId = options.longs === $String ? $String(message.lastRmqId) : message.lastRmqId;
                 else
-                    object.lastRmqId = options.longs === String ? $util.Long.prototype.toString.call(message.lastRmqId) : options.longs === Number ? new $util.LongBits(message.lastRmqId.low >>> 0, message.lastRmqId.high >>> 0).toNumber() : message.lastRmqId;
+                    object.lastRmqId = options.longs === $String ? $util.Long.prototype.toString.call(message.lastRmqId) : options.longs === $Number ? new $util.LongBits(message.lastRmqId.low >>> 0, message.lastRmqId.high >>> 0).toNumber() : message.lastRmqId;
             if (message.setting && message.setting.length) {
-                object.setting = [];
+                object.setting = $Array(message.setting.length);
                 for (var j = 0; j < message.setting.length; ++j)
-                    object.setting[j] = $root.mcs_proto.Setting.toObject(message.setting[j], options);
+                    object.setting[j] = $root.mcs_proto.Setting.toObject(message.setting[j], options, _depth + 1);
             }
             if (message.receivedPersistentId && message.receivedPersistentId.length) {
-                object.receivedPersistentId = [];
+                object.receivedPersistentId = $Array(message.receivedPersistentId.length);
                 for (var j = 0; j < message.receivedPersistentId.length; ++j)
                     object.receivedPersistentId[j] = message.receivedPersistentId[j];
             }
-            if (message.adaptiveHeartbeat != null && message.hasOwnProperty("adaptiveHeartbeat"))
+            if (message.adaptiveHeartbeat != null && $Object.hasOwnProperty.call(message, "adaptiveHeartbeat"))
                 object.adaptiveHeartbeat = message.adaptiveHeartbeat;
-            if (message.heartbeatStat != null && message.hasOwnProperty("heartbeatStat"))
-                object.heartbeatStat = $root.mcs_proto.HeartbeatStat.toObject(message.heartbeatStat, options);
-            if (message.useRmq2 != null && message.hasOwnProperty("useRmq2"))
+            if (message.heartbeatStat != null && $Object.hasOwnProperty.call(message, "heartbeatStat"))
+                object.heartbeatStat = $root.mcs_proto.HeartbeatStat.toObject(message.heartbeatStat, options, _depth + 1);
+            if (message.useRmq2 != null && $Object.hasOwnProperty.call(message, "useRmq2"))
                 object.useRmq2 = message.useRmq2;
-            if (message.accountId != null && message.hasOwnProperty("accountId"))
-                if (typeof message.accountId === "number")
-                    object.accountId = options.longs === String ? String(message.accountId) : message.accountId;
+            if (message.accountId != null && $Object.hasOwnProperty.call(message, "accountId"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.accountId = typeof message.accountId === "number" ? $BigInt(message.accountId) : $util.Long.fromBits(message.accountId.low >>> 0, message.accountId.high >>> 0, false).toBigInt();
+                else if (typeof message.accountId === "number")
+                    object.accountId = options.longs === $String ? $String(message.accountId) : message.accountId;
                 else
-                    object.accountId = options.longs === String ? $util.Long.prototype.toString.call(message.accountId) : options.longs === Number ? new $util.LongBits(message.accountId.low >>> 0, message.accountId.high >>> 0).toNumber() : message.accountId;
-            if (message.authService != null && message.hasOwnProperty("authService"))
-                object.authService = options.enums === String ? $root.mcs_proto.LoginRequest.AuthService[message.authService] === undefined ? message.authService : $root.mcs_proto.LoginRequest.AuthService[message.authService] : message.authService;
-            if (message.networkType != null && message.hasOwnProperty("networkType"))
+                    object.accountId = options.longs === $String ? $util.Long.prototype.toString.call(message.accountId) : options.longs === $Number ? new $util.LongBits(message.accountId.low >>> 0, message.accountId.high >>> 0).toNumber() : message.accountId;
+            if (message.authService != null && $Object.hasOwnProperty.call(message, "authService"))
+                object.authService = options.enums === $String ? $root.mcs_proto.LoginRequest.AuthService[message.authService] === $undefined ? message.authService : $root.mcs_proto.LoginRequest.AuthService[message.authService] : message.authService;
+            if (message.networkType != null && $Object.hasOwnProperty.call(message, "networkType"))
                 object.networkType = message.networkType;
-            if (message.status != null && message.hasOwnProperty("status"))
-                if (typeof message.status === "number")
-                    object.status = options.longs === String ? String(message.status) : message.status;
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.status = typeof message.status === "number" ? $BigInt(message.status) : $util.Long.fromBits(message.status.low >>> 0, message.status.high >>> 0, false).toBigInt();
+                else if (typeof message.status === "number")
+                    object.status = options.longs === $String ? $String(message.status) : message.status;
                 else
-                    object.status = options.longs === String ? $util.Long.prototype.toString.call(message.status) : options.longs === Number ? new $util.LongBits(message.status.low >>> 0, message.status.high >>> 0).toNumber() : message.status;
+                    object.status = options.longs === $String ? $util.Long.prototype.toString.call(message.status) : options.longs === $Number ? new $util.LongBits(message.status.low >>> 0, message.status.high >>> 0).toNumber() : message.status;
             if (message.clientEvent && message.clientEvent.length) {
-                object.clientEvent = [];
+                object.clientEvent = $Array(message.clientEvent.length);
                 for (var j = 0; j < message.clientEvent.length; ++j)
-                    object.clientEvent[j] = $root.mcs_proto.ClientEvent.toObject(message.clientEvent[j], options);
+                    object.clientEvent[j] = $root.mcs_proto.ClientEvent.toObject(message.clientEvent[j], options, _depth + 1);
             }
             return object;
         };
@@ -4979,23 +6018,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        LoginRequest.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        LoginRequest.prototype.toJSON = function() {
+            return LoginRequest.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for LoginRequest
+         * Gets the type url for LoginRequest
          * @function getTypeUrl
          * @memberof mcs_proto.LoginRequest
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        LoginRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.LoginRequest";
+        LoginRequest.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.LoginRequest";
         };
 
         /**
@@ -5005,7 +6043,7 @@ $root.mcs_proto = (function() {
          * @property {number} ANDROID_ID=2 ANDROID_ID value
          */
         LoginRequest.AuthService = (function() {
-            var valuesById = {}, values = Object.create(valuesById);
+            var valuesById = $Object.create(null), values = $Object.create(valuesById);
             values[valuesById[2] = "ANDROID_ID"] = 2;
             return values;
         })();
@@ -5017,33 +6055,46 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a LoginResponse.
-         * @memberof mcs_proto
-         * @interface ILoginResponse
+         * @typedef {Object} mcs_proto.LoginResponse.$Properties
          * @property {string} id LoginResponse id
          * @property {string|null} [jid] LoginResponse jid
-         * @property {mcs_proto.IErrorInfo|null} [error] LoginResponse error
-         * @property {Array.<mcs_proto.ISetting>|null} [setting] LoginResponse setting
+         * @property {mcs_proto.ErrorInfo.$Properties|null} [error] LoginResponse error
+         * @property {Array.<mcs_proto.Setting.$Properties>|null} [setting] LoginResponse setting
          * @property {number|null} [streamId] LoginResponse streamId
          * @property {number|null} [lastStreamIdReceived] LoginResponse lastStreamIdReceived
-         * @property {mcs_proto.IHeartbeatConfig|null} [heartbeatConfig] LoginResponse heartbeatConfig
+         * @property {mcs_proto.HeartbeatConfig.$Properties|null} [heartbeatConfig] LoginResponse heartbeatConfig
          * @property {number|Long|null} [serverTimestamp] LoginResponse serverTimestamp
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a LoginResponse.
+         * @memberof mcs_proto
+         * @interface ILoginResponse
+         * @augments mcs_proto.LoginResponse.$Properties
+         * @deprecated Use mcs_proto.LoginResponse.$Properties instead.
+         */
+
+        /**
+         * Shape of a LoginResponse.
+         * @typedef {mcs_proto.LoginResponse.$Properties} mcs_proto.LoginResponse.$Shape
          */
 
         /**
          * Constructs a new LoginResponse.
          * @memberof mcs_proto
          * @classdesc TAG: 3
-         * @implements ILoginResponse
          * @constructor
-         * @param {mcs_proto.ILoginResponse=} [properties] Properties to set
+         * @param {mcs_proto.LoginResponse.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function LoginResponse(properties) {
+        var LoginResponse = function (properties) {
             this.setting = [];
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * LoginResponse id.
@@ -5063,7 +6114,7 @@ $root.mcs_proto = (function() {
 
         /**
          * LoginResponse error.
-         * @member {mcs_proto.IErrorInfo|null|undefined} error
+         * @member {mcs_proto.ErrorInfo.$Properties|null|undefined} error
          * @memberof mcs_proto.LoginResponse
          * @instance
          */
@@ -5071,7 +6122,7 @@ $root.mcs_proto = (function() {
 
         /**
          * LoginResponse setting.
-         * @member {Array.<mcs_proto.ISetting>} setting
+         * @member {Array.<mcs_proto.Setting.$Properties>} setting
          * @memberof mcs_proto.LoginResponse
          * @instance
          */
@@ -5095,7 +6146,7 @@ $root.mcs_proto = (function() {
 
         /**
          * LoginResponse heartbeatConfig.
-         * @member {mcs_proto.IHeartbeatConfig|null|undefined} heartbeatConfig
+         * @member {mcs_proto.HeartbeatConfig.$Properties|null|undefined} heartbeatConfig
          * @memberof mcs_proto.LoginResponse
          * @instance
          */
@@ -5114,10 +6165,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.LoginResponse
          * @static
-         * @param {mcs_proto.ILoginResponse=} [properties] Properties to set
+         * @param {mcs_proto.LoginResponse.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.LoginResponse} LoginResponse instance
+         * @type {{
+         *   (properties: mcs_proto.LoginResponse.$Shape): mcs_proto.LoginResponse & mcs_proto.LoginResponse.$Shape;
+         *   (properties?: mcs_proto.LoginResponse.$Properties): mcs_proto.LoginResponse;
+         * }}
          */
-        LoginResponse.create = function create(properties) {
+        LoginResponse.create = function(properties) {
             return new LoginResponse(properties);
         };
 
@@ -5126,29 +6181,36 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.LoginResponse
          * @static
-         * @param {mcs_proto.ILoginResponse} message LoginResponse message or plain object to encode
+         * @param {mcs_proto.LoginResponse.$Properties} message LoginResponse message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        LoginResponse.encode = function encode(message, writer) {
+        LoginResponse.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
-            if (message.jid != null && Object.hasOwnProperty.call(message, "jid"))
+            if (message.jid != null && $Object.hasOwnProperty.call(message, "jid"))
                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.jid);
-            if (message.error != null && Object.hasOwnProperty.call(message, "error"))
-                $root.mcs_proto.ErrorInfo.encode(message.error, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+            if (message.error != null && $Object.hasOwnProperty.call(message, "error"))
+                $root.mcs_proto.ErrorInfo.encode(message.error, writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
             if (message.setting != null && message.setting.length)
                 for (var i = 0; i < message.setting.length; ++i)
-                    $root.mcs_proto.Setting.encode(message.setting[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-            if (message.streamId != null && Object.hasOwnProperty.call(message, "streamId"))
+                    $root.mcs_proto.Setting.encode(message.setting[i], writer.uint32(/* id 4, wireType 2 =*/34).fork(), _depth + 1).ldelim();
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 writer.uint32(/* id 5, wireType 0 =*/40).int32(message.streamId);
-            if (message.lastStreamIdReceived != null && Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 writer.uint32(/* id 6, wireType 0 =*/48).int32(message.lastStreamIdReceived);
-            if (message.heartbeatConfig != null && Object.hasOwnProperty.call(message, "heartbeatConfig"))
-                $root.mcs_proto.HeartbeatConfig.encode(message.heartbeatConfig, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-            if (message.serverTimestamp != null && Object.hasOwnProperty.call(message, "serverTimestamp"))
+            if (message.heartbeatConfig != null && $Object.hasOwnProperty.call(message, "heartbeatConfig"))
+                $root.mcs_proto.HeartbeatConfig.encode(message.heartbeatConfig, writer.uint32(/* id 7, wireType 2 =*/58).fork(), _depth + 1).ldelim();
+            if (message.serverTimestamp != null && $Object.hasOwnProperty.call(message, "serverTimestamp"))
                 writer.uint32(/* id 8, wireType 0 =*/64).int64(message.serverTimestamp);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -5157,12 +6219,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.LoginResponse
          * @static
-         * @param {mcs_proto.ILoginResponse} message LoginResponse message or plain object to encode
+         * @param {mcs_proto.LoginResponse.$Properties} message LoginResponse message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        LoginResponse.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        LoginResponse.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -5172,59 +6234,102 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.LoginResponse} LoginResponse
+         * @returns {mcs_proto.LoginResponse & mcs_proto.LoginResponse.$Shape} LoginResponse
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        LoginResponse.decode = function decode(reader, length, error) {
+        LoginResponse.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.LoginResponse();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.LoginResponse();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.id = reader.string();
-                        break;
-                    }
-                case 2: {
-                        message.jid = reader.string();
-                        break;
-                    }
-                case 3: {
-                        message.error = $root.mcs_proto.ErrorInfo.decode(reader, reader.uint32());
-                        break;
-                    }
-                case 4: {
-                        if (!(message.setting && message.setting.length))
-                            message.setting = [];
-                        message.setting.push($root.mcs_proto.Setting.decode(reader, reader.uint32()));
-                        break;
-                    }
-                case 5: {
-                        message.streamId = reader.int32();
-                        break;
-                    }
-                case 6: {
-                        message.lastStreamIdReceived = reader.int32();
-                        break;
-                    }
-                case 7: {
-                        message.heartbeatConfig = $root.mcs_proto.HeartbeatConfig.decode(reader, reader.uint32());
-                        break;
-                    }
-                case 8: {
-                        message.serverTimestamp = reader.int64();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 2)
+                            break;
+                        message.id = reader.string();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 2)
+                            break;
+                        message.jid = reader.string();
+                        continue;
+                    }
+                case 3: {
+                        if (wireType !== 2)
+                            break;
+                        message.error = $root.mcs_proto.ErrorInfo.decode(reader, reader.uint32(), $undefined, _depth + 1, message.error);
+                        continue;
+                    }
+                case 4: {
+                        if (wireType !== 2)
+                            break;
+                        if (!(message.setting && message.setting.length))
+                            message.setting = [];
+                        message.setting.push($root.mcs_proto.Setting.decode(reader, reader.uint32(), $undefined, _depth + 1));
+                        continue;
+                    }
+                case 5: {
+                        if (wireType !== 0)
+                            break;
+                        message.streamId = reader.int32();
+                        continue;
+                    }
+                case 6: {
+                        if (wireType !== 0)
+                            break;
+                        message.lastStreamIdReceived = reader.int32();
+                        continue;
+                    }
+                case 7: {
+                        if (wireType !== 2)
+                            break;
+                        message.heartbeatConfig = $root.mcs_proto.HeartbeatConfig.decode(reader, reader.uint32(), $undefined, _depth + 1, message.heartbeatConfig);
+                        continue;
+                    }
+                case 8: {
+                        if (wireType !== 0)
+                            break;
+                        message.serverTimestamp = reader.int64();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
-            if (!message.hasOwnProperty("id"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "id"))
                 throw $util.ProtocolError("missing required 'id'", { instance: message });
             return message;
         };
@@ -5235,11 +6340,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.LoginResponse
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.LoginResponse} LoginResponse
+         * @returns {mcs_proto.LoginResponse & mcs_proto.LoginResponse.$Shape} LoginResponse
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        LoginResponse.decodeDelimited = function decodeDelimited(reader) {
+        LoginResponse.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -5253,40 +6358,44 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        LoginResponse.verify = function verify(message) {
+        LoginResponse.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             if (!$util.isString(message.id))
                 return "id: string expected";
-            if (message.jid != null && message.hasOwnProperty("jid"))
+            if (message.jid != null && $Object.hasOwnProperty.call(message, "jid"))
                 if (!$util.isString(message.jid))
                     return "jid: string expected";
-            if (message.error != null && message.hasOwnProperty("error")) {
-                var error = $root.mcs_proto.ErrorInfo.verify(message.error);
+            if (message.error != null && $Object.hasOwnProperty.call(message, "error")) {
+                var error = $root.mcs_proto.ErrorInfo.verify(message.error, _depth + 1);
                 if (error)
                     return "error." + error;
             }
-            if (message.setting != null && message.hasOwnProperty("setting")) {
-                if (!Array.isArray(message.setting))
+            if (message.setting != null && $Object.hasOwnProperty.call(message, "setting")) {
+                if (!$Array.isArray(message.setting))
                     return "setting: array expected";
                 for (var i = 0; i < message.setting.length; ++i) {
-                    var error = $root.mcs_proto.Setting.verify(message.setting[i]);
+                    var error = $root.mcs_proto.Setting.verify(message.setting[i], _depth + 1);
                     if (error)
                         return "setting." + error;
                 }
             }
-            if (message.streamId != null && message.hasOwnProperty("streamId"))
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 if (!$util.isInteger(message.streamId))
                     return "streamId: integer expected";
-            if (message.lastStreamIdReceived != null && message.hasOwnProperty("lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 if (!$util.isInteger(message.lastStreamIdReceived))
                     return "lastStreamIdReceived: integer expected";
-            if (message.heartbeatConfig != null && message.hasOwnProperty("heartbeatConfig")) {
-                var error = $root.mcs_proto.HeartbeatConfig.verify(message.heartbeatConfig);
+            if (message.heartbeatConfig != null && $Object.hasOwnProperty.call(message, "heartbeatConfig")) {
+                var error = $root.mcs_proto.HeartbeatConfig.verify(message.heartbeatConfig, _depth + 1);
                 if (error)
                     return "heartbeatConfig." + error;
             }
-            if (message.serverTimestamp != null && message.hasOwnProperty("serverTimestamp"))
+            if (message.serverTimestamp != null && $Object.hasOwnProperty.call(message, "serverTimestamp"))
                 if (!$util.isInteger(message.serverTimestamp) && !(message.serverTimestamp && $util.isInteger(message.serverTimestamp.low) && $util.isInteger(message.serverTimestamp.high)))
                     return "serverTimestamp: integer|Long expected";
             return null;
@@ -5300,27 +6409,33 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.LoginResponse} LoginResponse
          */
-        LoginResponse.fromObject = function fromObject(object) {
+        LoginResponse.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.LoginResponse)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.LoginResponse: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.LoginResponse();
             if (object.id != null)
-                message.id = String(object.id);
+                message.id = $String(object.id);
             if (object.jid != null)
-                message.jid = String(object.jid);
+                message.jid = $String(object.jid);
             if (object.error != null) {
-                if (typeof object.error !== "object")
-                    throw TypeError(".mcs_proto.LoginResponse.error: object expected");
-                message.error = $root.mcs_proto.ErrorInfo.fromObject(object.error);
+                if (!$util.isObject(object.error))
+                    throw $TypeError(".mcs_proto.LoginResponse.error: object expected");
+                message.error = $root.mcs_proto.ErrorInfo.fromObject(object.error, _depth + 1);
             }
             if (object.setting) {
-                if (!Array.isArray(object.setting))
-                    throw TypeError(".mcs_proto.LoginResponse.setting: array expected");
-                message.setting = [];
+                if (!$Array.isArray(object.setting))
+                    throw $TypeError(".mcs_proto.LoginResponse.setting: array expected");
+                message.setting = $Array(object.setting.length);
                 for (var i = 0; i < object.setting.length; ++i) {
-                    if (typeof object.setting[i] !== "object")
-                        throw TypeError(".mcs_proto.LoginResponse.setting: object expected");
-                    message.setting[i] = $root.mcs_proto.Setting.fromObject(object.setting[i]);
+                    if (!$util.isObject(object.setting[i]))
+                        throw $TypeError(".mcs_proto.LoginResponse.setting: object expected");
+                    message.setting[i] = $root.mcs_proto.Setting.fromObject(object.setting[i], _depth + 1);
                 }
             }
             if (object.streamId != null)
@@ -5328,15 +6443,15 @@ $root.mcs_proto = (function() {
             if (object.lastStreamIdReceived != null)
                 message.lastStreamIdReceived = object.lastStreamIdReceived | 0;
             if (object.heartbeatConfig != null) {
-                if (typeof object.heartbeatConfig !== "object")
-                    throw TypeError(".mcs_proto.LoginResponse.heartbeatConfig: object expected");
-                message.heartbeatConfig = $root.mcs_proto.HeartbeatConfig.fromObject(object.heartbeatConfig);
+                if (!$util.isObject(object.heartbeatConfig))
+                    throw $TypeError(".mcs_proto.LoginResponse.heartbeatConfig: object expected");
+                message.heartbeatConfig = $root.mcs_proto.HeartbeatConfig.fromObject(object.heartbeatConfig, _depth + 1);
             }
             if (object.serverTimestamp != null)
                 if ($util.Long)
-                    (message.serverTimestamp = $util.Long.fromValue(object.serverTimestamp)).unsigned = false;
+                    message.serverTimestamp = $util.Long.fromValue(object.serverTimestamp, false);
                 else if (typeof object.serverTimestamp === "string")
-                    message.serverTimestamp = parseInt(object.serverTimestamp, 10);
+                    message.serverTimestamp = $parseInt(object.serverTimestamp, 10);
                 else if (typeof object.serverTimestamp === "number")
                     message.serverTimestamp = object.serverTimestamp;
                 else if (typeof object.serverTimestamp === "object")
@@ -5353,9 +6468,13 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        LoginResponse.toObject = function toObject(message, options) {
+        LoginResponse.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.arrays || options.defaults)
                 object.setting = [];
@@ -5368,32 +6487,34 @@ $root.mcs_proto = (function() {
                 object.heartbeatConfig = null;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.serverTimestamp = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.serverTimestamp = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.serverTimestamp = options.longs === String ? "0" : 0;
+                    object.serverTimestamp = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
             }
-            if (message.id != null && message.hasOwnProperty("id"))
+            if (message.id != null && $Object.hasOwnProperty.call(message, "id"))
                 object.id = message.id;
-            if (message.jid != null && message.hasOwnProperty("jid"))
+            if (message.jid != null && $Object.hasOwnProperty.call(message, "jid"))
                 object.jid = message.jid;
-            if (message.error != null && message.hasOwnProperty("error"))
-                object.error = $root.mcs_proto.ErrorInfo.toObject(message.error, options);
+            if (message.error != null && $Object.hasOwnProperty.call(message, "error"))
+                object.error = $root.mcs_proto.ErrorInfo.toObject(message.error, options, _depth + 1);
             if (message.setting && message.setting.length) {
-                object.setting = [];
+                object.setting = $Array(message.setting.length);
                 for (var j = 0; j < message.setting.length; ++j)
-                    object.setting[j] = $root.mcs_proto.Setting.toObject(message.setting[j], options);
+                    object.setting[j] = $root.mcs_proto.Setting.toObject(message.setting[j], options, _depth + 1);
             }
-            if (message.streamId != null && message.hasOwnProperty("streamId"))
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 object.streamId = message.streamId;
-            if (message.lastStreamIdReceived != null && message.hasOwnProperty("lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 object.lastStreamIdReceived = message.lastStreamIdReceived;
-            if (message.heartbeatConfig != null && message.hasOwnProperty("heartbeatConfig"))
-                object.heartbeatConfig = $root.mcs_proto.HeartbeatConfig.toObject(message.heartbeatConfig, options);
-            if (message.serverTimestamp != null && message.hasOwnProperty("serverTimestamp"))
-                if (typeof message.serverTimestamp === "number")
-                    object.serverTimestamp = options.longs === String ? String(message.serverTimestamp) : message.serverTimestamp;
+            if (message.heartbeatConfig != null && $Object.hasOwnProperty.call(message, "heartbeatConfig"))
+                object.heartbeatConfig = $root.mcs_proto.HeartbeatConfig.toObject(message.heartbeatConfig, options, _depth + 1);
+            if (message.serverTimestamp != null && $Object.hasOwnProperty.call(message, "serverTimestamp"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.serverTimestamp = typeof message.serverTimestamp === "number" ? $BigInt(message.serverTimestamp) : $util.Long.fromBits(message.serverTimestamp.low >>> 0, message.serverTimestamp.high >>> 0, false).toBigInt();
+                else if (typeof message.serverTimestamp === "number")
+                    object.serverTimestamp = options.longs === $String ? $String(message.serverTimestamp) : message.serverTimestamp;
                 else
-                    object.serverTimestamp = options.longs === String ? $util.Long.prototype.toString.call(message.serverTimestamp) : options.longs === Number ? new $util.LongBits(message.serverTimestamp.low >>> 0, message.serverTimestamp.high >>> 0).toNumber() : message.serverTimestamp;
+                    object.serverTimestamp = options.longs === $String ? $util.Long.prototype.toString.call(message.serverTimestamp) : options.longs === $Number ? new $util.LongBits(message.serverTimestamp.low >>> 0, message.serverTimestamp.high >>> 0).toNumber() : message.serverTimestamp;
             return object;
         };
 
@@ -5404,23 +6525,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        LoginResponse.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        LoginResponse.prototype.toJSON = function() {
+            return LoginResponse.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for LoginResponse
+         * Gets the type url for LoginResponse
          * @function getTypeUrl
          * @memberof mcs_proto.LoginResponse
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        LoginResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.LoginResponse";
+        LoginResponse.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.LoginResponse";
         };
 
         return LoginResponse;
@@ -5430,26 +6550,39 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a StreamErrorStanza.
-         * @memberof mcs_proto
-         * @interface IStreamErrorStanza
+         * @typedef {Object} mcs_proto.StreamErrorStanza.$Properties
          * @property {string} type StreamErrorStanza type
          * @property {string|null} [text] StreamErrorStanza text
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a StreamErrorStanza.
+         * @memberof mcs_proto
+         * @interface IStreamErrorStanza
+         * @augments mcs_proto.StreamErrorStanza.$Properties
+         * @deprecated Use mcs_proto.StreamErrorStanza.$Properties instead.
+         */
+
+        /**
+         * Shape of a StreamErrorStanza.
+         * @typedef {mcs_proto.StreamErrorStanza.$Properties} mcs_proto.StreamErrorStanza.$Shape
          */
 
         /**
          * Constructs a new StreamErrorStanza.
          * @memberof mcs_proto
          * @classdesc Represents a StreamErrorStanza.
-         * @implements IStreamErrorStanza
          * @constructor
-         * @param {mcs_proto.IStreamErrorStanza=} [properties] Properties to set
+         * @param {mcs_proto.StreamErrorStanza.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function StreamErrorStanza(properties) {
+        var StreamErrorStanza = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * StreamErrorStanza type.
@@ -5472,10 +6605,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.StreamErrorStanza
          * @static
-         * @param {mcs_proto.IStreamErrorStanza=} [properties] Properties to set
+         * @param {mcs_proto.StreamErrorStanza.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.StreamErrorStanza} StreamErrorStanza instance
+         * @type {{
+         *   (properties: mcs_proto.StreamErrorStanza.$Shape): mcs_proto.StreamErrorStanza & mcs_proto.StreamErrorStanza.$Shape;
+         *   (properties?: mcs_proto.StreamErrorStanza.$Properties): mcs_proto.StreamErrorStanza;
+         * }}
          */
-        StreamErrorStanza.create = function create(properties) {
+        StreamErrorStanza.create = function(properties) {
             return new StreamErrorStanza(properties);
         };
 
@@ -5484,16 +6621,23 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.StreamErrorStanza
          * @static
-         * @param {mcs_proto.IStreamErrorStanza} message StreamErrorStanza message or plain object to encode
+         * @param {mcs_proto.StreamErrorStanza.$Properties} message StreamErrorStanza message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        StreamErrorStanza.encode = function encode(message, writer) {
+        StreamErrorStanza.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.type);
-            if (message.text != null && Object.hasOwnProperty.call(message, "text"))
+            if (message.text != null && $Object.hasOwnProperty.call(message, "text"))
                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.text);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -5502,12 +6646,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.StreamErrorStanza
          * @static
-         * @param {mcs_proto.IStreamErrorStanza} message StreamErrorStanza message or plain object to encode
+         * @param {mcs_proto.StreamErrorStanza.$Properties} message StreamErrorStanza message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        StreamErrorStanza.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        StreamErrorStanza.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -5517,33 +6661,64 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.StreamErrorStanza} StreamErrorStanza
+         * @returns {mcs_proto.StreamErrorStanza & mcs_proto.StreamErrorStanza.$Shape} StreamErrorStanza
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        StreamErrorStanza.decode = function decode(reader, length, error) {
+        StreamErrorStanza.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.StreamErrorStanza();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.StreamErrorStanza();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.type = reader.string();
-                        break;
-                    }
-                case 2: {
-                        message.text = reader.string();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 2)
+                            break;
+                        message.type = reader.string();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 2)
+                            break;
+                        message.text = reader.string();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
-            if (!message.hasOwnProperty("type"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "type"))
                 throw $util.ProtocolError("missing required 'type'", { instance: message });
             return message;
         };
@@ -5554,11 +6729,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.StreamErrorStanza
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.StreamErrorStanza} StreamErrorStanza
+         * @returns {mcs_proto.StreamErrorStanza & mcs_proto.StreamErrorStanza.$Shape} StreamErrorStanza
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        StreamErrorStanza.decodeDelimited = function decodeDelimited(reader) {
+        StreamErrorStanza.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -5572,12 +6747,16 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        StreamErrorStanza.verify = function verify(message) {
+        StreamErrorStanza.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             if (!$util.isString(message.type))
                 return "type: string expected";
-            if (message.text != null && message.hasOwnProperty("text"))
+            if (message.text != null && $Object.hasOwnProperty.call(message, "text"))
                 if (!$util.isString(message.text))
                     return "text: string expected";
             return null;
@@ -5591,14 +6770,20 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.StreamErrorStanza} StreamErrorStanza
          */
-        StreamErrorStanza.fromObject = function fromObject(object) {
+        StreamErrorStanza.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.StreamErrorStanza)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.StreamErrorStanza: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.StreamErrorStanza();
             if (object.type != null)
-                message.type = String(object.type);
+                message.type = $String(object.type);
             if (object.text != null)
-                message.text = String(object.text);
+                message.text = $String(object.text);
             return message;
         };
 
@@ -5611,17 +6796,21 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        StreamErrorStanza.toObject = function toObject(message, options) {
+        StreamErrorStanza.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
                 object.type = "";
                 object.text = "";
             }
-            if (message.type != null && message.hasOwnProperty("type"))
+            if (message.type != null && $Object.hasOwnProperty.call(message, "type"))
                 object.type = message.type;
-            if (message.text != null && message.hasOwnProperty("text"))
+            if (message.text != null && $Object.hasOwnProperty.call(message, "text"))
                 object.text = message.text;
             return object;
         };
@@ -5633,23 +6822,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        StreamErrorStanza.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        StreamErrorStanza.prototype.toJSON = function() {
+            return StreamErrorStanza.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for StreamErrorStanza
+         * Gets the type url for StreamErrorStanza
          * @function getTypeUrl
          * @memberof mcs_proto.StreamErrorStanza
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        StreamErrorStanza.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.StreamErrorStanza";
+        StreamErrorStanza.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.StreamErrorStanza";
         };
 
         return StreamErrorStanza;
@@ -5659,34 +6847,51 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a Close.
+         * @typedef {Object} mcs_proto.Close.$Properties
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a Close.
          * @memberof mcs_proto
          * @interface IClose
+         * @augments mcs_proto.Close.$Properties
+         * @deprecated Use mcs_proto.Close.$Properties instead.
+         */
+
+        /**
+         * Shape of a Close.
+         * @typedef {mcs_proto.Close.$Properties} mcs_proto.Close.$Shape
          */
 
         /**
          * Constructs a new Close.
          * @memberof mcs_proto
          * @classdesc TAG: 4
-         * @implements IClose
          * @constructor
-         * @param {mcs_proto.IClose=} [properties] Properties to set
+         * @param {mcs_proto.Close.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function Close(properties) {
+        var Close = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * Creates a new Close instance using the specified properties.
          * @function create
          * @memberof mcs_proto.Close
          * @static
-         * @param {mcs_proto.IClose=} [properties] Properties to set
+         * @param {mcs_proto.Close.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.Close} Close instance
+         * @type {{
+         *   (properties: mcs_proto.Close.$Shape): mcs_proto.Close & mcs_proto.Close.$Shape;
+         *   (properties?: mcs_proto.Close.$Properties): mcs_proto.Close;
+         * }}
          */
-        Close.create = function create(properties) {
+        Close.create = function(properties) {
             return new Close(properties);
         };
 
@@ -5695,13 +6900,20 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.Close
          * @static
-         * @param {mcs_proto.IClose} message Close message or plain object to encode
+         * @param {mcs_proto.Close.$Properties} message Close message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        Close.encode = function encode(message, writer) {
+        Close.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -5710,12 +6922,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.Close
          * @static
-         * @param {mcs_proto.IClose} message Close message or plain object to encode
+         * @param {mcs_proto.Close.$Properties} message Close message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        Close.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        Close.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -5725,24 +6937,48 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.Close} Close
+         * @returns {mcs_proto.Close & mcs_proto.Close.$Shape} Close
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        Close.decode = function decode(reader, length, error) {
+        Close.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.Close();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.Close();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                reader.skipType(tag & 7, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
             return message;
         };
 
@@ -5752,11 +6988,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.Close
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.Close} Close
+         * @returns {mcs_proto.Close & mcs_proto.Close.$Shape} Close
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        Close.decodeDelimited = function decodeDelimited(reader) {
+        Close.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -5770,9 +7006,13 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        Close.verify = function verify(message) {
+        Close.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             return null;
         };
 
@@ -5784,9 +7024,15 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.Close} Close
          */
-        Close.fromObject = function fromObject(object) {
+        Close.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.Close)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.Close: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             return new $root.mcs_proto.Close();
         };
 
@@ -5799,7 +7045,7 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        Close.toObject = function toObject() {
+        Close.toObject = function () {
             return {};
         };
 
@@ -5810,23 +7056,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        Close.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        Close.prototype.toJSON = function() {
+            return Close.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for Close
+         * Gets the type url for Close
          * @function getTypeUrl
          * @memberof mcs_proto.Close
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        Close.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.Close";
+        Close.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.Close";
         };
 
         return Close;
@@ -5836,26 +7081,39 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of an Extension.
-         * @memberof mcs_proto
-         * @interface IExtension
+         * @typedef {Object} mcs_proto.Extension.$Properties
          * @property {number} id Extension id
          * @property {Uint8Array} data Extension data
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of an Extension.
+         * @memberof mcs_proto
+         * @interface IExtension
+         * @augments mcs_proto.Extension.$Properties
+         * @deprecated Use mcs_proto.Extension.$Properties instead.
+         */
+
+        /**
+         * Shape of an Extension.
+         * @typedef {mcs_proto.Extension.$Properties} mcs_proto.Extension.$Shape
          */
 
         /**
          * Constructs a new Extension.
          * @memberof mcs_proto
          * @classdesc Represents an Extension.
-         * @implements IExtension
          * @constructor
-         * @param {mcs_proto.IExtension=} [properties] Properties to set
+         * @param {mcs_proto.Extension.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function Extension(properties) {
+        var Extension = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * Extension id.
@@ -5878,10 +7136,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.Extension
          * @static
-         * @param {mcs_proto.IExtension=} [properties] Properties to set
+         * @param {mcs_proto.Extension.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.Extension} Extension instance
+         * @type {{
+         *   (properties: mcs_proto.Extension.$Shape): mcs_proto.Extension & mcs_proto.Extension.$Shape;
+         *   (properties?: mcs_proto.Extension.$Properties): mcs_proto.Extension;
+         * }}
          */
-        Extension.create = function create(properties) {
+        Extension.create = function(properties) {
             return new Extension(properties);
         };
 
@@ -5890,15 +7152,22 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.Extension
          * @static
-         * @param {mcs_proto.IExtension} message Extension message or plain object to encode
+         * @param {mcs_proto.Extension.$Properties} message Extension message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        Extension.encode = function encode(message, writer) {
+        Extension.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             writer.uint32(/* id 1, wireType 0 =*/8).int32(message.id);
             writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.data);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -5907,12 +7176,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.Extension
          * @static
-         * @param {mcs_proto.IExtension} message Extension message or plain object to encode
+         * @param {mcs_proto.Extension.$Properties} message Extension message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        Extension.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        Extension.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -5922,35 +7191,66 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.Extension} Extension
+         * @returns {mcs_proto.Extension & mcs_proto.Extension.$Shape} Extension
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        Extension.decode = function decode(reader, length, error) {
+        Extension.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.Extension();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.Extension();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.id = reader.int32();
-                        break;
-                    }
-                case 2: {
-                        message.data = reader.bytes();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 0)
+                            break;
+                        message.id = reader.int32();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 2)
+                            break;
+                        message.data = reader.bytes();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
-            if (!message.hasOwnProperty("id"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "id"))
                 throw $util.ProtocolError("missing required 'id'", { instance: message });
-            if (!message.hasOwnProperty("data"))
+            if (!$Object.hasOwnProperty.call(message, "data"))
                 throw $util.ProtocolError("missing required 'data'", { instance: message });
             return message;
         };
@@ -5961,11 +7261,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.Extension
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.Extension} Extension
+         * @returns {mcs_proto.Extension & mcs_proto.Extension.$Shape} Extension
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        Extension.decodeDelimited = function decodeDelimited(reader) {
+        Extension.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -5979,9 +7279,13 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        Extension.verify = function verify(message) {
+        Extension.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             if (!$util.isInteger(message.id))
                 return "id: integer expected";
             if (!(message.data && typeof message.data.length === "number" || $util.isString(message.data)))
@@ -5997,9 +7301,15 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.Extension} Extension
          */
-        Extension.fromObject = function fromObject(object) {
+        Extension.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.Extension)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.Extension: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.Extension();
             if (object.id != null)
                 message.id = object.id | 0;
@@ -6020,24 +7330,28 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        Extension.toObject = function toObject(message, options) {
+        Extension.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
                 object.id = 0;
-                if (options.bytes === String)
+                if (options.bytes === $String)
                     object.data = "";
                 else {
                     object.data = [];
-                    if (options.bytes !== Array)
+                    if (options.bytes !== $Array)
                         object.data = $util.newBuffer(object.data);
                 }
             }
-            if (message.id != null && message.hasOwnProperty("id"))
+            if (message.id != null && $Object.hasOwnProperty.call(message, "id"))
                 object.id = message.id;
-            if (message.data != null && message.hasOwnProperty("data"))
-                object.data = options.bytes === String ? $util.base64.encode(message.data, 0, message.data.length) : options.bytes === Array ? Array.prototype.slice.call(message.data) : message.data;
+            if (message.data != null && $Object.hasOwnProperty.call(message, "data"))
+                object.data = options.bytes === $String ? $util.base64.encode(message.data, 0, message.data.length) : options.bytes === $Array ? $Array.prototype.slice.call(message.data) : message.data;
             return object;
         };
 
@@ -6048,23 +7362,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        Extension.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        Extension.prototype.toJSON = function() {
+            return Extension.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for Extension
+         * Gets the type url for Extension
          * @function getTypeUrl
          * @memberof mcs_proto.Extension
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        Extension.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.Extension";
+        Extension.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.Extension";
         };
 
         return Extension;
@@ -6074,20 +7387,33 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of an IqStanza.
-         * @memberof mcs_proto
-         * @interface IIqStanza
+         * @typedef {Object} mcs_proto.IqStanza.$Properties
          * @property {number|Long|null} [rmqId] IqStanza rmqId
          * @property {mcs_proto.IqStanza.IqType} type IqStanza type
          * @property {string} id IqStanza id
          * @property {string|null} [from] IqStanza from
          * @property {string|null} [to] IqStanza to
-         * @property {mcs_proto.IErrorInfo|null} [error] IqStanza error
-         * @property {mcs_proto.IExtension|null} [extension] IqStanza extension
+         * @property {mcs_proto.ErrorInfo.$Properties|null} [error] IqStanza error
+         * @property {mcs_proto.Extension.$Properties|null} [extension] IqStanza extension
          * @property {string|null} [persistentId] IqStanza persistentId
          * @property {number|null} [streamId] IqStanza streamId
          * @property {number|null} [lastStreamIdReceived] IqStanza lastStreamIdReceived
          * @property {number|Long|null} [accountId] IqStanza accountId
          * @property {number|Long|null} [status] IqStanza status
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of an IqStanza.
+         * @memberof mcs_proto
+         * @interface IIqStanza
+         * @augments mcs_proto.IqStanza.$Properties
+         * @deprecated Use mcs_proto.IqStanza.$Properties instead.
+         */
+
+        /**
+         * Shape of an IqStanza.
+         * @typedef {mcs_proto.IqStanza.$Properties} mcs_proto.IqStanza.$Shape
          */
 
         /**
@@ -6096,16 +7422,16 @@ $root.mcs_proto = (function() {
          * @classdesc TAG: 7
          * IqRequest must contain a single extension.  IqResponse may contain 0 or 1
          * extensions.
-         * @implements IIqStanza
          * @constructor
-         * @param {mcs_proto.IIqStanza=} [properties] Properties to set
+         * @param {mcs_proto.IqStanza.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function IqStanza(properties) {
+        var IqStanza = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * IqStanza rmqId.
@@ -6149,7 +7475,7 @@ $root.mcs_proto = (function() {
 
         /**
          * IqStanza error.
-         * @member {mcs_proto.IErrorInfo|null|undefined} error
+         * @member {mcs_proto.ErrorInfo.$Properties|null|undefined} error
          * @memberof mcs_proto.IqStanza
          * @instance
          */
@@ -6157,7 +7483,7 @@ $root.mcs_proto = (function() {
 
         /**
          * IqStanza extension.
-         * @member {mcs_proto.IExtension|null|undefined} extension
+         * @member {mcs_proto.Extension.$Properties|null|undefined} extension
          * @memberof mcs_proto.IqStanza
          * @instance
          */
@@ -6208,10 +7534,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.IqStanza
          * @static
-         * @param {mcs_proto.IIqStanza=} [properties] Properties to set
+         * @param {mcs_proto.IqStanza.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.IqStanza} IqStanza instance
+         * @type {{
+         *   (properties: mcs_proto.IqStanza.$Shape): mcs_proto.IqStanza & mcs_proto.IqStanza.$Shape;
+         *   (properties?: mcs_proto.IqStanza.$Properties): mcs_proto.IqStanza;
+         * }}
          */
-        IqStanza.create = function create(properties) {
+        IqStanza.create = function(properties) {
             return new IqStanza(properties);
         };
 
@@ -6220,35 +7550,42 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.IqStanza
          * @static
-         * @param {mcs_proto.IIqStanza} message IqStanza message or plain object to encode
+         * @param {mcs_proto.IqStanza.$Properties} message IqStanza message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        IqStanza.encode = function encode(message, writer) {
+        IqStanza.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.rmqId != null && Object.hasOwnProperty.call(message, "rmqId"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
+            if (message.rmqId != null && $Object.hasOwnProperty.call(message, "rmqId"))
                 writer.uint32(/* id 1, wireType 0 =*/8).int64(message.rmqId);
             writer.uint32(/* id 2, wireType 0 =*/16).int32(message.type);
             writer.uint32(/* id 3, wireType 2 =*/26).string(message.id);
-            if (message.from != null && Object.hasOwnProperty.call(message, "from"))
+            if (message.from != null && $Object.hasOwnProperty.call(message, "from"))
                 writer.uint32(/* id 4, wireType 2 =*/34).string(message.from);
-            if (message.to != null && Object.hasOwnProperty.call(message, "to"))
+            if (message.to != null && $Object.hasOwnProperty.call(message, "to"))
                 writer.uint32(/* id 5, wireType 2 =*/42).string(message.to);
-            if (message.error != null && Object.hasOwnProperty.call(message, "error"))
-                $root.mcs_proto.ErrorInfo.encode(message.error, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
-            if (message.extension != null && Object.hasOwnProperty.call(message, "extension"))
-                $root.mcs_proto.Extension.encode(message.extension, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-            if (message.persistentId != null && Object.hasOwnProperty.call(message, "persistentId"))
+            if (message.error != null && $Object.hasOwnProperty.call(message, "error"))
+                $root.mcs_proto.ErrorInfo.encode(message.error, writer.uint32(/* id 6, wireType 2 =*/50).fork(), _depth + 1).ldelim();
+            if (message.extension != null && $Object.hasOwnProperty.call(message, "extension"))
+                $root.mcs_proto.Extension.encode(message.extension, writer.uint32(/* id 7, wireType 2 =*/58).fork(), _depth + 1).ldelim();
+            if (message.persistentId != null && $Object.hasOwnProperty.call(message, "persistentId"))
                 writer.uint32(/* id 8, wireType 2 =*/66).string(message.persistentId);
-            if (message.streamId != null && Object.hasOwnProperty.call(message, "streamId"))
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 writer.uint32(/* id 9, wireType 0 =*/72).int32(message.streamId);
-            if (message.lastStreamIdReceived != null && Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 writer.uint32(/* id 10, wireType 0 =*/80).int32(message.lastStreamIdReceived);
-            if (message.accountId != null && Object.hasOwnProperty.call(message, "accountId"))
+            if (message.accountId != null && $Object.hasOwnProperty.call(message, "accountId"))
                 writer.uint32(/* id 11, wireType 0 =*/88).int64(message.accountId);
-            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
                 writer.uint32(/* id 12, wireType 0 =*/96).int64(message.status);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -6257,12 +7594,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.IqStanza
          * @static
-         * @param {mcs_proto.IIqStanza} message IqStanza message or plain object to encode
+         * @param {mcs_proto.IqStanza.$Properties} message IqStanza message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        IqStanza.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        IqStanza.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -6272,75 +7609,132 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.IqStanza} IqStanza
+         * @returns {mcs_proto.IqStanza & mcs_proto.IqStanza.$Shape} IqStanza
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        IqStanza.decode = function decode(reader, length, error) {
+        IqStanza.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.IqStanza();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message, value;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.IqStanza();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.rmqId = reader.int64();
-                        break;
-                    }
-                case 2: {
-                        message.type = reader.int32();
-                        break;
-                    }
-                case 3: {
-                        message.id = reader.string();
-                        break;
-                    }
-                case 4: {
-                        message.from = reader.string();
-                        break;
-                    }
-                case 5: {
-                        message.to = reader.string();
-                        break;
-                    }
-                case 6: {
-                        message.error = $root.mcs_proto.ErrorInfo.decode(reader, reader.uint32());
-                        break;
-                    }
-                case 7: {
-                        message.extension = $root.mcs_proto.Extension.decode(reader, reader.uint32());
-                        break;
-                    }
-                case 8: {
-                        message.persistentId = reader.string();
-                        break;
-                    }
-                case 9: {
-                        message.streamId = reader.int32();
-                        break;
-                    }
-                case 10: {
-                        message.lastStreamIdReceived = reader.int32();
-                        break;
-                    }
-                case 11: {
-                        message.accountId = reader.int64();
-                        break;
-                    }
-                case 12: {
-                        message.status = reader.int64();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 0)
+                            break;
+                        message.rmqId = reader.int64();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 0)
+                            break;
+                        value = reader.int32();
+                        if ($root.mcs_proto.IqStanza.IqType[value] !== $undefined)
+                            message.type = value;
+                        else if (!reader.discardUnknown) {
+                            $util.makeProp(message, "$unknowns", false);
+                            (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                        }
+                        continue;
+                    }
+                case 3: {
+                        if (wireType !== 2)
+                            break;
+                        message.id = reader.string();
+                        continue;
+                    }
+                case 4: {
+                        if (wireType !== 2)
+                            break;
+                        message.from = reader.string();
+                        continue;
+                    }
+                case 5: {
+                        if (wireType !== 2)
+                            break;
+                        message.to = reader.string();
+                        continue;
+                    }
+                case 6: {
+                        if (wireType !== 2)
+                            break;
+                        message.error = $root.mcs_proto.ErrorInfo.decode(reader, reader.uint32(), $undefined, _depth + 1, message.error);
+                        continue;
+                    }
+                case 7: {
+                        if (wireType !== 2)
+                            break;
+                        message.extension = $root.mcs_proto.Extension.decode(reader, reader.uint32(), $undefined, _depth + 1, message.extension);
+                        continue;
+                    }
+                case 8: {
+                        if (wireType !== 2)
+                            break;
+                        message.persistentId = reader.string();
+                        continue;
+                    }
+                case 9: {
+                        if (wireType !== 0)
+                            break;
+                        message.streamId = reader.int32();
+                        continue;
+                    }
+                case 10: {
+                        if (wireType !== 0)
+                            break;
+                        message.lastStreamIdReceived = reader.int32();
+                        continue;
+                    }
+                case 11: {
+                        if (wireType !== 0)
+                            break;
+                        message.accountId = reader.int64();
+                        continue;
+                    }
+                case 12: {
+                        if (wireType !== 0)
+                            break;
+                        message.status = reader.int64();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
-            if (!message.hasOwnProperty("type"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "type"))
                 throw $util.ProtocolError("missing required 'type'", { instance: message });
-            if (!message.hasOwnProperty("id"))
+            if (!$Object.hasOwnProperty.call(message, "id"))
                 throw $util.ProtocolError("missing required 'id'", { instance: message });
             return message;
         };
@@ -6351,11 +7745,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.IqStanza
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.IqStanza} IqStanza
+         * @returns {mcs_proto.IqStanza & mcs_proto.IqStanza.$Shape} IqStanza
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        IqStanza.decodeDelimited = function decodeDelimited(reader) {
+        IqStanza.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -6369,10 +7763,14 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        IqStanza.verify = function verify(message) {
+        IqStanza.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.rmqId != null && message.hasOwnProperty("rmqId"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
+            if (message.rmqId != null && $Object.hasOwnProperty.call(message, "rmqId"))
                 if (!$util.isInteger(message.rmqId) && !(message.rmqId && $util.isInteger(message.rmqId.low) && $util.isInteger(message.rmqId.high)))
                     return "rmqId: integer|Long expected";
             switch (message.type) {
@@ -6386,35 +7784,35 @@ $root.mcs_proto = (function() {
             }
             if (!$util.isString(message.id))
                 return "id: string expected";
-            if (message.from != null && message.hasOwnProperty("from"))
+            if (message.from != null && $Object.hasOwnProperty.call(message, "from"))
                 if (!$util.isString(message.from))
                     return "from: string expected";
-            if (message.to != null && message.hasOwnProperty("to"))
+            if (message.to != null && $Object.hasOwnProperty.call(message, "to"))
                 if (!$util.isString(message.to))
                     return "to: string expected";
-            if (message.error != null && message.hasOwnProperty("error")) {
-                var error = $root.mcs_proto.ErrorInfo.verify(message.error);
+            if (message.error != null && $Object.hasOwnProperty.call(message, "error")) {
+                var error = $root.mcs_proto.ErrorInfo.verify(message.error, _depth + 1);
                 if (error)
                     return "error." + error;
             }
-            if (message.extension != null && message.hasOwnProperty("extension")) {
-                var error = $root.mcs_proto.Extension.verify(message.extension);
+            if (message.extension != null && $Object.hasOwnProperty.call(message, "extension")) {
+                var error = $root.mcs_proto.Extension.verify(message.extension, _depth + 1);
                 if (error)
                     return "extension." + error;
             }
-            if (message.persistentId != null && message.hasOwnProperty("persistentId"))
+            if (message.persistentId != null && $Object.hasOwnProperty.call(message, "persistentId"))
                 if (!$util.isString(message.persistentId))
                     return "persistentId: string expected";
-            if (message.streamId != null && message.hasOwnProperty("streamId"))
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 if (!$util.isInteger(message.streamId))
                     return "streamId: integer expected";
-            if (message.lastStreamIdReceived != null && message.hasOwnProperty("lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 if (!$util.isInteger(message.lastStreamIdReceived))
                     return "lastStreamIdReceived: integer expected";
-            if (message.accountId != null && message.hasOwnProperty("accountId"))
+            if (message.accountId != null && $Object.hasOwnProperty.call(message, "accountId"))
                 if (!$util.isInteger(message.accountId) && !(message.accountId && $util.isInteger(message.accountId.low) && $util.isInteger(message.accountId.high)))
                     return "accountId: integer|Long expected";
-            if (message.status != null && message.hasOwnProperty("status"))
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
                 if (!$util.isInteger(message.status) && !(message.status && $util.isInteger(message.status.low) && $util.isInteger(message.status.high)))
                     return "status: integer|Long expected";
             return null;
@@ -6428,26 +7826,26 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.IqStanza} IqStanza
          */
-        IqStanza.fromObject = function fromObject(object) {
+        IqStanza.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.IqStanza)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.IqStanza: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.IqStanza();
             if (object.rmqId != null)
                 if ($util.Long)
-                    (message.rmqId = $util.Long.fromValue(object.rmqId)).unsigned = false;
+                    message.rmqId = $util.Long.fromValue(object.rmqId, false);
                 else if (typeof object.rmqId === "string")
-                    message.rmqId = parseInt(object.rmqId, 10);
+                    message.rmqId = $parseInt(object.rmqId, 10);
                 else if (typeof object.rmqId === "number")
                     message.rmqId = object.rmqId;
                 else if (typeof object.rmqId === "object")
                     message.rmqId = new $util.LongBits(object.rmqId.low >>> 0, object.rmqId.high >>> 0).toNumber();
             switch (object.type) {
-            default:
-                if (typeof object.type === "number") {
-                    message.type = object.type;
-                    break;
-                }
-                break;
             case "GET":
             case 0:
                 message.type = 0;
@@ -6464,43 +7862,44 @@ $root.mcs_proto = (function() {
             case 3:
                 message.type = 3;
                 break;
+            default:
             }
             if (object.id != null)
-                message.id = String(object.id);
+                message.id = $String(object.id);
             if (object.from != null)
-                message.from = String(object.from);
+                message.from = $String(object.from);
             if (object.to != null)
-                message.to = String(object.to);
+                message.to = $String(object.to);
             if (object.error != null) {
-                if (typeof object.error !== "object")
-                    throw TypeError(".mcs_proto.IqStanza.error: object expected");
-                message.error = $root.mcs_proto.ErrorInfo.fromObject(object.error);
+                if (!$util.isObject(object.error))
+                    throw $TypeError(".mcs_proto.IqStanza.error: object expected");
+                message.error = $root.mcs_proto.ErrorInfo.fromObject(object.error, _depth + 1);
             }
             if (object.extension != null) {
-                if (typeof object.extension !== "object")
-                    throw TypeError(".mcs_proto.IqStanza.extension: object expected");
-                message.extension = $root.mcs_proto.Extension.fromObject(object.extension);
+                if (!$util.isObject(object.extension))
+                    throw $TypeError(".mcs_proto.IqStanza.extension: object expected");
+                message.extension = $root.mcs_proto.Extension.fromObject(object.extension, _depth + 1);
             }
             if (object.persistentId != null)
-                message.persistentId = String(object.persistentId);
+                message.persistentId = $String(object.persistentId);
             if (object.streamId != null)
                 message.streamId = object.streamId | 0;
             if (object.lastStreamIdReceived != null)
                 message.lastStreamIdReceived = object.lastStreamIdReceived | 0;
             if (object.accountId != null)
                 if ($util.Long)
-                    (message.accountId = $util.Long.fromValue(object.accountId)).unsigned = false;
+                    message.accountId = $util.Long.fromValue(object.accountId, false);
                 else if (typeof object.accountId === "string")
-                    message.accountId = parseInt(object.accountId, 10);
+                    message.accountId = $parseInt(object.accountId, 10);
                 else if (typeof object.accountId === "number")
                     message.accountId = object.accountId;
                 else if (typeof object.accountId === "object")
                     message.accountId = new $util.LongBits(object.accountId.low >>> 0, object.accountId.high >>> 0).toNumber();
             if (object.status != null)
                 if ($util.Long)
-                    (message.status = $util.Long.fromValue(object.status)).unsigned = false;
+                    message.status = $util.Long.fromValue(object.status, false);
                 else if (typeof object.status === "string")
-                    message.status = parseInt(object.status, 10);
+                    message.status = $parseInt(object.status, 10);
                 else if (typeof object.status === "number")
                     message.status = object.status;
                 else if (typeof object.status === "object")
@@ -6517,17 +7916,21 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        IqStanza.toObject = function toObject(message, options) {
+        IqStanza.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.rmqId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.rmqId = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.rmqId = options.longs === String ? "0" : 0;
-                object.type = options.enums === String ? "GET" : 0;
+                    object.rmqId = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
+                object.type = options.enums === $String ? "GET" : 0;
                 object.id = "";
                 object.from = "";
                 object.to = "";
@@ -6538,48 +7941,54 @@ $root.mcs_proto = (function() {
                 object.lastStreamIdReceived = 0;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.accountId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.accountId = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.accountId = options.longs === String ? "0" : 0;
+                    object.accountId = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.status = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.status = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.status = options.longs === String ? "0" : 0;
+                    object.status = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
             }
-            if (message.rmqId != null && message.hasOwnProperty("rmqId"))
-                if (typeof message.rmqId === "number")
-                    object.rmqId = options.longs === String ? String(message.rmqId) : message.rmqId;
+            if (message.rmqId != null && $Object.hasOwnProperty.call(message, "rmqId"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.rmqId = typeof message.rmqId === "number" ? $BigInt(message.rmqId) : $util.Long.fromBits(message.rmqId.low >>> 0, message.rmqId.high >>> 0, false).toBigInt();
+                else if (typeof message.rmqId === "number")
+                    object.rmqId = options.longs === $String ? $String(message.rmqId) : message.rmqId;
                 else
-                    object.rmqId = options.longs === String ? $util.Long.prototype.toString.call(message.rmqId) : options.longs === Number ? new $util.LongBits(message.rmqId.low >>> 0, message.rmqId.high >>> 0).toNumber() : message.rmqId;
-            if (message.type != null && message.hasOwnProperty("type"))
-                object.type = options.enums === String ? $root.mcs_proto.IqStanza.IqType[message.type] === undefined ? message.type : $root.mcs_proto.IqStanza.IqType[message.type] : message.type;
-            if (message.id != null && message.hasOwnProperty("id"))
+                    object.rmqId = options.longs === $String ? $util.Long.prototype.toString.call(message.rmqId) : options.longs === $Number ? new $util.LongBits(message.rmqId.low >>> 0, message.rmqId.high >>> 0).toNumber() : message.rmqId;
+            if (message.type != null && $Object.hasOwnProperty.call(message, "type"))
+                object.type = options.enums === $String ? $root.mcs_proto.IqStanza.IqType[message.type] === $undefined ? message.type : $root.mcs_proto.IqStanza.IqType[message.type] : message.type;
+            if (message.id != null && $Object.hasOwnProperty.call(message, "id"))
                 object.id = message.id;
-            if (message.from != null && message.hasOwnProperty("from"))
+            if (message.from != null && $Object.hasOwnProperty.call(message, "from"))
                 object.from = message.from;
-            if (message.to != null && message.hasOwnProperty("to"))
+            if (message.to != null && $Object.hasOwnProperty.call(message, "to"))
                 object.to = message.to;
-            if (message.error != null && message.hasOwnProperty("error"))
-                object.error = $root.mcs_proto.ErrorInfo.toObject(message.error, options);
-            if (message.extension != null && message.hasOwnProperty("extension"))
-                object.extension = $root.mcs_proto.Extension.toObject(message.extension, options);
-            if (message.persistentId != null && message.hasOwnProperty("persistentId"))
+            if (message.error != null && $Object.hasOwnProperty.call(message, "error"))
+                object.error = $root.mcs_proto.ErrorInfo.toObject(message.error, options, _depth + 1);
+            if (message.extension != null && $Object.hasOwnProperty.call(message, "extension"))
+                object.extension = $root.mcs_proto.Extension.toObject(message.extension, options, _depth + 1);
+            if (message.persistentId != null && $Object.hasOwnProperty.call(message, "persistentId"))
                 object.persistentId = message.persistentId;
-            if (message.streamId != null && message.hasOwnProperty("streamId"))
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 object.streamId = message.streamId;
-            if (message.lastStreamIdReceived != null && message.hasOwnProperty("lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 object.lastStreamIdReceived = message.lastStreamIdReceived;
-            if (message.accountId != null && message.hasOwnProperty("accountId"))
-                if (typeof message.accountId === "number")
-                    object.accountId = options.longs === String ? String(message.accountId) : message.accountId;
+            if (message.accountId != null && $Object.hasOwnProperty.call(message, "accountId"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.accountId = typeof message.accountId === "number" ? $BigInt(message.accountId) : $util.Long.fromBits(message.accountId.low >>> 0, message.accountId.high >>> 0, false).toBigInt();
+                else if (typeof message.accountId === "number")
+                    object.accountId = options.longs === $String ? $String(message.accountId) : message.accountId;
                 else
-                    object.accountId = options.longs === String ? $util.Long.prototype.toString.call(message.accountId) : options.longs === Number ? new $util.LongBits(message.accountId.low >>> 0, message.accountId.high >>> 0).toNumber() : message.accountId;
-            if (message.status != null && message.hasOwnProperty("status"))
-                if (typeof message.status === "number")
-                    object.status = options.longs === String ? String(message.status) : message.status;
+                    object.accountId = options.longs === $String ? $util.Long.prototype.toString.call(message.accountId) : options.longs === $Number ? new $util.LongBits(message.accountId.low >>> 0, message.accountId.high >>> 0).toNumber() : message.accountId;
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.status = typeof message.status === "number" ? $BigInt(message.status) : $util.Long.fromBits(message.status.low >>> 0, message.status.high >>> 0, false).toBigInt();
+                else if (typeof message.status === "number")
+                    object.status = options.longs === $String ? $String(message.status) : message.status;
                 else
-                    object.status = options.longs === String ? $util.Long.prototype.toString.call(message.status) : options.longs === Number ? new $util.LongBits(message.status.low >>> 0, message.status.high >>> 0).toNumber() : message.status;
+                    object.status = options.longs === $String ? $util.Long.prototype.toString.call(message.status) : options.longs === $Number ? new $util.LongBits(message.status.low >>> 0, message.status.high >>> 0).toNumber() : message.status;
             return object;
         };
 
@@ -6590,23 +7999,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        IqStanza.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        IqStanza.prototype.toJSON = function() {
+            return IqStanza.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for IqStanza
+         * Gets the type url for IqStanza
          * @function getTypeUrl
          * @memberof mcs_proto.IqStanza
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        IqStanza.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.IqStanza";
+        IqStanza.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.IqStanza";
         };
 
         /**
@@ -6619,7 +8027,7 @@ $root.mcs_proto = (function() {
          * @property {number} IQ_ERROR=3 IQ_ERROR value
          */
         IqStanza.IqType = (function() {
-            var valuesById = {}, values = Object.create(valuesById);
+            var valuesById = $Object.create(null), values = $Object.create(valuesById);
             values[valuesById[0] = "GET"] = 0;
             values[valuesById[1] = "SET"] = 1;
             values[valuesById[2] = "RESULT"] = 2;
@@ -6634,26 +8042,39 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of an AppData.
-         * @memberof mcs_proto
-         * @interface IAppData
+         * @typedef {Object} mcs_proto.AppData.$Properties
          * @property {string} key AppData key
          * @property {string} value AppData value
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of an AppData.
+         * @memberof mcs_proto
+         * @interface IAppData
+         * @augments mcs_proto.AppData.$Properties
+         * @deprecated Use mcs_proto.AppData.$Properties instead.
+         */
+
+        /**
+         * Shape of an AppData.
+         * @typedef {mcs_proto.AppData.$Properties} mcs_proto.AppData.$Shape
          */
 
         /**
          * Constructs a new AppData.
          * @memberof mcs_proto
          * @classdesc Represents an AppData.
-         * @implements IAppData
          * @constructor
-         * @param {mcs_proto.IAppData=} [properties] Properties to set
+         * @param {mcs_proto.AppData.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function AppData(properties) {
+        var AppData = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * AppData key.
@@ -6676,10 +8097,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.AppData
          * @static
-         * @param {mcs_proto.IAppData=} [properties] Properties to set
+         * @param {mcs_proto.AppData.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.AppData} AppData instance
+         * @type {{
+         *   (properties: mcs_proto.AppData.$Shape): mcs_proto.AppData & mcs_proto.AppData.$Shape;
+         *   (properties?: mcs_proto.AppData.$Properties): mcs_proto.AppData;
+         * }}
          */
-        AppData.create = function create(properties) {
+        AppData.create = function(properties) {
             return new AppData(properties);
         };
 
@@ -6688,15 +8113,22 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.AppData
          * @static
-         * @param {mcs_proto.IAppData} message AppData message or plain object to encode
+         * @param {mcs_proto.AppData.$Properties} message AppData message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        AppData.encode = function encode(message, writer) {
+        AppData.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.key);
             writer.uint32(/* id 2, wireType 2 =*/18).string(message.value);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -6705,12 +8137,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.AppData
          * @static
-         * @param {mcs_proto.IAppData} message AppData message or plain object to encode
+         * @param {mcs_proto.AppData.$Properties} message AppData message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        AppData.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        AppData.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -6720,35 +8152,66 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.AppData} AppData
+         * @returns {mcs_proto.AppData & mcs_proto.AppData.$Shape} AppData
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        AppData.decode = function decode(reader, length, error) {
+        AppData.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.AppData();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.AppData();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 1: {
-                        message.key = reader.string();
-                        break;
-                    }
-                case 2: {
-                        message.value = reader.string();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 1: {
+                        if (wireType !== 2)
+                            break;
+                        message.key = reader.string();
+                        continue;
+                    }
+                case 2: {
+                        if (wireType !== 2)
+                            break;
+                        message.value = reader.string();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
-            if (!message.hasOwnProperty("key"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "key"))
                 throw $util.ProtocolError("missing required 'key'", { instance: message });
-            if (!message.hasOwnProperty("value"))
+            if (!$Object.hasOwnProperty.call(message, "value"))
                 throw $util.ProtocolError("missing required 'value'", { instance: message });
             return message;
         };
@@ -6759,11 +8222,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.AppData
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.AppData} AppData
+         * @returns {mcs_proto.AppData & mcs_proto.AppData.$Shape} AppData
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        AppData.decodeDelimited = function decodeDelimited(reader) {
+        AppData.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -6777,9 +8240,13 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        AppData.verify = function verify(message) {
+        AppData.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             if (!$util.isString(message.key))
                 return "key: string expected";
             if (!$util.isString(message.value))
@@ -6795,14 +8262,20 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.AppData} AppData
          */
-        AppData.fromObject = function fromObject(object) {
+        AppData.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.AppData)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.AppData: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.AppData();
             if (object.key != null)
-                message.key = String(object.key);
+                message.key = $String(object.key);
             if (object.value != null)
-                message.value = String(object.value);
+                message.value = $String(object.value);
             return message;
         };
 
@@ -6815,17 +8288,21 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        AppData.toObject = function toObject(message, options) {
+        AppData.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.defaults) {
                 object.key = "";
                 object.value = "";
             }
-            if (message.key != null && message.hasOwnProperty("key"))
+            if (message.key != null && $Object.hasOwnProperty.call(message, "key"))
                 object.key = message.key;
-            if (message.value != null && message.hasOwnProperty("value"))
+            if (message.value != null && $Object.hasOwnProperty.call(message, "value"))
                 object.value = message.value;
             return object;
         };
@@ -6837,23 +8314,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        AppData.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        AppData.prototype.toJSON = function() {
+            return AppData.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for AppData
+         * Gets the type url for AppData
          * @function getTypeUrl
          * @memberof mcs_proto.AppData
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        AppData.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.AppData";
+        AppData.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.AppData";
         };
 
         return AppData;
@@ -6863,14 +8339,13 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a DataMessageStanza.
-         * @memberof mcs_proto
-         * @interface IDataMessageStanza
+         * @typedef {Object} mcs_proto.DataMessageStanza.$Properties
          * @property {string|null} [id] DataMessageStanza id
          * @property {string} from DataMessageStanza from
          * @property {string|null} [to] DataMessageStanza to
          * @property {string} category DataMessageStanza category
          * @property {string|null} [token] DataMessageStanza token
-         * @property {Array.<mcs_proto.IAppData>|null} [appData] DataMessageStanza appData
+         * @property {Array.<mcs_proto.AppData.$Properties>|null} [appData] DataMessageStanza appData
          * @property {boolean|null} [fromTrustedServer] DataMessageStanza fromTrustedServer
          * @property {string|null} [persistentId] DataMessageStanza persistentId
          * @property {number|null} [streamId] DataMessageStanza streamId
@@ -6883,23 +8358,37 @@ $root.mcs_proto = (function() {
          * @property {number|Long|null} [status] DataMessageStanza status
          * @property {Uint8Array|null} [rawData] DataMessageStanza rawData
          * @property {boolean|null} [immediateAck] DataMessageStanza immediateAck
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a DataMessageStanza.
+         * @memberof mcs_proto
+         * @interface IDataMessageStanza
+         * @augments mcs_proto.DataMessageStanza.$Properties
+         * @deprecated Use mcs_proto.DataMessageStanza.$Properties instead.
+         */
+
+        /**
+         * Shape of a DataMessageStanza.
+         * @typedef {mcs_proto.DataMessageStanza.$Properties} mcs_proto.DataMessageStanza.$Shape
          */
 
         /**
          * Constructs a new DataMessageStanza.
          * @memberof mcs_proto
          * @classdesc TAG: 8
-         * @implements IDataMessageStanza
          * @constructor
-         * @param {mcs_proto.IDataMessageStanza=} [properties] Properties to set
+         * @param {mcs_proto.DataMessageStanza.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function DataMessageStanza(properties) {
+        var DataMessageStanza = function (properties) {
             this.appData = [];
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * DataMessageStanza id.
@@ -6943,7 +8432,7 @@ $root.mcs_proto = (function() {
 
         /**
          * DataMessageStanza appData.
-         * @member {Array.<mcs_proto.IAppData>} appData
+         * @member {Array.<mcs_proto.AppData.$Properties>} appData
          * @memberof mcs_proto.DataMessageStanza
          * @instance
          */
@@ -7050,10 +8539,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.DataMessageStanza
          * @static
-         * @param {mcs_proto.IDataMessageStanza=} [properties] Properties to set
+         * @param {mcs_proto.DataMessageStanza.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.DataMessageStanza} DataMessageStanza instance
+         * @type {{
+         *   (properties: mcs_proto.DataMessageStanza.$Shape): mcs_proto.DataMessageStanza & mcs_proto.DataMessageStanza.$Shape;
+         *   (properties?: mcs_proto.DataMessageStanza.$Properties): mcs_proto.DataMessageStanza;
+         * }}
          */
-        DataMessageStanza.create = function create(properties) {
+        DataMessageStanza.create = function(properties) {
             return new DataMessageStanza(properties);
         };
 
@@ -7062,48 +8555,55 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.DataMessageStanza
          * @static
-         * @param {mcs_proto.IDataMessageStanza} message DataMessageStanza message or plain object to encode
+         * @param {mcs_proto.DataMessageStanza.$Properties} message DataMessageStanza message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        DataMessageStanza.encode = function encode(message, writer) {
+        DataMessageStanza.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
+            if (message.id != null && $Object.hasOwnProperty.call(message, "id"))
                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.id);
             writer.uint32(/* id 3, wireType 2 =*/26).string(message.from);
-            if (message.to != null && Object.hasOwnProperty.call(message, "to"))
+            if (message.to != null && $Object.hasOwnProperty.call(message, "to"))
                 writer.uint32(/* id 4, wireType 2 =*/34).string(message.to);
             writer.uint32(/* id 5, wireType 2 =*/42).string(message.category);
-            if (message.token != null && Object.hasOwnProperty.call(message, "token"))
+            if (message.token != null && $Object.hasOwnProperty.call(message, "token"))
                 writer.uint32(/* id 6, wireType 2 =*/50).string(message.token);
             if (message.appData != null && message.appData.length)
                 for (var i = 0; i < message.appData.length; ++i)
-                    $root.mcs_proto.AppData.encode(message.appData[i], writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-            if (message.fromTrustedServer != null && Object.hasOwnProperty.call(message, "fromTrustedServer"))
+                    $root.mcs_proto.AppData.encode(message.appData[i], writer.uint32(/* id 7, wireType 2 =*/58).fork(), _depth + 1).ldelim();
+            if (message.fromTrustedServer != null && $Object.hasOwnProperty.call(message, "fromTrustedServer"))
                 writer.uint32(/* id 8, wireType 0 =*/64).bool(message.fromTrustedServer);
-            if (message.persistentId != null && Object.hasOwnProperty.call(message, "persistentId"))
+            if (message.persistentId != null && $Object.hasOwnProperty.call(message, "persistentId"))
                 writer.uint32(/* id 9, wireType 2 =*/74).string(message.persistentId);
-            if (message.streamId != null && Object.hasOwnProperty.call(message, "streamId"))
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 writer.uint32(/* id 10, wireType 0 =*/80).int32(message.streamId);
-            if (message.lastStreamIdReceived != null && Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 writer.uint32(/* id 11, wireType 0 =*/88).int32(message.lastStreamIdReceived);
-            if (message.regId != null && Object.hasOwnProperty.call(message, "regId"))
+            if (message.regId != null && $Object.hasOwnProperty.call(message, "regId"))
                 writer.uint32(/* id 13, wireType 2 =*/106).string(message.regId);
-            if (message.deviceUserId != null && Object.hasOwnProperty.call(message, "deviceUserId"))
+            if (message.deviceUserId != null && $Object.hasOwnProperty.call(message, "deviceUserId"))
                 writer.uint32(/* id 16, wireType 0 =*/128).int64(message.deviceUserId);
-            if (message.ttl != null && Object.hasOwnProperty.call(message, "ttl"))
+            if (message.ttl != null && $Object.hasOwnProperty.call(message, "ttl"))
                 writer.uint32(/* id 17, wireType 0 =*/136).int32(message.ttl);
-            if (message.sent != null && Object.hasOwnProperty.call(message, "sent"))
+            if (message.sent != null && $Object.hasOwnProperty.call(message, "sent"))
                 writer.uint32(/* id 18, wireType 0 =*/144).int64(message.sent);
-            if (message.queued != null && Object.hasOwnProperty.call(message, "queued"))
+            if (message.queued != null && $Object.hasOwnProperty.call(message, "queued"))
                 writer.uint32(/* id 19, wireType 0 =*/152).int32(message.queued);
-            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
                 writer.uint32(/* id 20, wireType 0 =*/160).int64(message.status);
-            if (message.rawData != null && Object.hasOwnProperty.call(message, "rawData"))
+            if (message.rawData != null && $Object.hasOwnProperty.call(message, "rawData"))
                 writer.uint32(/* id 21, wireType 2 =*/170).bytes(message.rawData);
-            if (message.immediateAck != null && Object.hasOwnProperty.call(message, "immediateAck"))
+            if (message.immediateAck != null && $Object.hasOwnProperty.call(message, "immediateAck"))
                 writer.uint32(/* id 24, wireType 0 =*/192).bool(message.immediateAck);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -7112,12 +8612,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.DataMessageStanza
          * @static
-         * @param {mcs_proto.IDataMessageStanza} message DataMessageStanza message or plain object to encode
+         * @param {mcs_proto.DataMessageStanza.$Properties} message DataMessageStanza message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        DataMessageStanza.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        DataMessageStanza.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -7127,101 +8627,164 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.DataMessageStanza} DataMessageStanza
+         * @returns {mcs_proto.DataMessageStanza & mcs_proto.DataMessageStanza.$Shape} DataMessageStanza
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        DataMessageStanza.decode = function decode(reader, length, error) {
+        DataMessageStanza.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.DataMessageStanza();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.DataMessageStanza();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                case 2: {
-                        message.id = reader.string();
-                        break;
-                    }
-                case 3: {
-                        message.from = reader.string();
-                        break;
-                    }
-                case 4: {
-                        message.to = reader.string();
-                        break;
-                    }
-                case 5: {
-                        message.category = reader.string();
-                        break;
-                    }
-                case 6: {
-                        message.token = reader.string();
-                        break;
-                    }
-                case 7: {
-                        if (!(message.appData && message.appData.length))
-                            message.appData = [];
-                        message.appData.push($root.mcs_proto.AppData.decode(reader, reader.uint32()));
-                        break;
-                    }
-                case 8: {
-                        message.fromTrustedServer = reader.bool();
-                        break;
-                    }
-                case 9: {
-                        message.persistentId = reader.string();
-                        break;
-                    }
-                case 10: {
-                        message.streamId = reader.int32();
-                        break;
-                    }
-                case 11: {
-                        message.lastStreamIdReceived = reader.int32();
-                        break;
-                    }
-                case 13: {
-                        message.regId = reader.string();
-                        break;
-                    }
-                case 16: {
-                        message.deviceUserId = reader.int64();
-                        break;
-                    }
-                case 17: {
-                        message.ttl = reader.int32();
-                        break;
-                    }
-                case 18: {
-                        message.sent = reader.int64();
-                        break;
-                    }
-                case 19: {
-                        message.queued = reader.int32();
-                        break;
-                    }
-                case 20: {
-                        message.status = reader.int64();
-                        break;
-                    }
-                case 21: {
-                        message.rawData = reader.bytes();
-                        break;
-                    }
-                case 24: {
-                        message.immediateAck = reader.bool();
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
+                case 2: {
+                        if (wireType !== 2)
+                            break;
+                        message.id = reader.string();
+                        continue;
+                    }
+                case 3: {
+                        if (wireType !== 2)
+                            break;
+                        message.from = reader.string();
+                        continue;
+                    }
+                case 4: {
+                        if (wireType !== 2)
+                            break;
+                        message.to = reader.string();
+                        continue;
+                    }
+                case 5: {
+                        if (wireType !== 2)
+                            break;
+                        message.category = reader.string();
+                        continue;
+                    }
+                case 6: {
+                        if (wireType !== 2)
+                            break;
+                        message.token = reader.string();
+                        continue;
+                    }
+                case 7: {
+                        if (wireType !== 2)
+                            break;
+                        if (!(message.appData && message.appData.length))
+                            message.appData = [];
+                        message.appData.push($root.mcs_proto.AppData.decode(reader, reader.uint32(), $undefined, _depth + 1));
+                        continue;
+                    }
+                case 8: {
+                        if (wireType !== 0)
+                            break;
+                        message.fromTrustedServer = reader.bool();
+                        continue;
+                    }
+                case 9: {
+                        if (wireType !== 2)
+                            break;
+                        message.persistentId = reader.string();
+                        continue;
+                    }
+                case 10: {
+                        if (wireType !== 0)
+                            break;
+                        message.streamId = reader.int32();
+                        continue;
+                    }
+                case 11: {
+                        if (wireType !== 0)
+                            break;
+                        message.lastStreamIdReceived = reader.int32();
+                        continue;
+                    }
+                case 13: {
+                        if (wireType !== 2)
+                            break;
+                        message.regId = reader.string();
+                        continue;
+                    }
+                case 16: {
+                        if (wireType !== 0)
+                            break;
+                        message.deviceUserId = reader.int64();
+                        continue;
+                    }
+                case 17: {
+                        if (wireType !== 0)
+                            break;
+                        message.ttl = reader.int32();
+                        continue;
+                    }
+                case 18: {
+                        if (wireType !== 0)
+                            break;
+                        message.sent = reader.int64();
+                        continue;
+                    }
+                case 19: {
+                        if (wireType !== 0)
+                            break;
+                        message.queued = reader.int32();
+                        continue;
+                    }
+                case 20: {
+                        if (wireType !== 0)
+                            break;
+                        message.status = reader.int64();
+                        continue;
+                    }
+                case 21: {
+                        if (wireType !== 2)
+                            break;
+                        message.rawData = reader.bytes();
+                        continue;
+                    }
+                case 24: {
+                        if (wireType !== 0)
+                            break;
+                        message.immediateAck = reader.bool();
+                        continue;
+                    }
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
-            if (!message.hasOwnProperty("from"))
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
+            if (!$Object.hasOwnProperty.call(message, "from"))
                 throw $util.ProtocolError("missing required 'from'", { instance: message });
-            if (!message.hasOwnProperty("category"))
+            if (!$Object.hasOwnProperty.call(message, "category"))
                 throw $util.ProtocolError("missing required 'category'", { instance: message });
             return message;
         };
@@ -7232,11 +8795,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.DataMessageStanza
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.DataMessageStanza} DataMessageStanza
+         * @returns {mcs_proto.DataMessageStanza & mcs_proto.DataMessageStanza.$Shape} DataMessageStanza
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        DataMessageStanza.decodeDelimited = function decodeDelimited(reader) {
+        DataMessageStanza.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -7250,65 +8813,69 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        DataMessageStanza.verify = function verify(message) {
+        DataMessageStanza.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.id != null && message.hasOwnProperty("id"))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
+            if (message.id != null && $Object.hasOwnProperty.call(message, "id"))
                 if (!$util.isString(message.id))
                     return "id: string expected";
             if (!$util.isString(message.from))
                 return "from: string expected";
-            if (message.to != null && message.hasOwnProperty("to"))
+            if (message.to != null && $Object.hasOwnProperty.call(message, "to"))
                 if (!$util.isString(message.to))
                     return "to: string expected";
             if (!$util.isString(message.category))
                 return "category: string expected";
-            if (message.token != null && message.hasOwnProperty("token"))
+            if (message.token != null && $Object.hasOwnProperty.call(message, "token"))
                 if (!$util.isString(message.token))
                     return "token: string expected";
-            if (message.appData != null && message.hasOwnProperty("appData")) {
-                if (!Array.isArray(message.appData))
+            if (message.appData != null && $Object.hasOwnProperty.call(message, "appData")) {
+                if (!$Array.isArray(message.appData))
                     return "appData: array expected";
                 for (var i = 0; i < message.appData.length; ++i) {
-                    var error = $root.mcs_proto.AppData.verify(message.appData[i]);
+                    var error = $root.mcs_proto.AppData.verify(message.appData[i], _depth + 1);
                     if (error)
                         return "appData." + error;
                 }
             }
-            if (message.fromTrustedServer != null && message.hasOwnProperty("fromTrustedServer"))
+            if (message.fromTrustedServer != null && $Object.hasOwnProperty.call(message, "fromTrustedServer"))
                 if (typeof message.fromTrustedServer !== "boolean")
                     return "fromTrustedServer: boolean expected";
-            if (message.persistentId != null && message.hasOwnProperty("persistentId"))
+            if (message.persistentId != null && $Object.hasOwnProperty.call(message, "persistentId"))
                 if (!$util.isString(message.persistentId))
                     return "persistentId: string expected";
-            if (message.streamId != null && message.hasOwnProperty("streamId"))
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 if (!$util.isInteger(message.streamId))
                     return "streamId: integer expected";
-            if (message.lastStreamIdReceived != null && message.hasOwnProperty("lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 if (!$util.isInteger(message.lastStreamIdReceived))
                     return "lastStreamIdReceived: integer expected";
-            if (message.regId != null && message.hasOwnProperty("regId"))
+            if (message.regId != null && $Object.hasOwnProperty.call(message, "regId"))
                 if (!$util.isString(message.regId))
                     return "regId: string expected";
-            if (message.deviceUserId != null && message.hasOwnProperty("deviceUserId"))
+            if (message.deviceUserId != null && $Object.hasOwnProperty.call(message, "deviceUserId"))
                 if (!$util.isInteger(message.deviceUserId) && !(message.deviceUserId && $util.isInteger(message.deviceUserId.low) && $util.isInteger(message.deviceUserId.high)))
                     return "deviceUserId: integer|Long expected";
-            if (message.ttl != null && message.hasOwnProperty("ttl"))
+            if (message.ttl != null && $Object.hasOwnProperty.call(message, "ttl"))
                 if (!$util.isInteger(message.ttl))
                     return "ttl: integer expected";
-            if (message.sent != null && message.hasOwnProperty("sent"))
+            if (message.sent != null && $Object.hasOwnProperty.call(message, "sent"))
                 if (!$util.isInteger(message.sent) && !(message.sent && $util.isInteger(message.sent.low) && $util.isInteger(message.sent.high)))
                     return "sent: integer|Long expected";
-            if (message.queued != null && message.hasOwnProperty("queued"))
+            if (message.queued != null && $Object.hasOwnProperty.call(message, "queued"))
                 if (!$util.isInteger(message.queued))
                     return "queued: integer expected";
-            if (message.status != null && message.hasOwnProperty("status"))
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
                 if (!$util.isInteger(message.status) && !(message.status && $util.isInteger(message.status.low) && $util.isInteger(message.status.high)))
                     return "status: integer|Long expected";
-            if (message.rawData != null && message.hasOwnProperty("rawData"))
+            if (message.rawData != null && $Object.hasOwnProperty.call(message, "rawData"))
                 if (!(message.rawData && typeof message.rawData.length === "number" || $util.isString(message.rawData)))
                     return "rawData: buffer expected";
-            if (message.immediateAck != null && message.hasOwnProperty("immediateAck"))
+            if (message.immediateAck != null && $Object.hasOwnProperty.call(message, "immediateAck"))
                 if (typeof message.immediateAck !== "boolean")
                     return "immediateAck: boolean expected";
             return null;
@@ -7322,45 +8889,51 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.DataMessageStanza} DataMessageStanza
          */
-        DataMessageStanza.fromObject = function fromObject(object) {
+        DataMessageStanza.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.DataMessageStanza)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.DataMessageStanza: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.DataMessageStanza();
             if (object.id != null)
-                message.id = String(object.id);
+                message.id = $String(object.id);
             if (object.from != null)
-                message.from = String(object.from);
+                message.from = $String(object.from);
             if (object.to != null)
-                message.to = String(object.to);
+                message.to = $String(object.to);
             if (object.category != null)
-                message.category = String(object.category);
+                message.category = $String(object.category);
             if (object.token != null)
-                message.token = String(object.token);
+                message.token = $String(object.token);
             if (object.appData) {
-                if (!Array.isArray(object.appData))
-                    throw TypeError(".mcs_proto.DataMessageStanza.appData: array expected");
-                message.appData = [];
+                if (!$Array.isArray(object.appData))
+                    throw $TypeError(".mcs_proto.DataMessageStanza.appData: array expected");
+                message.appData = $Array(object.appData.length);
                 for (var i = 0; i < object.appData.length; ++i) {
-                    if (typeof object.appData[i] !== "object")
-                        throw TypeError(".mcs_proto.DataMessageStanza.appData: object expected");
-                    message.appData[i] = $root.mcs_proto.AppData.fromObject(object.appData[i]);
+                    if (!$util.isObject(object.appData[i]))
+                        throw $TypeError(".mcs_proto.DataMessageStanza.appData: object expected");
+                    message.appData[i] = $root.mcs_proto.AppData.fromObject(object.appData[i], _depth + 1);
                 }
             }
             if (object.fromTrustedServer != null)
-                message.fromTrustedServer = Boolean(object.fromTrustedServer);
+                message.fromTrustedServer = $Boolean(object.fromTrustedServer);
             if (object.persistentId != null)
-                message.persistentId = String(object.persistentId);
+                message.persistentId = $String(object.persistentId);
             if (object.streamId != null)
                 message.streamId = object.streamId | 0;
             if (object.lastStreamIdReceived != null)
                 message.lastStreamIdReceived = object.lastStreamIdReceived | 0;
             if (object.regId != null)
-                message.regId = String(object.regId);
+                message.regId = $String(object.regId);
             if (object.deviceUserId != null)
                 if ($util.Long)
-                    (message.deviceUserId = $util.Long.fromValue(object.deviceUserId)).unsigned = false;
+                    message.deviceUserId = $util.Long.fromValue(object.deviceUserId, false);
                 else if (typeof object.deviceUserId === "string")
-                    message.deviceUserId = parseInt(object.deviceUserId, 10);
+                    message.deviceUserId = $parseInt(object.deviceUserId, 10);
                 else if (typeof object.deviceUserId === "number")
                     message.deviceUserId = object.deviceUserId;
                 else if (typeof object.deviceUserId === "object")
@@ -7369,9 +8942,9 @@ $root.mcs_proto = (function() {
                 message.ttl = object.ttl | 0;
             if (object.sent != null)
                 if ($util.Long)
-                    (message.sent = $util.Long.fromValue(object.sent)).unsigned = false;
+                    message.sent = $util.Long.fromValue(object.sent, false);
                 else if (typeof object.sent === "string")
-                    message.sent = parseInt(object.sent, 10);
+                    message.sent = $parseInt(object.sent, 10);
                 else if (typeof object.sent === "number")
                     message.sent = object.sent;
                 else if (typeof object.sent === "object")
@@ -7380,9 +8953,9 @@ $root.mcs_proto = (function() {
                 message.queued = object.queued | 0;
             if (object.status != null)
                 if ($util.Long)
-                    (message.status = $util.Long.fromValue(object.status)).unsigned = false;
+                    message.status = $util.Long.fromValue(object.status, false);
                 else if (typeof object.status === "string")
-                    message.status = parseInt(object.status, 10);
+                    message.status = $parseInt(object.status, 10);
                 else if (typeof object.status === "number")
                     message.status = object.status;
                 else if (typeof object.status === "object")
@@ -7393,7 +8966,7 @@ $root.mcs_proto = (function() {
                 else if (object.rawData.length >= 0)
                     message.rawData = object.rawData;
             if (object.immediateAck != null)
-                message.immediateAck = Boolean(object.immediateAck);
+                message.immediateAck = $Boolean(object.immediateAck);
             return message;
         };
 
@@ -7406,9 +8979,13 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        DataMessageStanza.toObject = function toObject(message, options) {
+        DataMessageStanza.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.arrays || options.defaults)
                 object.appData = [];
@@ -7425,77 +9002,83 @@ $root.mcs_proto = (function() {
                 object.regId = "";
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.deviceUserId = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.deviceUserId = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.deviceUserId = options.longs === String ? "0" : 0;
+                    object.deviceUserId = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 object.ttl = 0;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.sent = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.sent = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.sent = options.longs === String ? "0" : 0;
+                    object.sent = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
                 object.queued = 0;
                 if ($util.Long) {
                     var long = new $util.Long(0, 0, false);
-                    object.status = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    object.status = options.longs === $String ? long.toString() : options.longs === $Number ? long.toNumber() : typeof $BigInt !== "undefined" && options.longs === $BigInt ? long.toBigInt() : long;
                 } else
-                    object.status = options.longs === String ? "0" : 0;
-                if (options.bytes === String)
+                    object.status = options.longs === $String ? "0" : typeof $BigInt !== "undefined" && options.longs === $BigInt ? $BigInt("0") : 0;
+                if (options.bytes === $String)
                     object.rawData = "";
                 else {
                     object.rawData = [];
-                    if (options.bytes !== Array)
+                    if (options.bytes !== $Array)
                         object.rawData = $util.newBuffer(object.rawData);
                 }
                 object.immediateAck = false;
             }
-            if (message.id != null && message.hasOwnProperty("id"))
+            if (message.id != null && $Object.hasOwnProperty.call(message, "id"))
                 object.id = message.id;
-            if (message.from != null && message.hasOwnProperty("from"))
+            if (message.from != null && $Object.hasOwnProperty.call(message, "from"))
                 object.from = message.from;
-            if (message.to != null && message.hasOwnProperty("to"))
+            if (message.to != null && $Object.hasOwnProperty.call(message, "to"))
                 object.to = message.to;
-            if (message.category != null && message.hasOwnProperty("category"))
+            if (message.category != null && $Object.hasOwnProperty.call(message, "category"))
                 object.category = message.category;
-            if (message.token != null && message.hasOwnProperty("token"))
+            if (message.token != null && $Object.hasOwnProperty.call(message, "token"))
                 object.token = message.token;
             if (message.appData && message.appData.length) {
-                object.appData = [];
+                object.appData = $Array(message.appData.length);
                 for (var j = 0; j < message.appData.length; ++j)
-                    object.appData[j] = $root.mcs_proto.AppData.toObject(message.appData[j], options);
+                    object.appData[j] = $root.mcs_proto.AppData.toObject(message.appData[j], options, _depth + 1);
             }
-            if (message.fromTrustedServer != null && message.hasOwnProperty("fromTrustedServer"))
+            if (message.fromTrustedServer != null && $Object.hasOwnProperty.call(message, "fromTrustedServer"))
                 object.fromTrustedServer = message.fromTrustedServer;
-            if (message.persistentId != null && message.hasOwnProperty("persistentId"))
+            if (message.persistentId != null && $Object.hasOwnProperty.call(message, "persistentId"))
                 object.persistentId = message.persistentId;
-            if (message.streamId != null && message.hasOwnProperty("streamId"))
+            if (message.streamId != null && $Object.hasOwnProperty.call(message, "streamId"))
                 object.streamId = message.streamId;
-            if (message.lastStreamIdReceived != null && message.hasOwnProperty("lastStreamIdReceived"))
+            if (message.lastStreamIdReceived != null && $Object.hasOwnProperty.call(message, "lastStreamIdReceived"))
                 object.lastStreamIdReceived = message.lastStreamIdReceived;
-            if (message.regId != null && message.hasOwnProperty("regId"))
+            if (message.regId != null && $Object.hasOwnProperty.call(message, "regId"))
                 object.regId = message.regId;
-            if (message.deviceUserId != null && message.hasOwnProperty("deviceUserId"))
-                if (typeof message.deviceUserId === "number")
-                    object.deviceUserId = options.longs === String ? String(message.deviceUserId) : message.deviceUserId;
+            if (message.deviceUserId != null && $Object.hasOwnProperty.call(message, "deviceUserId"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.deviceUserId = typeof message.deviceUserId === "number" ? $BigInt(message.deviceUserId) : $util.Long.fromBits(message.deviceUserId.low >>> 0, message.deviceUserId.high >>> 0, false).toBigInt();
+                else if (typeof message.deviceUserId === "number")
+                    object.deviceUserId = options.longs === $String ? $String(message.deviceUserId) : message.deviceUserId;
                 else
-                    object.deviceUserId = options.longs === String ? $util.Long.prototype.toString.call(message.deviceUserId) : options.longs === Number ? new $util.LongBits(message.deviceUserId.low >>> 0, message.deviceUserId.high >>> 0).toNumber() : message.deviceUserId;
-            if (message.ttl != null && message.hasOwnProperty("ttl"))
+                    object.deviceUserId = options.longs === $String ? $util.Long.prototype.toString.call(message.deviceUserId) : options.longs === $Number ? new $util.LongBits(message.deviceUserId.low >>> 0, message.deviceUserId.high >>> 0).toNumber() : message.deviceUserId;
+            if (message.ttl != null && $Object.hasOwnProperty.call(message, "ttl"))
                 object.ttl = message.ttl;
-            if (message.sent != null && message.hasOwnProperty("sent"))
-                if (typeof message.sent === "number")
-                    object.sent = options.longs === String ? String(message.sent) : message.sent;
+            if (message.sent != null && $Object.hasOwnProperty.call(message, "sent"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.sent = typeof message.sent === "number" ? $BigInt(message.sent) : $util.Long.fromBits(message.sent.low >>> 0, message.sent.high >>> 0, false).toBigInt();
+                else if (typeof message.sent === "number")
+                    object.sent = options.longs === $String ? $String(message.sent) : message.sent;
                 else
-                    object.sent = options.longs === String ? $util.Long.prototype.toString.call(message.sent) : options.longs === Number ? new $util.LongBits(message.sent.low >>> 0, message.sent.high >>> 0).toNumber() : message.sent;
-            if (message.queued != null && message.hasOwnProperty("queued"))
+                    object.sent = options.longs === $String ? $util.Long.prototype.toString.call(message.sent) : options.longs === $Number ? new $util.LongBits(message.sent.low >>> 0, message.sent.high >>> 0).toNumber() : message.sent;
+            if (message.queued != null && $Object.hasOwnProperty.call(message, "queued"))
                 object.queued = message.queued;
-            if (message.status != null && message.hasOwnProperty("status"))
-                if (typeof message.status === "number")
-                    object.status = options.longs === String ? String(message.status) : message.status;
+            if (message.status != null && $Object.hasOwnProperty.call(message, "status"))
+                if (typeof $BigInt !== "undefined" && options.longs === $BigInt)
+                    object.status = typeof message.status === "number" ? $BigInt(message.status) : $util.Long.fromBits(message.status.low >>> 0, message.status.high >>> 0, false).toBigInt();
+                else if (typeof message.status === "number")
+                    object.status = options.longs === $String ? $String(message.status) : message.status;
                 else
-                    object.status = options.longs === String ? $util.Long.prototype.toString.call(message.status) : options.longs === Number ? new $util.LongBits(message.status.low >>> 0, message.status.high >>> 0).toNumber() : message.status;
-            if (message.rawData != null && message.hasOwnProperty("rawData"))
-                object.rawData = options.bytes === String ? $util.base64.encode(message.rawData, 0, message.rawData.length) : options.bytes === Array ? Array.prototype.slice.call(message.rawData) : message.rawData;
-            if (message.immediateAck != null && message.hasOwnProperty("immediateAck"))
+                    object.status = options.longs === $String ? $util.Long.prototype.toString.call(message.status) : options.longs === $Number ? new $util.LongBits(message.status.low >>> 0, message.status.high >>> 0).toNumber() : message.status;
+            if (message.rawData != null && $Object.hasOwnProperty.call(message, "rawData"))
+                object.rawData = options.bytes === $String ? $util.base64.encode(message.rawData, 0, message.rawData.length) : options.bytes === $Array ? $Array.prototype.slice.call(message.rawData) : message.rawData;
+            if (message.immediateAck != null && $Object.hasOwnProperty.call(message, "immediateAck"))
                 object.immediateAck = message.immediateAck;
             return object;
         };
@@ -7507,23 +9090,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        DataMessageStanza.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        DataMessageStanza.prototype.toJSON = function() {
+            return DataMessageStanza.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for DataMessageStanza
+         * Gets the type url for DataMessageStanza
          * @function getTypeUrl
          * @memberof mcs_proto.DataMessageStanza
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        DataMessageStanza.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.DataMessageStanza";
+        DataMessageStanza.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.DataMessageStanza";
         };
 
         return DataMessageStanza;
@@ -7533,8 +9115,21 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a StreamAck.
+         * @typedef {Object} mcs_proto.StreamAck.$Properties
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a StreamAck.
          * @memberof mcs_proto
          * @interface IStreamAck
+         * @augments mcs_proto.StreamAck.$Properties
+         * @deprecated Use mcs_proto.StreamAck.$Properties instead.
+         */
+
+        /**
+         * Shape of a StreamAck.
+         * @typedef {mcs_proto.StreamAck.$Properties} mcs_proto.StreamAck.$Shape
          */
 
         /**
@@ -7542,26 +9137,30 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto
          * @classdesc Included in IQ with ID 13, sent from client or server after 10 unconfirmed
          * messages.
-         * @implements IStreamAck
          * @constructor
-         * @param {mcs_proto.IStreamAck=} [properties] Properties to set
+         * @param {mcs_proto.StreamAck.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function StreamAck(properties) {
+        var StreamAck = function (properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * Creates a new StreamAck instance using the specified properties.
          * @function create
          * @memberof mcs_proto.StreamAck
          * @static
-         * @param {mcs_proto.IStreamAck=} [properties] Properties to set
+         * @param {mcs_proto.StreamAck.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.StreamAck} StreamAck instance
+         * @type {{
+         *   (properties: mcs_proto.StreamAck.$Shape): mcs_proto.StreamAck & mcs_proto.StreamAck.$Shape;
+         *   (properties?: mcs_proto.StreamAck.$Properties): mcs_proto.StreamAck;
+         * }}
          */
-        StreamAck.create = function create(properties) {
+        StreamAck.create = function(properties) {
             return new StreamAck(properties);
         };
 
@@ -7570,13 +9169,20 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.StreamAck
          * @static
-         * @param {mcs_proto.IStreamAck} message StreamAck message or plain object to encode
+         * @param {mcs_proto.StreamAck.$Properties} message StreamAck message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        StreamAck.encode = function encode(message, writer) {
+        StreamAck.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -7585,12 +9191,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.StreamAck
          * @static
-         * @param {mcs_proto.IStreamAck} message StreamAck message or plain object to encode
+         * @param {mcs_proto.StreamAck.$Properties} message StreamAck message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        StreamAck.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        StreamAck.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -7600,24 +9206,48 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.StreamAck} StreamAck
+         * @returns {mcs_proto.StreamAck & mcs_proto.StreamAck.$Shape} StreamAck
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        StreamAck.decode = function decode(reader, length, error) {
+        StreamAck.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.StreamAck();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.StreamAck();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
-                    break;
-                switch (tag >>> 3) {
-                default:
-                    reader.skipType(tag & 7);
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
                 }
+                reader.skipType(tag & 7, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                }
             }
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
             return message;
         };
 
@@ -7627,11 +9257,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.StreamAck
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.StreamAck} StreamAck
+         * @returns {mcs_proto.StreamAck & mcs_proto.StreamAck.$Shape} StreamAck
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        StreamAck.decodeDelimited = function decodeDelimited(reader) {
+        StreamAck.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -7645,9 +9275,13 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        StreamAck.verify = function verify(message) {
+        StreamAck.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
             return null;
         };
 
@@ -7659,9 +9293,15 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.StreamAck} StreamAck
          */
-        StreamAck.fromObject = function fromObject(object) {
+        StreamAck.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.StreamAck)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.StreamAck: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             return new $root.mcs_proto.StreamAck();
         };
 
@@ -7674,7 +9314,7 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        StreamAck.toObject = function toObject() {
+        StreamAck.toObject = function () {
             return {};
         };
 
@@ -7685,23 +9325,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        StreamAck.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        StreamAck.prototype.toJSON = function() {
+            return StreamAck.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for StreamAck
+         * Gets the type url for StreamAck
          * @function getTypeUrl
          * @memberof mcs_proto.StreamAck
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        StreamAck.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.StreamAck";
+        StreamAck.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.StreamAck";
         };
 
         return StreamAck;
@@ -7711,26 +9350,39 @@ $root.mcs_proto = (function() {
 
         /**
          * Properties of a SelectiveAck.
+         * @typedef {Object} mcs_proto.SelectiveAck.$Properties
+         * @property {Array.<string>|null} [id] SelectiveAck id
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+         */
+
+        /**
+         * Properties of a SelectiveAck.
          * @memberof mcs_proto
          * @interface ISelectiveAck
-         * @property {Array.<string>|null} [id] SelectiveAck id
+         * @augments mcs_proto.SelectiveAck.$Properties
+         * @deprecated Use mcs_proto.SelectiveAck.$Properties instead.
+         */
+
+        /**
+         * Shape of a SelectiveAck.
+         * @typedef {mcs_proto.SelectiveAck.$Properties} mcs_proto.SelectiveAck.$Shape
          */
 
         /**
          * Constructs a new SelectiveAck.
          * @memberof mcs_proto
          * @classdesc Included in IQ sent after LoginResponse from server with ID 12.
-         * @implements ISelectiveAck
          * @constructor
-         * @param {mcs_proto.ISelectiveAck=} [properties] Properties to set
+         * @param {mcs_proto.SelectiveAck.$Properties=} [properties] Properties to set
+         * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
          */
-        function SelectiveAck(properties) {
+        var SelectiveAck = function (properties) {
             this.id = [];
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
-        }
+        };
 
         /**
          * SelectiveAck id.
@@ -7745,10 +9397,14 @@ $root.mcs_proto = (function() {
          * @function create
          * @memberof mcs_proto.SelectiveAck
          * @static
-         * @param {mcs_proto.ISelectiveAck=} [properties] Properties to set
+         * @param {mcs_proto.SelectiveAck.$Properties=} [properties] Properties to set
          * @returns {mcs_proto.SelectiveAck} SelectiveAck instance
+         * @type {{
+         *   (properties: mcs_proto.SelectiveAck.$Shape): mcs_proto.SelectiveAck & mcs_proto.SelectiveAck.$Shape;
+         *   (properties?: mcs_proto.SelectiveAck.$Properties): mcs_proto.SelectiveAck;
+         * }}
          */
-        SelectiveAck.create = function create(properties) {
+        SelectiveAck.create = function(properties) {
             return new SelectiveAck(properties);
         };
 
@@ -7757,16 +9413,23 @@ $root.mcs_proto = (function() {
          * @function encode
          * @memberof mcs_proto.SelectiveAck
          * @static
-         * @param {mcs_proto.ISelectiveAck} message SelectiveAck message or plain object to encode
+         * @param {mcs_proto.SelectiveAck.$Properties} message SelectiveAck message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        SelectiveAck.encode = function encode(message, writer) {
+        SelectiveAck.encode = function (message, writer, _depth) {
             if (!writer)
                 writer = $Writer.create();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             if (message.id != null && message.id.length)
                 for (var i = 0; i < message.id.length; ++i)
                     writer.uint32(/* id 1, wireType 2 =*/10).string(message.id[i]);
+            if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                for (var i = 0; i < message.$unknowns.length; ++i)
+                    writer.raw(message.$unknowns[i]);
             return writer;
         };
 
@@ -7775,12 +9438,12 @@ $root.mcs_proto = (function() {
          * @function encodeDelimited
          * @memberof mcs_proto.SelectiveAck
          * @static
-         * @param {mcs_proto.ISelectiveAck} message SelectiveAck message or plain object to encode
+         * @param {mcs_proto.SelectiveAck.$Properties} message SelectiveAck message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        SelectiveAck.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+        SelectiveAck.encodeDelimited = function(message, writer) {
+            return this.encode(message, (writer || $Writer.create()).fork()).ldelim();
         };
 
         /**
@@ -7790,30 +9453,59 @@ $root.mcs_proto = (function() {
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {mcs_proto.SelectiveAck} SelectiveAck
+         * @returns {mcs_proto.SelectiveAck & mcs_proto.SelectiveAck.$Shape} SelectiveAck
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        SelectiveAck.decode = function decode(reader, length, error) {
+        SelectiveAck.decode = function (reader, length, _end, _depth, _target) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.mcs_proto.SelectiveAck();
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $Reader.recursionLimit)
+                throw $Error("max depth exceeded");
+            var end, message;
+            if (length === $undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw $RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = _target || new $root.mcs_proto.SelectiveAck();
             while (reader.pos < end) {
-                var tag = reader.uint32();
-                if (tag === error)
+                var start = reader.pos;
+                var tag = reader.tag();
+                if (tag === _end) {
+                    _end = $undefined;
                     break;
-                switch (tag >>> 3) {
+                }
+                var wireType = tag & 7;
+                switch (tag >>>= 3) {
                 case 1: {
+                        if (wireType !== 2)
+                            break;
                         if (!(message.id && message.id.length))
                             message.id = [];
                         message.id.push(reader.string());
-                        break;
+                        continue;
                     }
-                default:
-                    reader.skipType(tag & 7);
-                    break;
+                }
+                reader.skipType(wireType, _depth, tag);
+                if (!reader.discardUnknown) {
+                    $util.makeProp(message, "$unknowns", false);
+                    (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
                 }
             }
+            if (length !== $undefined) {
+                if (reader.pos !== end)
+                    throw $RangeError("index out of range");
+                reader.len = length;
+            }
+            if (_end !== $undefined)
+                throw $Error("missing end group");
             return message;
         };
 
@@ -7823,11 +9515,11 @@ $root.mcs_proto = (function() {
          * @memberof mcs_proto.SelectiveAck
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {mcs_proto.SelectiveAck} SelectiveAck
+         * @returns {mcs_proto.SelectiveAck & mcs_proto.SelectiveAck.$Shape} SelectiveAck
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        SelectiveAck.decodeDelimited = function decodeDelimited(reader) {
+        SelectiveAck.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
@@ -7841,11 +9533,15 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        SelectiveAck.verify = function verify(message) {
+        SelectiveAck.verify = function (message, _depth) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.id != null && message.hasOwnProperty("id")) {
-                if (!Array.isArray(message.id))
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                return "max depth exceeded";
+            if (message.id != null && $Object.hasOwnProperty.call(message, "id")) {
+                if (!$Array.isArray(message.id))
                     return "id: array expected";
                 for (var i = 0; i < message.id.length; ++i)
                     if (!$util.isString(message.id[i]))
@@ -7862,16 +9558,22 @@ $root.mcs_proto = (function() {
          * @param {Object.<string,*>} object Plain object
          * @returns {mcs_proto.SelectiveAck} SelectiveAck
          */
-        SelectiveAck.fromObject = function fromObject(object) {
+        SelectiveAck.fromObject = function (object, _depth) {
             if (object instanceof $root.mcs_proto.SelectiveAck)
                 return object;
+            if (!$util.isObject(object))
+                throw $TypeError(".mcs_proto.SelectiveAck: object expected");
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var message = new $root.mcs_proto.SelectiveAck();
             if (object.id) {
-                if (!Array.isArray(object.id))
-                    throw TypeError(".mcs_proto.SelectiveAck.id: array expected");
-                message.id = [];
+                if (!$Array.isArray(object.id))
+                    throw $TypeError(".mcs_proto.SelectiveAck.id: array expected");
+                message.id = $Array(object.id.length);
                 for (var i = 0; i < object.id.length; ++i)
-                    message.id[i] = String(object.id[i]);
+                    message.id[i] = $String(object.id[i]);
             }
             return message;
         };
@@ -7885,14 +9587,18 @@ $root.mcs_proto = (function() {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        SelectiveAck.toObject = function toObject(message, options) {
+        SelectiveAck.toObject = function (message, options, _depth) {
             if (!options)
                 options = {};
+            if (_depth === $undefined)
+                _depth = 0;
+            if (_depth > $util.recursionLimit)
+                throw $Error("max depth exceeded");
             var object = {};
             if (options.arrays || options.defaults)
                 object.id = [];
             if (message.id && message.id.length) {
-                object.id = [];
+                object.id = $Array(message.id.length);
                 for (var j = 0; j < message.id.length; ++j)
                     object.id[j] = message.id[j];
             }
@@ -7906,23 +9612,22 @@ $root.mcs_proto = (function() {
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        SelectiveAck.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        SelectiveAck.prototype.toJSON = function() {
+            return SelectiveAck.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for SelectiveAck
+         * Gets the type url for SelectiveAck
          * @function getTypeUrl
          * @memberof mcs_proto.SelectiveAck
          * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
+         * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+         * @returns {string} The type url
          */
-        SelectiveAck.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/mcs_proto.SelectiveAck";
+        SelectiveAck.getTypeUrl = function(prefix) {
+            if (prefix === $undefined)
+                prefix = "type.googleapis.com";
+            return prefix + "/mcs_proto.SelectiveAck";
         };
 
         return SelectiveAck;
