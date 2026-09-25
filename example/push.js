@@ -24,7 +24,7 @@ const main = async () => {
         crypto,
     });
 
-    const client = new PushReceiver(app)
+    const client = new PushReceiver(app, {})
 
     await client.connect();
 

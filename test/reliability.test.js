@@ -639,7 +639,7 @@ test('release reliability regressions', async (t) => {
         tls.connect = () => { throw new Error('tls.connect is not exercised by this test') }
 
         const events = []
-        const pushReceiver = new PushReceiver(app)
+        const pushReceiver = new PushReceiver(app, {})
         pushReceiver.on('ON_TOKEN_CHANGE', () => events.push(pushReceiver.fcmToken))
 
         await assert.rejects(pushReceiver.connect(), /tls\.connect is not exercised by this test/)
@@ -702,7 +702,7 @@ test('release reliability regressions', async (t) => {
         // the checkin/register work this test cares about has already run by that point.
         tls.connect = () => { throw new Error('tls.connect is not exercised by this test') }
 
-        const pushReceiver = new PushReceiver(app, { config: { bundleId: 'custom.bundle' } })
+        const pushReceiver = new PushReceiver(app, { bundleId: 'custom.bundle' })
 
         await assert.rejects(pushReceiver.connect(), /tls\.connect is not exercised by this test/)
 
@@ -755,7 +755,7 @@ test('release reliability regressions', async (t) => {
 
         tls.connect = () => { throw new Error('tls.connect is not exercised by this test') }
 
-        const pushReceiver = new PushReceiver(app, { config: { vapidKey: undefined } })
+        const pushReceiver = new PushReceiver(app, { vapidKey: undefined })
 
         await assert.rejects(pushReceiver.connect(), /tls\.connect is not exercised by this test/)
 
@@ -763,7 +763,7 @@ test('release reliability regressions', async (t) => {
         assert.equal(params.get('sender'), DEFAULT_VAPID_KEY)
 
         // Every other field still throws on an explicit undefined.
-        assert.throws(() => new PushReceiver(app, { config: { bundleId: undefined } }), (error) => {
+        assert.throws(() => new PushReceiver(app, { bundleId: undefined }), (error) => {
             assert.deepEqual(error.missingProperties, ['bundleId'])
             return true
         })

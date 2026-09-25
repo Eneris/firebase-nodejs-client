@@ -6,10 +6,10 @@ Compact firebase client implementation for NodeJS environment
 Requires Node.js >= 20.19.
 
 ```sh
-npm install @eneris/firebase-nodejs-client@experimental
+npm install @eneris/firebase-nodejs-client
 ```
 ```sh
-yarn add @eneris/firebase-nodejs-client@experimental
+yarn add @eneris/firebase-nodejs-client
 ```
 
 ## Why do we need another module
@@ -99,7 +99,9 @@ Every module namespaces its own keys inside the provided storage, so a single st
 [`PushReceiver`](wiki/PushReceiver.md) registers the app with GCM/FCM, keeps a persistent connection to `mtalk.google.com` open, decrypts incoming messages and deduplicates them using persistent ids stored in your storage. Registration data is persisted, so a restarted process reuses the same FCM token.
 
 ```js
-const client = new PushReceiver(app)
+// Second argument is the push identity config (bundleId, chrome identity, timeZone, vapidKey).
+// Every field is optional and falls back to its DEFAULT_* value, but the object itself is required.
+const client = new PushReceiver(app, {})
 
 client.onNotification(({ message, persistentId }) => {
     console.log('Notification received', persistentId, message)

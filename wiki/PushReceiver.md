@@ -5,21 +5,22 @@ Registers the app with GCM/FCM, keeps a persistent TLS connection to `mtalk.goog
 ## Config
 ```js
 const client = new PushReceiver(app, {
-    config: {            // optional, every field defaults to the matching DEFAULT_* below
-        bundleId: 'receiver.push.com',
-        chromeId: 'org.chromium.linux',
-        chromePlatform: 3,  // 1 = Windows, 2 = Darwin, 3 = Linux, 4 = Cros, 5 = iOS
-        chromeChannel: 1,   // 1 = stable, 2 = beta, 3 = dev, 4 = canary, 5 = unknown
-        chromeVersion: '148.0.7778.271',
-        timeZone: 'Europe/Prague',
-        vapidKey: 'BDOU9...',  // DEFAULT_VAPID_KEY in src/utils/constants.ts is firebase-js-sdk's public vapid key
-    },
+    // config (required object), every field defaults to the matching DEFAULT_* below
+    bundleId: 'receiver.push.com',
+    chromeId: 'org.chromium.linux',
+    chromePlatform: 3,  // 1 = Windows, 2 = Darwin, 3 = Linux, 4 = Cros, 5 = iOS
+    chromeChannel: 1,   // 1 = stable, 2 = beta, 3 = dev, 4 = canary, 5 = unknown
+    chromeVersion: '148.0.7778.271',
+    timeZone: 'Europe/Prague',
+    vapidKey: 'BDOU9...',  // DEFAULT_VAPID_KEY in src/utils/constants.ts is firebase-js-sdk's public vapid key
+}, {
+    // options (optional)
     heartbeatIntervalMs: 5 * 60 * 1000, // optional, defaults to 5 minutes
     maxRetryAttempts: 5,                // optional, non-positive value disables the limit
 })
 ```
 
-Every `config` field is optional and defaults to the matching `DEFAULT_*` constant in `src/utils/constants.ts`; the defaults are applied once, in the constructor, before it asserts the resolved config. The constructor throws if a field resolves empty (for example passed as `undefined` or `''`), or if `credentials.appId`, `credentials.apiKey` or `credentials.projectId` is missing. The one exception is `vapidKey`: an explicit `undefined` falls back to `DEFAULT_VAPID_KEY` instead of throwing; every other field still throws on an explicit `undefined`.
+The constructor takes `(app, config, options)`. The `config` object is required, but pass `{}` to use all defaults. Every `config` field is optional and defaults to the matching `DEFAULT_*` constant in `src/utils/constants.ts`; the defaults are applied once, in the constructor, before it asserts the resolved config. The constructor throws if a field resolves empty (for example passed as `undefined` or `''`), or if `credentials.appId`, `credentials.apiKey` or `credentials.projectId` is missing. The one exception is `vapidKey`: an explicit `undefined` falls back to `DEFAULT_VAPID_KEY` instead of throwing; every other field still throws on an explicit `undefined`.
 
 ## Methods
 ### `connect`
@@ -64,7 +65,7 @@ const app = new FirebaseApp({
     crypto,
 })
 
-const client = new PushReceiver(app)
+const client = new PushReceiver(app, {})
 
 const stopListening = client.onNotification(({ message, persistentId }) => {
     console.log('Notification received', persistentId, message)

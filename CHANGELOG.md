@@ -1,4 +1,11 @@
 # Changelog
+## 1.0.1
+ - **Breaking:** `PushReceiver` push identity config moved from `options.config` to its own required second argument: `new PushReceiver(app, config, options)`. Pass `{}` to use all `DEFAULT_*` values
+ - Fixed `Value.asConverted` (and so `RemoteConfig.getAllConverted`) returning `true` for `'false'`, and converting an empty value to `0` instead of keeping it an empty string
+ - Exported `Value` from the package root
+ - Moved shared types from `src/lib/types.ts` to `src/utils/types.ts`
+ - Published under the `latest` dist-tag
+
 ## 1.0.0-push-receiver
  - Added `PushReceiver` - persistent MCS/FCM connection with registration, decryption, heartbeat and reconnect handling
  - Added `PushReceiverLegacy` - drop-in compatible API for `@eneris/push-receiver` consumers
@@ -23,8 +30,6 @@
  - GCM register retries are no longer reported as warnings: Google answers `PHONE_REGISTRATION_ERROR` for the first few attempts routinely, so a failed attempt is logged at debug level and only an exhausted retry budget throws, with the last server response included in the error
  - A cached FCM registration whose installation is gone (cleared or replaced) is now re-registered, instead of serving a token bound to an installation that no longer exists
  - Reworked the `fetch` retry policy: a rejected request retries until it succeeds, so a request made while offline completes once connectivity returns, while 429 and 5xx are bounded at 3 retries. The backoff doubles per attempt up to 10 minutes. `fetch-retry` ignores its own `retries` option when `retryOn` is a function, so the previous bound never applied and a persistent failure could retry forever
- - Fixed `Value.asConverted` (and so `RemoteConfig.getAllConverted`) returning `true` for `'false'`, and converting an empty value to `0` instead of keeping it an empty string
- - Exported `Value` from the package root
 
 ## 0.4.0
  - Replaced `axios` + `axios-retry` with native `fetch` + `fetch-retry`, removing Node.js HTTP adapter dependency
