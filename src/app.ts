@@ -1,6 +1,6 @@
 import { getProperty } from 'dot-prop'
 import Installations from './installations'
-import { FirebaseConfig } from './lib/types'
+import { FirebaseConfig } from './utils/types'
 
 export interface Logger {
     log: (...args: any) => void

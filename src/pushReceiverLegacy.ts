@@ -6,7 +6,7 @@ import { escape as toBase64Url } from './utils/base64'
 
 import type { Logger, StorageInterface } from './app'
 import type { InstallationEntry } from './installations'
-import type { DisposeFunction, FirebaseConfig, PersistentId, PushConfig } from './lib/types'
+import type { DisposeFunction, FirebaseConfig, PersistentId, PushConfig } from './utils/types'
 
 import {
     DEFAULT_BUNDLE_ID,

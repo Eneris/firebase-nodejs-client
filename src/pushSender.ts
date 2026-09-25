@@ -1,5 +1,5 @@
 import request from './utils/request'
-import type * as Types from './lib/types'
+import type * as Types from './utils/types'
 
 const FCM_API = 'https://fcm.googleapis.com/v1/projects/'
 

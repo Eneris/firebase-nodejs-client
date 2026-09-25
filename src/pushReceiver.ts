@@ -14,7 +14,7 @@ import {
     DEFAULT_CHROME_VERSION, DEFAULT_TIME_ZONE, DEFAULT_VAPID_KEY, DEFAULT_HEARTBEAT_INTERVAL_MS,
 } from './utils/constants'
 
-import type * as Types from './lib/types'
+import type * as Types from './utils/types'
 import FirebaseApp, { assertRequiredProperties, StorageInterface } from './app'
 
 const MAX_STORED_PERSISTENT_IDS = 30

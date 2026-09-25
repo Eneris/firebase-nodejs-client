@@ -9,7 +9,7 @@ import {
 } from '../utils/constants'
 
 
-import type { DataPacket } from './types'
+import type { DataPacket } from '../utils/types'
 
 import type FirebaseApp from '../app'
 import { assertRequiredProperties } from '../app'

@@ -3,7 +3,7 @@ import ece from 'http_ece'
 
 import { type Keys } from '../lib/fcm'
 
-import type * as Types from '../lib/types'
+import type * as Types from './types'
 
 interface MessageHeader {
     key: 'crypto-key' | 'encryption'

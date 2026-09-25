@@ -8,7 +8,7 @@ import type FirebaseApp from '../app'
 import { assertRequiredProperties, StorageInterface } from '../app'
 import { InstallationEntry } from '../installations'
 import { escape as toBase64Url } from '../utils/base64'
-import type { PushConfig } from './types'
+import type { PushConfig } from '../utils/types'
 
 import { DEFAULT_VAPID_KEY, FCM_API, FCM_REGISTRATION_API } from '../utils/constants'
 

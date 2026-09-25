@@ -7,7 +7,7 @@ import Protos from '../protobuf'
 import type FirebaseApp from '../app'
 import type { StorageInterface } from '../app'
 import { assertRequiredProperties } from '../app'
-import type { PushConfig } from './types'
+import type { PushConfig } from '../utils/types'
 
 const REGISTER_URL = 'https://android.clients.google.com/c2dm/register3'
 const CHECKIN_URL = 'https://android.clients.google.com/checkin'
