@@ -56,7 +56,7 @@ export default class PushSender {
             ].join(' '),
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        // oxlint-disable-next-line typescript/no-require-imports
         const jwt = require('jsonwebtoken');
         // This method is actually synchronous so we can capture and return the buffer.
         return jwt.sign(claims, this.#privateKey, {

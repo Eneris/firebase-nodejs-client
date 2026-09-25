@@ -257,7 +257,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
                 this.#storage.set('config', config)
                 this.#storage.set('etag', responseEtag ?? '')
                 this.emit('activate')
-            // eslint-disable-line-rule: no-fallthrough
+            // oxlint-disable-next-line no-fallthrough
             case 304:
                 this.#storage.set('lastFetchTimestamp', Date.now())
                 break

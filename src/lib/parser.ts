@@ -82,10 +82,10 @@ export default class Parser extends Emitter<ParserEvents> {
             switch (this.#state) {
                 case ProcessingState.MCS_VERSION_TAG_AND_SIZE:
                     minBytesNeeded += Variables.kVersionPacketLen
-                // eslint-disable-next-line no-fallthrough
+                // oxlint-disable-next-line no-fallthrough
                 case ProcessingState.MCS_TAG_AND_SIZE:
                     minBytesNeeded += Variables.kTagPacketLen
-                    // eslint-disable-next-line no-fallthrough
+                    // oxlint-disable-next-line no-fallthrough
                 case ProcessingState.MCS_SIZE:
                     minBytesNeeded += Variables.kSizePacketLenMin
                     break

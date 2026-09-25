@@ -40,7 +40,7 @@
     "prepack": "yarn build",
     "protobuf": "pbjs -t static-module -w commonjs -o src/protobuf/protos.js src/protobuf/*.proto && pbts -o src/protobuf/protos.d.ts src/protobuf/protos.js",
     "build": "yarn clean && yarn protobuf && yarn tsc --incremental && mkdir -p dist/protobuf && cp src/protobuf/protos.js src/protobuf/protos.d.ts dist/protobuf/",
-    "lint": "yarn eslint src",
+    "lint": "oxlint --config oxlint.config.mts src",
     "test": "yarn build && node --test test/*.test.js",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "precommit": "yarn lint && yarn test"
@@ -56,14 +56,11 @@
   },
   "devDependencies": {
     "@eneris/conf": "^15.2.2",
-    "@eslint/js": "^10.0.1",
-    "@types/node": "^25.9.8",
-    "@typescript-eslint/eslint-plugin": "^8.70.1",
-    "@typescript-eslint/parser": "^8.70.1",
-    "eslint": "^10.11.0",
+    "@types/node": "^26.6.2",
+    "oxlint": "^1.85.0",
     "protobufjs-cli": "^2.7.0",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "engines": {
     "node": ">=20.19.0"

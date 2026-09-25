@@ -1,4 +1,8 @@
 # Changelog
+## Unreleased
+ - Replaced ESLint and `@typescript-eslint` with Oxlint (`oxlint.config.mts`), keeping the same rule set
+ - Upgraded TypeScript from 6.x to 7.x and `@types/node` from 25.x to 26.x
+
 ## 1.0.1
  - **Breaking:** `PushReceiver` push identity config moved from `options.config` to its own required second argument: `new PushReceiver(app, config, options)`. Pass `{}` to use all `DEFAULT_*` values
  - Fixed `Value.asConverted` (and so `RemoteConfig.getAllConverted`) returning `true` for `'false'`, and converting an empty value to `0` instead of keeping it an empty string

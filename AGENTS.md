@@ -15,7 +15,7 @@ inside that one storage instance so several modules — or several apps — can 
 
 ## Commands
 
-- `yarn lint` — ESLint over `src/` (flat config in `eslint.config.js`).
+- `yarn lint` — Oxlint over `src/` (config in `oxlint.config.mts`).
 - `yarn build` — cleans `dist/` and `tsconfig.tsbuildinfo`, regenerates the protobuf JS/typings
   (`yarn protobuf`), then runs `tsc` and copies the protobuf output into `dist/protobuf`.
 - `yarn protobuf` — regenerates `src/protobuf/protos.js` and `protos.d.ts` from the `.proto`
