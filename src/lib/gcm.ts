@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto'
 import request from '../utils/request'
 import delay from '../utils/timeout'
 import Protos from '../protobuf'
+import { GcmRequestConstants } from '../utils/constants'
 
 import type FirebaseApp from '../app'
 import type { StorageInterface } from '../app'
@@ -14,6 +15,15 @@ const CHECKIN_URL = 'https://android.clients.google.com/checkin'
 
 // Retries of the register call itself, on top of the first attempt.
 const MAX_REGISTER_RETRIES = 5
+
+// Source: https://chromium.googlesource.com/chromium/src/+/main/google_apis/gcm/engine/registration_request.cc
+// `ShouldRetryWithStatus()` gives up immediately, without any retry, on these statuses.
+const NON_RETRIABLE_REGISTER_ERRORS: string[] = [
+    GcmRequestConstants.kInvalidSender,
+    GcmRequestConstants.kInvalidParameters,
+    GcmRequestConstants.kQuotaExceeded,
+    GcmRequestConstants.kTooManyRegistrations,
+]
 
 export interface GcmCheckinResponse {
     androidId: string
@@ -141,6 +151,10 @@ export default class GCM {
         })).text()
 
         if (response.includes('Error')) {
+            if (NON_RETRIABLE_REGISTER_ERRORS.some((code) => response.includes(code))) {
+                throw new Error(`GCM register failed with a non-retriable error: ${response}`)
+            }
+
             // Google answers PHONE_REGISTRATION_ERROR for the first few attempts as a matter of
             // course and then registers fine, so a single failed attempt is not worth reporting.
             // Only an exhausted retry budget is a real failure, and that one throws.
