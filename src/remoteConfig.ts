@@ -128,7 +128,14 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
 
         // Has default version
         if (defaultConfig && defaultConfig[key] !== undefined) {
-            return new Value('default', defaultConfig[key] as string)
+            // Source: https://github.com/firebase/firebase-js-sdk/blob/main/packages/remote-config/src/api.ts
+            // upstream `getValue` wraps a non-string default in `String(...)` before handing it
+            // to `Value`, so a boolean/number default behaves like any other Value.
+            // An object/array default is JSON-encoded instead, because `String(...)` would
+            // turn it into "[object Object]" or "1,2" and `asJSON()` could not recover it.
+            const raw = defaultConfig[key]
+            const value = typeof raw === 'string' ? raw : raw !== null && typeof raw === 'object' ? JSON.stringify(raw) : String(raw)
+            return new Value('default', value)
         }
         
         // Not found, return static
@@ -221,8 +228,11 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
         if (status !== 304) {
             try {
                 data = await response.json()
-            } catch {
-                data = undefined
+            } catch (error) {
+                // Source: https://github.com/firebase/firebase-js-sdk/blob/main/packages/remote-config/src/client/rest_client.ts
+                // upstream throws ErrorCode.FETCH_PARSE on an unparseable body instead of
+                // continuing with `config = undefined`, which would wipe the active config.
+                throw new Error(`Failed to parse RemoteConfig response: FETCH_PARSE (${(error as Error)?.message})`, { cause: error })
             }
         }
 
