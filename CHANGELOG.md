@@ -1,7 +1,19 @@
 # Changelog
-## Unreleased
+## 1.0.3
  - Replaced ESLint and `@typescript-eslint` with Oxlint (`oxlint.config.mts`), keeping the same rule set
  - Upgraded TypeScript from 6.x to 7.x and `@types/node` from 25.x to 26.x
+ - Fixed GCM registration retrying `INVALID_SENDER`, `INVALID_PARAMETERS`, `QUOTA_EXCEEDED` and `TOO_MANY_REGISTRATIONS` instead of failing immediately, matching Chromium's `ShouldRetryWithStatus()`
+ - Fixed an unparseable Remote Config fetch response body silently wiping the active config; a non-JSON body on any non-304 status now rejects the fetch with `FETCH_PARSE` instead
+ - Fixed `RemoteConfig.getValue` returning a non-string `defaultConfig` value as-is instead of stringifying it first, like upstream's `getValue` does; object and array defaults are JSON-encoded instead, so `asJSON()` and `asConverted()` keep their structure
+ - Fixed heartbeat ping/ack requests writing a hand-rolled `last_stream_id_received` key instead of the generated protobuf's `lastStreamIdReceived`, which was silently dropped on the wire; stream id counting also now restarts at 0 for every new connection instead of once at process startup, matching Chromium's `mcs_client.cc`
+ - Fixed a heartbeat timeout or an MCS frame parser error reconnecting without emitting `ON_DISCONNECT`, unlike a server `Close` or a plain socket close
+ - Fixed a reconnect attempt that failed during checkin/registration (for example while offline) giving up instead of staying on the backoff schedule, so `PushReceiver` no longer goes silent until the app calls `connect()` again
+ - Redesigned `PushReceiver`'s connection lifecycle around a single tracked attempt: overlapping `connect()` calls, a firing retry timer and `destroy()` can no longer race and leave a second, unmanaged socket open
+ - `connect()` is now idempotent: it joins an attempt already in flight, or a retry waiting out its backoff, instead of starting a second one, and never shortens the backoff; call `destroy()` first to reconnect immediately
+ - `destroy()` is now safe to call at any time, including from inside an event listener: nothing the cancelled attempt was about to do runs afterwards, and it rejects any pending `connect()` call together with a still-pending `whenReady` (one that already resolved, a completed login, stays resolved)
+ - If the socket closes before login completes, `connect()` no longer rejects on the spot: it stays pending through the reconnect/backoff retries, resolving once a later attempt logs in, or rejecting with `PushReceiver retry limit reached` once `maxRetryAttempts` is exhausted; a fresh `connect()` on an idle receiver still rejects outright, with no retry, on a registration failure or a synchronous `tls.connect()` error
+ - A fresh `connect()` after `PushReceiver retry limit reached` now gets the full `maxRetryAttempts` budget again instead of exhausting it immediately
+ - Capped the reconnect backoff at 10 minutes per attempt instead of letting it grow exponentially forever, the same cap as Chromium's MCS connection backoff
 
 ## 1.0.1
  - **Breaking:** `PushReceiver` push identity config moved from `options.config` to its own required second argument: `new PushReceiver(app, config, options)`. Pass `{}` to use all `DEFAULT_*` values
