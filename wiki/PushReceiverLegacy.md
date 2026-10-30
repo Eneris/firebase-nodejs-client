@@ -40,7 +40,13 @@ const client = new PushReceiverLegacy({
 
 ## Properties
 - `config` - normalized config with defaults applied
-- `fcmToken` - token from the legacy credentials, falling back to the base class
+- `fcmToken` - token from the legacy credentials, falling back to the base class. Unlike the
+  base class's `fcmToken` (see [`PushReceiver`](PushReceiver.md)'s `ON_TOKEN_CHANGE`), this one
+  reads straight from storage through `LegacyStorageAdapter`, which mirrors every
+  `fcm.registration` write into `credentials` regardless of which attempt wrote it. A `destroy()`
+  during registration doesn't stop that write once it is already in flight, so this `fcmToken`
+  can pick up the destroyed attempt's token with no `ON_TOKEN_CHANGE`; `ON_CREDENTIALS_CHANGE` still fires for it,
+  even after `destroy()`
 - `persistentIds` - readable and writable list of already processed message ids
 
 All members of [`PushReceiver`](PushReceiver.md) are inherited.

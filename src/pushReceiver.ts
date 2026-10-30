@@ -32,30 +32,57 @@ interface ClientEvents {
     ON_TOKEN_CHANGE: (newToken: string) => void
 }
 
+// One connection attempt: registration, socket, login and heartbeat. The receiver holds at
+// most one at a time (`#connection`). Everything that runs later on an attempt's behalf, an
+// await, a timer, a socket or parser listener, is bound to the Connection it was started for
+// and does nothing unless that is still the current one. So work left over from a closed or
+// superseded attempt never reaches the receiver: no fields, no events, no timers, no writes.
+class Connection {
+    socket: tls.TLSSocket | null = null
+    parser: Parser | null = null
+    heartbeatTimer?: NodeJS.Timeout
+    heartbeatTimeout?: NodeJS.Timeout
+    // Source: https://chromium.googlesource.com/chromium/src/+/main/google_apis/gcm/engine/mcs_client.cc
+    // ResetStateAndBuildLoginRequest restarts stream_id_in_ at 0 for every connection.
+    streamId = 0
+    lastStreamIdReported = -1
+    // Started by the retry schedule: a failure anywhere goes back on the schedule. A fresh
+    // connect() whose registration or socket setup fails rejects the call instead.
+    readonly retry: boolean
+
+    constructor(retry: boolean) {
+        this.retry = retry
+    }
+}
+
 export default class PushReceiver extends Emitter<ClientEvents> {
     readonly #HOST = 'mtalk.google.com'
     readonly #PORT = 5228
     readonly #DEFAULT_MAX_RETRY_ATTEMPTS = 5
     readonly #RETRY_DELAY_SECONDS = 15
+    // Source: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/components/gcm_driver/gcm_backoff_policy.cc
+    // kDefaultBackoffPolicy.maximum_backoff_ms, the policy GCMClientImpl builds its
+    // ConnectionFactoryImpl (the MCS socket) with (gcm_client_impl.cc, GetGCMBackoffPolicy()).
+    readonly #RETRY_DELAY_CAP_MS = 10 * 60 * 1000
     readonly #KEEP_ALIVE_DELAY_MS = 30_000
 
     #app: FirebaseApp
     #storage: StorageInterface<PushReceiverStorage>
     #options: Omit<Types.PushReceiverOptions, 'config'>
     #pushConfig: Types.PushConfig
-    #socket: tls.TLSSocket | null = null
-    #retryCount = 0
+    // The receiver is idle when both are unset, connecting or connected while #connection is
+    // set, and waiting out a backoff while only #retryTimeout is.
+    #connection: Connection | null = null
     #retryTimeout?: NodeJS.Timeout
-    #parser: Parser | null = null
-    #heartbeatTimer?: NodeJS.Timeout
-    #heartbeatTimeout?: NodeJS.Timeout
-    #streamId = 0
-    #lastStreamIdReported = -1
+    #retryCount = 0
     #ready = defer<void>()
+    // Registration calls persist their own result (lib/gcm.ts, lib/fcm.ts), so a cancelled
+    // attempt's registration still in flight and its successor's would race for storage.
+    // Attempts take turns instead: each waits for the previous registration to settle.
+    #registration: Promise<void> = Promise.resolve()
 
     #fcm: FCM
     #gcm: GCM
-    #gcmData?: GcmData
     #fcmData?: FcmData
 
     get fcmToken(): string | undefined {
@@ -147,82 +174,167 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         return () => this.off('ON_READY', listener)
     }
 
+    // Idempotent: starts an attempt only when the receiver is idle. An attempt in flight or a
+    // retry waiting out its backoff is joined instead, the call settling with its outcome, so
+    // connect() is safe from any listener and never shortens the backoff. To reconnect right
+    // away, call destroy() first.
     connect = async (): Promise<void> => {
-        if (this.#socket) {
-            return this.whenReady
+        if (!this.#connection && !this.#retryTimeout) {
+            this.#startConnection(false)
         }
 
-        if (this.#ready.isResolved) {
-            this.#ready = defer<void>()
-        }
-
-        try {
-            this.#gcmData = await this.#gcm.getRegistration()
-
-            const previousToken = this.#fcmData?.registration.token
-
-            this.#fcmData = await this.#fcm.getRegistration(this.#gcmData)
-
-            if (previousToken && previousToken !== this.#fcmData.registration.token) {
-                this.emit('ON_TOKEN_CHANGE', this.#fcmData.registration.token)
-            }
-
-            this.#app.logger.debug('connect')
-
-            this.#lastStreamIdReported = -1
-
-            this.#socket = tls.connect({
-                host: this.#HOST,
-                port: this.#PORT,
-                servername: this.#HOST,
-            })
-            // Without an explicit delay the OS default applies (7200s on Linux), so half-open
-            // connections dropped by NAT aging stay undetected for hours instead of ~a minute.
-            this.#socket.setKeepAlive(true, this.#KEEP_ALIVE_DELAY_MS)
-            this.#socket.on('secureConnect', () => this.#handleSocketConnect())
-            this.#socket.on('close', () => this.#handleSocketClose())
-            this.#socket.on('error', (err) => this.#handleSocketError(err))
-
-            this.#parser = new Parser(this.#app, this.#socket)
-            this.#parser.on('message', (data) => {
-                try {
-                    this.#handleMessage(data)
-                } catch (error) {
-                    this.#handleParserError(error)
-                }
-            })
-            this.#parser.on('error', (err) => this.#handleParserError(err))
-
-            await this.#sendLogin()
-
-            return await this.whenReady
-        } catch (error) {
-            this.#rejectReady(error as Error)
-            this.#destroyConnection()
-            throw error
-        }
+        return this.whenReady
     }
 
+    // Safe at any point, including from inside a listener: whatever the attempt or the retry
+    // schedule was about to do next no longer happens, and whenReady and pending connect()
+    // calls reject with the reason. The next connect() starts over with the full retry budget.
     destroy = (reason = new Error('Client destroyed')) => {
-        this.#rejectReady(reason)
-        this.#destroyConnection()
-    }
-
-    #destroyConnection() {
         clearTimeout(this.#retryTimeout)
         this.#retryTimeout = undefined
-        this.#clearHeartbeat()
+        this.#retryCount = 0
+        this.#closeConnection()
+        this.#rejectReady(reason)
+    }
 
-        if (this.#socket) {
-            this.#socket.removeAllListeners()
-            this.#socket.end()
-            this.#socket.destroy()
-            this.#socket = null
+    #isCurrent(connection: Connection): boolean {
+        return connection === this.#connection
+    }
+
+    // The one place an attempt starts, for connect() and the retry timer alike.
+    #startConnection(retry: boolean) {
+        this.#resetReady()
+
+        const connection = new Connection(retry)
+        this.#connection = connection
+
+        void this.#openConnection(connection)
+    }
+
+    // Registration, socket and login write; the login is answered asynchronously through the
+    // parser. destroy(), or destroy() and connect(), may land during any await, so every
+    // resume checks that this is still the current attempt before going on.
+    async #openConnection(connection: Connection) {
+        try {
+            await this.#registration
+            if (!this.#isCurrent(connection)) return
+
+            const registering = this.#register()
+            this.#registration = registering.then(() => undefined, () => undefined)
+            const { gcmData, fcmData } = await registering
+            if (!this.#isCurrent(connection)) return
+
+            const previousToken = this.#fcmData?.registration.token
+            this.#fcmData = fcmData
+
+            if (previousToken && previousToken !== fcmData.registration.token) {
+                this.emit('ON_TOKEN_CHANGE', fcmData.registration.token)
+                // The listener may have destroyed or restarted the receiver.
+                if (!this.#isCurrent(connection)) return
+            }
+
+            this.#openSocket(connection)
+            this.#sendLogin(connection, gcmData)
+        } catch (error) {
+            this.#connectionFailed(connection, error as Error)
+        }
+    }
+
+    async #register(): Promise<{ gcmData: GcmData, fcmData: FcmData }> {
+        const gcmData = await this.#gcm.getRegistration()
+        const fcmData = await this.#fcm.getRegistration(gcmData)
+
+        return { gcmData, fcmData }
+    }
+
+    #openSocket(connection: Connection) {
+        this.#app.logger.debug('connect')
+
+        const socket = tls.connect({
+            host: this.#HOST,
+            port: this.#PORT,
+            servername: this.#HOST,
+        })
+        connection.socket = socket
+
+        // Without an explicit delay the OS default applies (7200s on Linux), so half-open
+        // connections dropped by NAT aging stay undetected for hours instead of ~a minute.
+        socket.setKeepAlive(true, this.#KEEP_ALIVE_DELAY_MS)
+        socket.on('secureConnect', () => this.#handleSocketConnect(connection))
+        socket.on('close', () => this.#handleSocketClose(connection))
+        socket.on('error', (error) => this.#handleSocketError(connection, error))
+
+        const parser = new Parser(this.#app, socket)
+        connection.parser = parser
+        parser.on('message', (data) => {
+            try {
+                this.#handleMessage(connection, data)
+            } catch (error) {
+                this.#handleParserError(connection, error as Error)
+            }
+        })
+        parser.on('error', (error) => this.#handleParserError(connection, error))
+    }
+
+    // A failure on the attempt's own path: registration, socket setup or the login write.
+    #connectionFailed(connection: Connection, error: Error) {
+        // The failure of an attempt that was cancelled meanwhile is neither logged nor retried.
+        if (!this.#isCurrent(connection)) return
+
+        this.#closeConnection()
+
+        if (connection.retry) {
+            this.#app.logger.error(error)
+            this.#scheduleRetry()
+        } else {
+            this.#rejectReady(error)
+        }
+    }
+
+    // Tears down the current attempt, if any. Its listeners and timers are gone after this,
+    // and whatever of it is still in flight fails the current-attempt check when it resumes.
+    #closeConnection() {
+        const connection = this.#connection
+
+        if (!connection) return
+
+        this.#connection = null
+        this.#clearHeartbeat(connection)
+
+        if (connection.socket) {
+            connection.socket.removeAllListeners()
+            connection.socket.end()
+            connection.socket.destroy()
         }
 
-        if (this.#parser) {
-            this.#parser.destroy()
-            this.#parser = null
+        connection.parser?.destroy()
+    }
+
+    // The connection is gone: put the next attempt on the backoff schedule, or give up once
+    // maxRetryAttempts is exhausted. whenReady, and every connect() joining meanwhile, waits
+    // for that attempt.
+    #scheduleRetry() {
+        if (this.#retryCount >= this.#getMaxRetryAttempts()) {
+            const error = new Error('PushReceiver retry limit reached')
+            this.#app.logger.error(error)
+            this.destroy(error)
+            return
+        }
+
+        this.#resetReady()
+
+        const retryAttempt = ++this.#retryCount
+        this.#retryTimeout = setTimeout(() => {
+            this.#retryTimeout = undefined
+            this.#startConnection(true)
+        }, this.#getRetryDelayMs(retryAttempt))
+    }
+
+    // A settled whenReady belongs to a login that is over, so the next login gets a new one.
+    // A pending one is kept: the connect() calls waiting on it see the retries through.
+    #resetReady() {
+        if (this.#ready.isResolved) {
+            this.#ready = defer<void>()
         }
     }
 
@@ -233,37 +345,52 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         }
     }
 
-    #clearHeartbeat() {
-        clearTimeout(this.#heartbeatTimer)
-        this.#heartbeatTimer = undefined
+    #clearHeartbeat(connection: Connection) {
+        clearTimeout(connection.heartbeatTimer)
+        connection.heartbeatTimer = undefined
 
-        clearTimeout(this.#heartbeatTimeout)
-        this.#heartbeatTimeout = undefined
+        clearTimeout(connection.heartbeatTimeout)
+        connection.heartbeatTimeout = undefined
     }
 
-    #startHeartbeat() {
-        this.#clearHeartbeat()
+    #startHeartbeat(connection: Connection) {
+        this.#clearHeartbeat(connection)
 
         if (!this.#options.heartbeatIntervalMs) return
 
-        this.#heartbeatTimer = setTimeout(() => this.#sendHeartbeatPing(), this.#options.heartbeatIntervalMs)
-        this.#heartbeatTimeout = setTimeout(() => this.#socketRetry(), this.#options.heartbeatIntervalMs * 2)
+        connection.heartbeatTimer = setTimeout(() => this.#sendHeartbeatPing(connection), this.#options.heartbeatIntervalMs)
+        connection.heartbeatTimeout = setTimeout(() => this.#handleSocketClose(connection), this.#options.heartbeatIntervalMs * 2)
     }
 
-    #handleSocketConnect = (): void => {
+    // Socket, parser and timer handlers start with the current-attempt check and emit last: a
+    // listener may call destroy() or connect(), and nothing of the attempt may run after that.
+    #handleSocketConnect(connection: Connection) {
+        if (!this.#isCurrent(connection)) return
+
+        this.#startHeartbeat(connection)
         this.emit('ON_CONNECT')
-        this.#startHeartbeat()
     }
 
-    #handleSocketClose = (): void => {
+    #handleSocketClose(connection: Connection) {
+        if (!this.#isCurrent(connection)) return
+
+        this.#closeConnection()
+        this.#scheduleRetry()
         this.emit('ON_DISCONNECT')
-        this.#clearHeartbeat()
-        this.#socketRetry()
     }
 
-    #handleSocketError = (err: Error): void => {
-        this.#app.logger.error(err)
+    #handleSocketError(connection: Connection, error: Error) {
+        if (!this.#isCurrent(connection)) return
+
+        this.#app.logger.error(error)
         // ignore, the close handler takes care of retry
+    }
+
+    #handleParserError(connection: Connection, error: Error) {
+        if (!this.#isCurrent(connection)) return
+
+        this.#app.logger.error(error)
+        this.#handleSocketClose(connection)
     }
 
     #getRetryDelayMs(retryAttempt: number): number {
@@ -271,7 +398,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
             return 0
         }
 
-        return this.#RETRY_DELAY_SECONDS * (2 ** (retryAttempt - 2)) * 1000
+        return Math.min(this.#RETRY_DELAY_SECONDS * (2 ** (retryAttempt - 2)) * 1000, this.#RETRY_DELAY_CAP_MS)
     }
 
     #getMaxRetryAttempts(): number {
@@ -284,36 +411,22 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         return maxRetryAttempts
     }
 
-    #socketRetry() {
-        if (this.#retryCount >= this.#getMaxRetryAttempts()) {
-            const error = new Error('PushReceiver retry limit reached')
-            this.#app.logger.error(error)
-            this.destroy(error)
-            return
-        }
-
-        this.#destroyConnection()
-
-        const retryAttempt = ++this.#retryCount
-        this.#retryTimeout = setTimeout(() => {
-            void this.connect().catch((error) => this.#app.logger.error(error))
-        }, this.#getRetryDelayMs(retryAttempt))
+    #getStreamId(connection: Connection): number {
+        connection.lastStreamIdReported = connection.streamId
+        return connection.streamId
     }
 
-    #getStreamId(): number {
-        this.#lastStreamIdReported = this.#streamId
-        return this.#streamId
+    #newStreamIdAvailable(connection: Connection): boolean {
+        return connection.lastStreamIdReported != connection.streamId
     }
 
-    #newStreamIdAvailable(): boolean {
-        return this.#lastStreamIdReported != this.#streamId
-    }
+    #sendHeartbeatPing(connection: Connection) {
+        if (!this.#isCurrent(connection)) return
 
-    #sendHeartbeatPing() {
-        const heartbeatPingRequest: Record<string, unknown> = {}
+        const heartbeatPingRequest: Protos.mcs_proto.IHeartbeatPing = {}
 
-        if (this.#newStreamIdAvailable()) {
-            heartbeatPingRequest.last_stream_id_received = this.#getStreamId()
+        if (this.#newStreamIdAvailable(connection)) {
+            heartbeatPingRequest.lastStreamIdReceived = this.#getStreamId(connection)
         }
 
         this.#app.logger.debug('Heartbeat send pong', heartbeatPingRequest)
@@ -329,17 +442,17 @@ export default class PushReceiver extends Emitter<ClientEvents> {
 
         this.#app.logger.debug('HEARTBEAT sending PING', heartbeatPingRequest)
 
-        this.#socket!.write(Buffer.concat([
+        connection.socket!.write(Buffer.concat([
             Buffer.from([MCSProtoTag.kHeartbeatPingTag]),
             buffer,
         ]))
     }
 
-    #sendHeartbeatPong(object: any) {
-        const heartbeatAckRequest: Record<string, any> = {}
+    #sendHeartbeatPong(connection: Connection, object: any) {
+        const heartbeatAckRequest: Protos.mcs_proto.IHeartbeatAck = {}
 
-        if (this.#newStreamIdAvailable()) {
-            heartbeatAckRequest.last_stream_id_received = this.#getStreamId()
+        if (this.#newStreamIdAvailable(connection)) {
+            heartbeatAckRequest.lastStreamIdReceived = this.#getStreamId(connection)
         }
 
         if (object?.status) {
@@ -358,15 +471,13 @@ export default class PushReceiver extends Emitter<ClientEvents> {
 
         this.#app.logger.debug('HEARTBEAT sending PONG', heartbeatAckRequest)
 
-        this.#socket!.write(Buffer.concat([
+        connection.socket!.write(Buffer.concat([
             Buffer.from([MCSProtoTag.kHeartbeatAckTag]),
             buffer
         ]))
     }
 
-    async #sendLogin() {
-        const gcmData = this.#gcmData!
-
+    #sendLogin(connection: Connection, gcmData: GcmData) {
         const lastPersistentIds = this.#lastPersistentIds
 
         const LoginRequestType = Protos.mcs_proto.LoginRequest
@@ -403,24 +514,32 @@ export default class PushReceiver extends Emitter<ClientEvents> {
 
         const buffer = LoginRequestType.encodeDelimited(loginRequest).finish()
 
-        this.#socket!.write(Buffer.concat([
+        connection.socket!.write(Buffer.concat([
             Buffer.from([Variables.kMCSVersion, MCSProtoTag.kLoginRequestTag]),
             buffer,
         ]))
     }
 
-    #handleMessage = ({ tag, object }: Types.DataPacket): void => {
+    #handleMessage(connection: Connection, { tag, object }: Types.DataPacket) {
+        if (!this.#isCurrent(connection)) return
+
         // any message will reset the client side heartbeat timeout.
-        this.#startHeartbeat()
+        this.#startHeartbeat(connection)
+
+        // Source: https://chromium.googlesource.com/chromium/src/+/main/google_apis/gcm/engine/mcs_client.cc
+        // HandlePacketFromWire counts the packet before handling it, so an ack sent in reply
+        // already includes the ping it answers.
+        connection.streamId++
 
         switch (tag) {
             case MCSProtoTag.kLoginResponseTag:
+                // Chromium resets stream_id_in_ to 1 on LoginResponse.
+                connection.streamId = 1
                 // clear persistent ids, as we just sent them to the server while logging in
                 this.#retryCount = 0
                 this.#lastPersistentIds = []
-                this.emit('ON_READY')
-                this.#startHeartbeat()
                 this.#ready.resolve()
+                this.emit('ON_READY')
                 break
 
             case MCSProtoTag.kDataMessageStanzaTag:
@@ -428,19 +547,19 @@ export default class PushReceiver extends Emitter<ClientEvents> {
                 break
 
             case MCSProtoTag.kHeartbeatPingTag:
-                this.emit('ON_HEARTBEAT')
                 this.#app.logger.debug('HEARTBEAT PING', object)
-                this.#sendHeartbeatPong(object)
+                this.#sendHeartbeatPong(connection, object)
+                this.emit('ON_HEARTBEAT')
                 break
 
             case MCSProtoTag.kHeartbeatAckTag:
-                this.emit('ON_HEARTBEAT')
                 this.#app.logger.debug('HEARTBEAT PONG', object)
+                this.emit('ON_HEARTBEAT')
                 break
 
             case MCSProtoTag.kCloseTag:
                 this.#app.logger.debug('Close: Server requested close! message: ', JSON.stringify(object))
-                this.#handleSocketClose()
+                this.#handleSocketClose(connection)
                 break
 
             case MCSProtoTag.kLoginRequestTag:
@@ -458,11 +577,9 @@ export default class PushReceiver extends Emitter<ClientEvents> {
 
             // no default
         }
-
-        this.#streamId++
     }
 
-    #handleDataMessage = (object: any): void => {
+    #handleDataMessage(object: any) {
         const lastPersistentIds = this.#lastPersistentIds
 
         if (lastPersistentIds.includes(object.persistentId)) {
@@ -545,11 +662,6 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         }
 
         return { data, notification }
-    }
-
-    #handleParserError = (error: any) => {
-        this.#app.logger.error(error)
-        this.#socketRetry()
     }
 }
 
