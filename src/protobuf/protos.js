@@ -237,7 +237,7 @@ $root.checkin_proto = (function() {
         ChromeBuildProto.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -705,7 +705,7 @@ $root.checkin_proto = (function() {
                 case 13: {
                         if (wireType !== 2)
                             break;
-                        message.chromeBuild = $root.checkin_proto.ChromeBuildProto.decode(reader, reader.uint32(), $undefined, _depth + 1, message.chromeBuild);
+                        message.chromeBuild = $root.checkin_proto.ChromeBuildProto.decode(reader, reader.size(), $undefined, _depth + 1, message.chromeBuild);
                         continue;
                     }
                 }
@@ -738,7 +738,7 @@ $root.checkin_proto = (function() {
         AndroidCheckinProto.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -1140,7 +1140,7 @@ $root.checkin_proto = (function() {
         GservicesSetting.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -1694,7 +1694,7 @@ $root.checkin_proto = (function() {
                 case 4: {
                         if (wireType !== 2)
                             break;
-                        message.checkin = $root.checkin_proto.AndroidCheckinProto.decode(reader, reader.uint32(), $undefined, _depth + 1, message.checkin);
+                        message.checkin = $root.checkin_proto.AndroidCheckinProto.decode(reader, reader.size(), $undefined, _depth + 1, message.checkin);
                         continue;
                     }
                 case 5: {
@@ -1793,7 +1793,7 @@ $root.checkin_proto = (function() {
         AndroidCheckinRequest.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -2431,7 +2431,7 @@ $root.checkin_proto = (function() {
                             break;
                         if (!(message.setting && message.setting.length))
                             message.setting = [];
-                        message.setting.push($root.checkin_proto.GservicesSetting.decode(reader, reader.uint32(), $undefined, _depth + 1));
+                        message.setting.push($root.checkin_proto.GservicesSetting.decode(reader, reader.size(), $undefined, _depth + 1));
                         continue;
                     }
                 case 6: {
@@ -2490,7 +2490,7 @@ $root.checkin_proto = (function() {
         AndroidCheckinResponse.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -2958,7 +2958,7 @@ $root.mcs_proto = (function() {
         HeartbeatPing.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -3296,7 +3296,7 @@ $root.mcs_proto = (function() {
         HeartbeatAck.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -3617,7 +3617,7 @@ $root.mcs_proto = (function() {
                 case 4: {
                         if (wireType !== 2)
                             break;
-                        message.extension = $root.mcs_proto.Extension.decode(reader, reader.uint32(), $undefined, _depth + 1, message.extension);
+                        message.extension = $root.mcs_proto.Extension.decode(reader, reader.size(), $undefined, _depth + 1, message.extension);
                         continue;
                     }
                 }
@@ -3652,7 +3652,7 @@ $root.mcs_proto = (function() {
         ErrorInfo.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -3971,7 +3971,7 @@ $root.mcs_proto = (function() {
         Setting.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -4286,7 +4286,7 @@ $root.mcs_proto = (function() {
         HeartbeatStat.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -4605,7 +4605,7 @@ $root.mcs_proto = (function() {
         HeartbeatConfig.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -5001,7 +5001,7 @@ $root.mcs_proto = (function() {
         ClientEvent.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -5599,7 +5599,7 @@ $root.mcs_proto = (function() {
                             break;
                         if (!(message.setting && message.setting.length))
                             message.setting = [];
-                        message.setting.push($root.mcs_proto.Setting.decode(reader, reader.uint32(), $undefined, _depth + 1));
+                        message.setting.push($root.mcs_proto.Setting.decode(reader, reader.size(), $undefined, _depth + 1));
                         continue;
                     }
                 case 10: {
@@ -5619,7 +5619,7 @@ $root.mcs_proto = (function() {
                 case 13: {
                         if (wireType !== 2)
                             break;
-                        message.heartbeatStat = $root.mcs_proto.HeartbeatStat.decode(reader, reader.uint32(), $undefined, _depth + 1, message.heartbeatStat);
+                        message.heartbeatStat = $root.mcs_proto.HeartbeatStat.decode(reader, reader.size(), $undefined, _depth + 1, message.heartbeatStat);
                         continue;
                     }
                 case 14: {
@@ -5663,7 +5663,7 @@ $root.mcs_proto = (function() {
                             break;
                         if (!(message.clientEvent && message.clientEvent.length))
                             message.clientEvent = [];
-                        message.clientEvent.push($root.mcs_proto.ClientEvent.decode(reader, reader.uint32(), $undefined, _depth + 1));
+                        message.clientEvent.push($root.mcs_proto.ClientEvent.decode(reader, reader.size(), $undefined, _depth + 1));
                         continue;
                     }
                 }
@@ -5706,7 +5706,7 @@ $root.mcs_proto = (function() {
         LoginRequest.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -6280,7 +6280,7 @@ $root.mcs_proto = (function() {
                 case 3: {
                         if (wireType !== 2)
                             break;
-                        message.error = $root.mcs_proto.ErrorInfo.decode(reader, reader.uint32(), $undefined, _depth + 1, message.error);
+                        message.error = $root.mcs_proto.ErrorInfo.decode(reader, reader.size(), $undefined, _depth + 1, message.error);
                         continue;
                     }
                 case 4: {
@@ -6288,7 +6288,7 @@ $root.mcs_proto = (function() {
                             break;
                         if (!(message.setting && message.setting.length))
                             message.setting = [];
-                        message.setting.push($root.mcs_proto.Setting.decode(reader, reader.uint32(), $undefined, _depth + 1));
+                        message.setting.push($root.mcs_proto.Setting.decode(reader, reader.size(), $undefined, _depth + 1));
                         continue;
                     }
                 case 5: {
@@ -6306,7 +6306,7 @@ $root.mcs_proto = (function() {
                 case 7: {
                         if (wireType !== 2)
                             break;
-                        message.heartbeatConfig = $root.mcs_proto.HeartbeatConfig.decode(reader, reader.uint32(), $undefined, _depth + 1, message.heartbeatConfig);
+                        message.heartbeatConfig = $root.mcs_proto.HeartbeatConfig.decode(reader, reader.size(), $undefined, _depth + 1, message.heartbeatConfig);
                         continue;
                     }
                 case 8: {
@@ -6347,7 +6347,7 @@ $root.mcs_proto = (function() {
         LoginResponse.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -6736,7 +6736,7 @@ $root.mcs_proto = (function() {
         StreamErrorStanza.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -6995,7 +6995,7 @@ $root.mcs_proto = (function() {
         Close.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -7268,7 +7268,7 @@ $root.mcs_proto = (function() {
         Extension.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -7679,13 +7679,13 @@ $root.mcs_proto = (function() {
                 case 6: {
                         if (wireType !== 2)
                             break;
-                        message.error = $root.mcs_proto.ErrorInfo.decode(reader, reader.uint32(), $undefined, _depth + 1, message.error);
+                        message.error = $root.mcs_proto.ErrorInfo.decode(reader, reader.size(), $undefined, _depth + 1, message.error);
                         continue;
                     }
                 case 7: {
                         if (wireType !== 2)
                             break;
-                        message.extension = $root.mcs_proto.Extension.decode(reader, reader.uint32(), $undefined, _depth + 1, message.extension);
+                        message.extension = $root.mcs_proto.Extension.decode(reader, reader.size(), $undefined, _depth + 1, message.extension);
                         continue;
                     }
                 case 8: {
@@ -7752,7 +7752,7 @@ $root.mcs_proto = (function() {
         IqStanza.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -8229,7 +8229,7 @@ $root.mcs_proto = (function() {
         AppData.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -8693,7 +8693,7 @@ $root.mcs_proto = (function() {
                             break;
                         if (!(message.appData && message.appData.length))
                             message.appData = [];
-                        message.appData.push($root.mcs_proto.AppData.decode(reader, reader.uint32(), $undefined, _depth + 1));
+                        message.appData.push($root.mcs_proto.AppData.decode(reader, reader.size(), $undefined, _depth + 1));
                         continue;
                     }
                 case 8: {
@@ -8802,7 +8802,7 @@ $root.mcs_proto = (function() {
         DataMessageStanza.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -9264,7 +9264,7 @@ $root.mcs_proto = (function() {
         StreamAck.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**
@@ -9522,7 +9522,7 @@ $root.mcs_proto = (function() {
         SelectiveAck.decodeDelimited = function(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
+            return this.decode(reader, reader.size());
         };
 
         /**

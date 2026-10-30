@@ -1,4 +1,7 @@
 # Changelog
+## 1.0.4
+ - Upgraded `protobufjs` to 8.8.1, `protobufjs-cli` to 2.7.1, `@types/node` to 26.6.6 and `oxlint` to 1.90.0
+
 ## 1.0.3
  - Replaced ESLint and `@typescript-eslint` with Oxlint (`oxlint.config.mts`), keeping the same rule set
  - Upgraded TypeScript from 6.x to 7.x and `@types/node` from 25.x to 26.x
