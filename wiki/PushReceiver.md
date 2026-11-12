@@ -17,6 +17,7 @@ const client = new PushReceiver(app, {
     // options (optional)
     heartbeatIntervalMs: 5 * 60 * 1000, // optional, defaults to 5 minutes
     maxRetryAttempts: 5,                // optional, non-positive value disables the limit
+    retryInitialConnect: false,         // optional, see `connect`
 })
 ```
 
@@ -36,6 +37,10 @@ The constructor takes `(app, config, options)`. The `config` object is required,
   crashes Node. Attach a `.catch()` (or `void connect().catch(...)`) even when only reconnecting
   in the background
 - A cached, valid FCM registration needs no FIS call, so a FIS outage does not block connecting
+- With `retryInitialConnect: true`, the first attempt of a `connect()` on an idle receiver is
+  on the retry schedule like every later one: a registration failure (for example offline at
+  startup) is logged and retried with backoff, and the call stays pending until a login,
+  `destroy()` or the retry limit. The rest of this point describes the default, `false`
 - If registration fails, or `tls.connect()` itself throws synchronously (a bad option value —
   rare in practice), on a `connect()` of an idle receiver (never connected, or after
   `destroy()`), the call rejects with that error and the receiver stays idle: no retry. A
@@ -52,6 +57,30 @@ The constructor takes `(app, config, options)`. The `config` object is required,
 - The backoff between retries grows exponentially (0, 15, 30, 60, 120, 240 s, ...) but is capped
   at 10 minutes per attempt, the same cap as Chromium's MCS connection backoff, so `maxRetryAttempts:
   0` (retry forever) never leaves the receiver waiting hours between attempts
+- A login resets the backoff only once the connection has lasted 10 seconds. A connection that
+  drops sooner continues the backoff where it was before that login (Chromium's
+  `kConnectionResetWindowSecs`), so a server that accepts the login and drops the connection
+  right away is retried on a growing schedule instead of in a hot loop. Such drops count
+  towards `maxRetryAttempts`
+- A `LoginResponse` carrying an error is a failed attempt, not a login: logged as a warning,
+  the socket is closed (`ON_DISCONNECT`), no `ON_READY`, `whenReady` stays pending and the
+  backoff keeps growing
+- An attempt that has not logged in 30 seconds after the socket was opened (TCP, TLS and the
+  login answer together) is closed and retried like a lost connection (`ON_DISCONNECT`)
+
+### `reconnect`
+- Starts a fresh attempt now. Call it when the app knows the network just came back or the
+  machine woke from sleep: a connection that looks alive may be dead (the heartbeat would only
+  notice minutes later), and a retry may be waiting out a long backoff
+- Idle receiver: same as `connect()`
+- Waiting out a backoff: the wait is cut short and the next attempt starts now
+- Logged in: the connection is closed (`ON_DISCONNECT`) and a new attempt starts
+- An attempt still before its login (registering, connecting or waiting for the login answer)
+  is left alone and joined; the 30 second login timeout bounds how long that can take
+- The retry count is kept: a `reconnect()` attempt that fails continues the backoff, and
+  counts towards `maxRetryAttempts`
+- Returns `whenReady`. Like `connect()` it can reject (retry limit, `destroy()`), so attach a
+  `.catch()`: `powerMonitor.on('resume', () => void client.reconnect().catch(log))`
 
 ### `destroy`
 - Closes the socket, clears heartbeat and retry timers
@@ -77,15 +106,29 @@ The constructor takes `(app, config, options)`. The `config` object is required,
   resolved until the next `connect()` starts a new attempt
 
 ## Events
-Available through the `eventemitter3` API (`on`/`off`).
+Available through the `eventemitter3` API (`on`/`off`). A listener that throws is logged at
+`error` through the app logger and cannot affect the receiver: the connection stays up and the
+attempt goes on. As with Node's `EventEmitter`, a throwing listener still stops the listeners
+registered after it for that one event. A listener's returned promise is not awaited, so an
+async listener must handle its own rejections.
 - `ON_MESSAGE_RECEIVED` - emitted with `{ message, persistentId }` for every decrypted notification
 - `ON_CONNECT` - emitted when the socket is established
 - `ON_DISCONNECT` - emitted when the connection is lost or closed
 - `ON_READY` - emitted after a successful login
 - `ON_HEARTBEAT` - emitted on every heartbeat ack
-- `ON_TOKEN_CHANGE` - emitted with the new token after `connect` when the FCM token changed
-  since the previous `connect` (for example, FIS replaced the installation); read the new token
-  from `fcmToken`
+- `ON_TOKEN_CHANGE` - emitted as `(newToken, oldToken)` before the login of an attempt whose
+  FCM token differs from the one last announced, also across restarts: the last announced
+  token is persisted (`push_receiver.announced_token`). Causes: FIS replaced the installation,
+  checkin rejected the GCM credentials, an FCM registration that no longer existed. The first
+  start of a fresh install, or the first one after upgrading from 1.0.x (nothing persisted
+  yet), announces nothing. Delivered at least once: if a listener destroys the receiver, the
+  token is not recorded as announced and the next process start announces it again (a
+  `connect()` in the same process does not: the receiver already holds that token)
+
+## Logging
+Failures the retry schedule recovers from on its own (offline, a timeout, a 429 or 5xx, a reset
+socket) are logged at `warn`; failures that will keep happening (a rejected request, a TLS
+certificate error), protocol violations, listener throws and the retry limit at `error`.
 
 ## Example
 ```js

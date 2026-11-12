@@ -1,4 +1,5 @@
 import delay from './timeout'
+import { HttpRequestError } from './errors'
 
 // In seconds
 const MAX_RETRY_TIMEOUT = 15
@@ -31,7 +32,7 @@ async function retry(retryCount = 0, url: string, options?: globalThis.RequestIn
     const isRetryable = response.status === 429 || response.status >= 500
 
     if (!isRetryable || retryCount >= maxRetries) {
-        throw new Error(`Request failed: ${response.status} ${response.statusText}`)
+        throw new HttpRequestError(response.status, response.statusText)
     }
 
     const timeout = Math.min(retryCount * RETRY_STEP, MAX_RETRY_TIMEOUT)

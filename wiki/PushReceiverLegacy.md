@@ -49,4 +49,13 @@ const client = new PushReceiverLegacy({
   even after `destroy()`
 - `persistentIds` - readable and writable list of already processed message ids
 
-All members of [`PushReceiver`](PushReceiver.md) are inherited.
+All members of [`PushReceiver`](PushReceiver.md) are inherited, with these differences that come
+from the legacy credentials shape:
+- `ON_TOKEN_CHANGE` fires only for a rotation within one process: the legacy shape has no place
+  for the last announced token, so it is kept in memory and lost on restart. Compare the
+  `credentials.fcm.token` you persist with the one you get back instead
+- When checkin rejects the stored GCM credentials, the receiver registers again and
+  `ON_CREDENTIALS_CHANGE` fires first with `gcm` removed, then again as the new credentials are
+  written
+- A listener of `ON_CREDENTIALS_CHANGE` that throws is logged and does not fail the
+  registration that triggered it

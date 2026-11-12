@@ -108,6 +108,13 @@ export interface PushReceiverOptions {
      * Undefined or non-positive values disable the retry limit.
      */
     maxRetryAttempts?: number
+    /**
+     * When true, a `connect()` on an idle receiver puts a failed first attempt (registration,
+     * socket or login) on the retry schedule instead of rejecting, so `connect()` stays pending
+     * until a login, `destroy()` or the retry limit. Defaults to false: the first attempt of a
+     * `connect()` rejects on a registration failure, with no retry.
+     */
+    retryInitialConnect?: boolean
 }
 
 export interface MessageToSend {

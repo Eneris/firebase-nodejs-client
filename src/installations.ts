@@ -1,6 +1,11 @@
 import fetchWithRetry from './utils/fetch'
 import FirebaseApp, { StorageInterface, assertRequiredProperties } from './app'
 import { toBase64 } from './utils/base64'
+import { InstallationsRequestError } from './utils/errors'
+
+// Defined in utils/errors.ts next to the other typed errors; still exported from here for
+// existing imports.
+export { InstallationsRequestError }
 
 const AUTH_VERSION = 'FIS_v2'
 const CLIENT_VERSION  = '0.6.6'
@@ -150,18 +155,6 @@ class HeartbeatManager {
     }
 }
 
-// Carries a machine-readable status so callers can tell an authoritative FIS rejection apart
-// from a transient one; see AGENTS.md "Firebase Installations failure policy".
-export class InstallationsRequestError extends Error {
-    readonly status: number
-
-    constructor(context: string, response: Response) {
-        super(`${context} failed with status ${response.status} '${response.statusText}'`)
-        this.name = 'InstallationsRequestError'
-        this.status = response.status
-    }
-}
-
 // 401/404 is the only authoritative "installation is gone" signal; everything else is
 // treated as transient. See AGENTS.md "Firebase Installations failure policy".
 function isInstallationInvalid(error: unknown): boolean {
@@ -188,6 +181,7 @@ export default class WebInstallations {
             'logger.debug',
             'logger.warn',
             'logger.error',
+            'requestTimeoutMs',
             'storage.get',
             'storage.set',
         ])
@@ -277,6 +271,15 @@ export default class WebInstallations {
         return headers
     }
 
+    // One request, retries included, ends after requestTimeoutMs so a caller's own schedule
+    // (PushReceiver's backoff, RemoteConfig's retry) takes over instead of waiting on an
+    // offline retry loop. Upstream has no unbounded retry at all: refresh-auth-token.ts fails
+    // fast with APP_OFFLINE (:62-65).
+    // Source: https://github.com/firebase/firebase-js-sdk/blob/main/packages/installations/src/helpers/refresh-auth-token.ts
+    #requestSignal(): AbortSignal | undefined {
+        return this.#app.requestTimeoutMs > 0 ? AbortSignal.timeout(this.#app.requestTimeoutMs) : undefined
+    }
+
     // Requests a replacement installation without reading or writing storage, so a failed
     // request can never lose credentials that still work.
     async #requestNewInstallation(): Promise<InstallationEntry> {
@@ -294,6 +297,7 @@ export default class WebInstallations {
                 appId: this.#app.credentials.appId,
                 sdkVersion: SDK_VERSION,
             }),
+            signal: this.#requestSignal(),
         })
 
         if (!response.ok) {
@@ -343,6 +347,7 @@ export default class WebInstallations {
                     appId: this.#app.credentials.appId,
                 },
             }),
+            signal: this.#requestSignal(),
         })
 
         if (!response.ok) {
@@ -373,6 +378,7 @@ export default class WebInstallations {
         const response = await fetchWithRetry(`${this.#baseURL}/${installation.fid}`, {
             method: 'DELETE',
             headers: { ...this.#defaultHeaders, ...this.getHeaders({ auth: installation }) },
+            signal: this.#requestSignal(),
         })
 
         if (!response.ok) {
@@ -392,6 +398,17 @@ export default class WebInstallations {
     // Reads the stored fid without contacting FIS. Undefined when nothing is stored.
     get storedFid(): string | undefined {
         return this.#storage.get('installation')?.fid
+    }
+
+    // Resolves once a getInstallation() already in flight for this app has settled, at once
+    // when there is none. Never starts a request and never rejects. Lets a reader of
+    // `storedFid` see the outcome of a replacement another consumer is creating right now.
+    async whenSettled(): Promise<void> {
+        const pendingInstallation = WebInstallations.#pendingInstallations.get(this.#app)
+
+        if (pendingInstallation) {
+            await pendingInstallation.then(() => undefined, () => undefined)
+        }
     }
 
     async getInstallation(): Promise<InstallationEntry> {

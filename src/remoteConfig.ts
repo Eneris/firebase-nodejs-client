@@ -1,5 +1,8 @@
 import { EventEmitter } from 'eventemitter3'
 import fetchWithRetry from './utils/fetch'
+import { emitSafely } from './utils/emit'
+import { raceAbort } from './utils/abort'
+import { HttpRequestError, isTransientError } from './utils/errors'
 import Value from './utils/value'
 import FirebaseApp, { StorageInterface, assertRequiredProperties } from './app'
 import type Installations from './installations'
@@ -7,6 +10,9 @@ import type Installations from './installations'
 const SDK_VERSION = 'w:0.3.11'
 const DEFAULT_FETCH_TIMEOUT_MILLIS = 60 * 1000 // One minute
 const DEFAULT_CACHE_MAX_AGE_MILLIS = 12 * 60 * 60 * 1000 // Twelve hours.
+// First delay of the background retry after a failed scheduled fetch; doubles per failure, up
+// to cacheMaxAge. Library-own policy: firebase-js-sdk has no background fetch loop to mirror.
+const BACKGROUND_RETRY_BASE_MILLIS = 60 * 1000 // One minute.
 
 export interface RemoteConfigOptions<T> {
     fetchTimeout?: number
@@ -41,6 +47,8 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
     #refreshTimer: NodeJS.Timeout | null = null
     #semaphoreFetch: Promise<void> | null = null
     #fetchAbortController: AbortController | null = null
+    #backgroundRetryTimer: NodeJS.Timeout | null = null
+    #backgroundRetryCount = 0
     #destroyed = false
 
     constructor(app: FirebaseApp, options: RemoteConfigOptions<T> = {}) {
@@ -50,6 +58,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
             'credentials.apiKey',
             'credentials.appId',
             'credentials.projectId',
+            'logger.error',
             'logger.warn',
             'storage.get',
             'storage.set',
@@ -72,12 +81,10 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
             set: (key, value) => this.#app.storage.set(`remote_config.${key}`, value),
         } as StorageInterface<RemoteConfigStore<T>>
 
-        void this.fetchAndActivate().catch((error) => this.#handleBackgroundError(error))
+        this.#backgroundFetch()
 
         if (this.#options.cacheMaxAge) {
-            this.#refreshTimer = setInterval(() => {
-                void this.fetchAndActivate().catch((error) => this.#handleBackgroundError(error))
-            }, this.#options.cacheMaxAge + 1000)
+            this.#refreshTimer = setInterval(() => this.#backgroundFetch(), this.#options.cacheMaxAge + 1000)
         }
     }
 
@@ -90,12 +97,44 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
             clearInterval(this.#refreshTimer)
         }
         this.#refreshTimer = null
+        this.#clearBackgroundRetry()
+    }
+
+    // The fetches this class starts on its own: at construction and every cacheMaxAge. A failed
+    // one is retried on a doubling delay, so a fetch that failed (offline start, a timed out
+    // installation request) is not left until the next interval, hours later. A fetch the
+    // caller started is the caller's to retry.
+    #backgroundFetch(): void {
+        this.#clearBackgroundRetry()
+        void this.fetchAndActivate().catch((error) => this.#handleBackgroundError(error))
+    }
+
+    #clearBackgroundRetry(): void {
+        if (this.#backgroundRetryTimer !== null) {
+            clearTimeout(this.#backgroundRetryTimer)
+        }
+        this.#backgroundRetryTimer = null
     }
 
     #handleBackgroundError(error: unknown): void {
-        if (!this.#destroyed) {
+        if (this.#destroyed) {
+            return
+        }
+
+        if (isTransientError(error)) {
+            this.#app.logger.warn('RemoteConfig background fetch failed, retrying later', error)
+        } else {
             this.#app.logger.error(error as Error)
         }
+
+        const maxDelay = this.#options.cacheMaxAge || DEFAULT_CACHE_MAX_AGE_MILLIS
+        const delay = Math.min(BACKGROUND_RETRY_BASE_MILLIS * 2 ** this.#backgroundRetryCount, maxDelay)
+
+        // Two background fetches that joined the same failed request both land here: keep one
+        // retry.
+        this.#clearBackgroundRetry()
+        this.#backgroundRetryCount++
+        this.#backgroundRetryTimer = setTimeout(() => this.#backgroundFetch(), delay)
     }
 
     set defaultConfig(defaultConfig: RemoteConfigOptions<T>['defaultConfig']) {
@@ -171,7 +210,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
         }
 
         if (!ignoreCache && this.isCacheValid) {
-            this.emit('fetch')
+            emitSafely(this, this.#app.logger, 'fetch')
             return
         }
 
@@ -183,6 +222,9 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
 
         try {
             await this.#semaphoreFetch
+            // Any successful fetch makes a pending background retry pointless.
+            this.#backgroundRetryCount = 0
+            this.#clearBackgroundRetry()
         } finally {
             this.#semaphoreFetch = null
             this.#fetchAbortController = null
@@ -192,17 +234,21 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
     async #fetchAndActivate(): Promise<void> {
         const etag = this.#storage.get('etag')
 
-        const installation = await this.#installations.getInstallation()
-
-        const url = new URL(`${this.#baseURL}/:fetch`)
-        url.searchParams.append('key', this.#app.credentials.apiKey)
-
+        // Built before the installation wait, so fetchTimeout and destroy() bound the whole
+        // call, not just the Remote Config request. The installation request itself is shared
+        // with other callers and is left running.
         this.#fetchAbortController = new AbortController()
         const signals = [this.#fetchAbortController.signal]
 
         if (this.#options.fetchTimeout) {
             signals.push(AbortSignal.timeout(this.#options.fetchTimeout))
         }
+
+        const signal = AbortSignal.any(signals)
+        const installation = await raceAbort(this.#installations.getInstallation(), signal)
+
+        const url = new URL(`${this.#baseURL}/:fetch`)
+        url.searchParams.append('key', this.#app.credentials.apiKey)
 
         const response = await fetchWithRetry(url.toString(), {
             method: 'POST',
@@ -219,7 +265,7 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
                 app_id: this.#app.credentials.appId,
                 language_code: this.#options.languageCode,
             }),
-            signal: AbortSignal.any(signals),
+            signal,
         })
 
         let status = response.status
@@ -260,19 +306,23 @@ export default class RemoteConfig<T = Record<string, string>> extends EventEmitt
             }
         }
 
-        this.emit('fetch')
+        emitSafely(this, this.#app.logger, 'fetch')
 
         switch(status) {
             case 200:
                 this.#storage.set('config', config)
                 this.#storage.set('etag', responseEtag ?? '')
-                this.emit('activate')
-            // oxlint-disable-next-line no-fallthrough
+                this.#storage.set('lastFetchTimestamp', Date.now())
+                // Last, once everything the fetch stores is in place: a listener that throws
+                // is logged and cannot fail the fetch or skip a write.
+                emitSafely(this, this.#app.logger, 'activate')
+                break
             case 304:
                 this.#storage.set('lastFetchTimestamp', Date.now())
                 break
             default:
-                throw new Error(`Failed to fetch RemoteConfig status: ${status}`)
+                // Typed so a 429/5xx counts as transient (utils/errors.ts isTransientError).
+                throw new HttpRequestError(status, response.statusText, `Failed to fetch RemoteConfig status: ${status}`)
 
         }
     }

@@ -2,7 +2,9 @@ import FirebaseApp from './app'
 import FCM, { type FcmData as CurrentFcmData, type Keys } from './lib/fcm'
 import GCM, { type GcmData } from './lib/gcm'
 import PushReceiverRaw from './pushReceiver'
-import { escape as toBase64Url } from './utils/base64'
+import { legacyFcmToCurrent, legacyInstallationToCurrent, type InstallationData } from './utils/legacy'
+import { emitSafely } from './utils/emit'
+import type Emitter from 'eventemitter3'
 
 import type { Logger, StorageInterface } from './app'
 import type { InstallationEntry } from './installations'
@@ -17,18 +19,9 @@ import {
     DEFAULT_TIME_ZONE,
     DEFAULT_HEARTBEAT_INTERVAL_MS,
     DEFAULT_VAPID_KEY,
-    FCM_API
 } from './utils/constants'
 
-export type { GcmData, Keys }
-
-export interface InstallationData {
-    token: string
-    createdAt: number
-    expiresIn: number
-    refreshToken: string
-    fid: string
-}
+export type { GcmData, Keys, InstallationData }
 
 export interface FcmData {
     token: string
@@ -95,13 +88,6 @@ function clone<T>(value: T): T {
     return value == null ? value : JSON.parse(JSON.stringify(value)) as T
 }
 
-function normalizeBase64(value: string): string {
-    const normalizedValue = String(value).replace(/-/g, '+').replace(/_/g, '/')
-    const padding = '='.repeat((4 - (normalizedValue.length % 4)) % 4)
-
-    return normalizedValue + padding
-}
-
 function createLogger(debugState: DebugState): Logger {
     return {
         log: (...args: any[]) => console.log(...args),
@@ -112,15 +98,6 @@ function createLogger(debugState: DebugState): Logger {
         },
         warn: (...args: any[]) => console.warn(...args),
         error: ((...args: any[]) => console.error(...args)) as Logger['error'],
-    }
-}
-
-function legacyInstallationToCurrent(installation: InstallationData): InstallationEntry {
-    return {
-        fid: installation.fid,
-        refreshToken: installation.refreshToken,
-        authToken: installation.token,
-        expiresAt: installation.createdAt + installation.expiresIn,
     }
 }
 
@@ -185,7 +162,7 @@ class LegacyStorageAdapter implements StorageInterface<Record<string, any>> {
                 this.#config.persistentIds = Array.isArray(value) ? value : []
                 break
             case 'gcm.registration':
-                this.#setGcmRegistration(value as GcmData)
+                this.#setGcmRegistration(value as GcmData | undefined)
                 break
             case 'fcm.registration':
                 this.#setFcmRegistration(value as CurrentFcmData)
@@ -220,48 +197,31 @@ class LegacyStorageAdapter implements StorageInterface<Record<string, any>> {
             return undefined
         }
 
-        const normalizedKeys = {
-            privateKey: normalizeBase64(credentials.keys.privateKey),
-            publicKey: normalizeBase64(credentials.keys.publicKey),
-            authSecret: normalizeBase64(credentials.keys.authSecret),
-        }
-
-        const subscriptionOptions = {
-            auth: toBase64Url(normalizedKeys.authSecret),
-            endpoint: `${FCM_API}fcm/send/${credentials.gcm.token}`,
-            p256dh: toBase64Url(normalizedKeys.publicKey),
-            vapidKey: this.#config.vapidKey || DEFAULT_VAPID_KEY,
-        }
-
-        const web: CurrentFcmData['registration']['web'] = {
-            auth: subscriptionOptions.auth,
-            endpoint: subscriptionOptions.endpoint,
-            p256dh: subscriptionOptions.p256dh,
-        }
-
-        if (subscriptionOptions.vapidKey !== DEFAULT_VAPID_KEY) {
-            web.applicationPubKey = subscriptionOptions.vapidKey
-        }
+        const { registration, keys, subscriptionOptions } = legacyFcmToCurrent(
+            credentials.fcm.token,
+            credentials.gcm.token,
+            credentials.keys,
+            this.#config.vapidKey || DEFAULT_VAPID_KEY,
+        )
 
         return {
-            registration: {
-                name: '',
-                token: credentials.fcm.token,
-                web,
-            },
-            keys: normalizedKeys,
+            registration,
+            keys,
             createTime: credentials.fcm.installation.createdAt,
             subscriptionOptions,
         }
     }
 
-    #setGcmRegistration(gcm: GcmData): void {
+    // `undefined` when lib/gcm.ts drops credentials checkin rejected; the legacy credentials
+    // then lose their `gcm` too, so checkCredentials() reports them incomplete.
+    #setGcmRegistration(gcm: GcmData | undefined): void {
         this.#pendingGcm = gcm
 
         if (this.#config.credentials?.fcm && this.#config.credentials.keys) {
             this.#setCredentials({
                 ...this.#config.credentials,
-                gcm,
+                // Cleared credentials serialize without `gcm`, which checkCredentials() rejects.
+                gcm: gcm as GcmData,
                 config: {
                     bundleId: this.#config.bundleId,
                     projectId: this.#config.firebase.projectId,
@@ -390,9 +350,11 @@ class PushReceiver extends PushReceiverRaw {
         this.#gcm = new GCM(app, pushConfig)
         this.#fcm = new FCM(app, this.#gcm, pushConfig)
 
-        const emitter = this as unknown as CredentialsChangeEmitter
+        const emitter = this as unknown as Emitter<{ ON_CREDENTIALS_CHANGE: (data: EventChangeCredentials) => void }>
 
-        this.#storage.onCredentialsChanged = (event) => emitter.emit('ON_CREDENTIALS_CHANGE', event)
+        // Emitted from inside a storage write during registration: a listener that throws must
+        // not fail that write, and with it the connection attempt.
+        this.#storage.onCredentialsChanged = (event) => emitSafely(emitter, app.logger, 'ON_CREDENTIALS_CHANGE', event)
     }
 
     override get fcmToken(): string | undefined {

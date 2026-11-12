@@ -1,4 +1,38 @@
 # Changelog
+## Unreleased
+Contains default behaviour changes (see Changed): release as at least a minor version.
+
+### Fixed
+ - An event listener that throws can no longer break the library. In `PushReceiver` a throw from any `ON_*` listener used to reach the frame parser's error handling and close the MCS connection (and a throwing `ON_TOKEN_CHANGE` listener failed the attempt); in `RemoteConfig` a throwing `activate` listener rejected `fetchAndActivate()`. The throw is now logged at `error` and the library carries on. As with Node's `EventEmitter`, it still stops the listeners after it for that one emit. `PushReceiverLegacy`'s `ON_CREDENTIALS_CHANGE` is isolated the same way
+ - `RemoteConfig` stores the config, etag and fetch timestamp before emitting `activate`, so a listener sees the complete state
+ - A connection that drops within 10 seconds of its login no longer resets the reconnect backoff: the backoff continues from where it was before that login, as in Chromium's `connection_factory_impl.cc` (`kConnectionResetWindowSecs`). A server that accepted the login and dropped the connection used to be retried immediately, in a hot loop
+ - A `LoginResponse` carrying an error is now a failed attempt: no `ON_READY`, `whenReady` stays pending, the backoff keeps growing (Chromium `mcs_client.cc`, `LOGIN_FAILURE`). It used to count as a successful login
+ - A GCM checkin rejected with 400 or 401 (stale credentials) now drops the stored GCM registration and registers again in the same call, instead of failing every attempt forever (Chromium `gcm_client_impl.cc` `OnCheckinCompleted` resets its GCM store on these). The new GCM token rotates the FCM token, announced through `ON_TOKEN_CHANGE`
+ - A GCM checkin answer without an android id or security token is now a failed checkin instead of being stored as credentials with `undefined` ids (Chromium `checkin_request.cc`, `kZeroIdOrToken`)
+ - An FCM registration renewal answered with 404 (registration gone) now registers a new one in the same call instead of failing the connection attempt
+ - `RemoteConfig`'s `fetchTimeout`, and `destroy()`, now also bound the wait for the installation: a Firebase Installations request that never completed used to keep `fetchAndActivate()` pending forever
+ - `destroy()` or a timeout now ends a `fetch` retry loop at once, also while it waits out its backoff delay, and leaves no timer behind; it used to keep the event loop alive for up to 10 minutes
+ - The FCM registration's FID check now waits for a Firebase Installations request already in flight (for example `RemoteConfig` replacing a rejected installation), so a registration bound to a replaced FID is re-registered on that attempt instead of being served until the next one
+
+### Changed
+ - **Firebase Installations requests are bounded.** One request, retries included, now ends after `requestTimeoutMs` (new `FirebaseApp` option, default 60 s; `0` restores the previous unbounded retry). A timed out request is a transient failure: stored credentials are kept and served while usable. Callers retry on their own schedule (`PushReceiver` backoff, `RemoteConfig` background retry)
+ - **Login timeout.** A `PushReceiver` attempt that has not logged in 30 seconds after opening its socket (TCP, TLS and login together) is closed and retried like a lost connection, with `ON_DISCONNECT`. Chromium uses the same 30 s (`kReadTimeoutMs`) for the login answer only
+ - A failed FCM registration renewal that is transient (network error, timeout, 429, 5xx) now keeps serving the current registration, with a warning, and renews again on the next attempt, instead of failing the connection attempt. Message delivery does not depend on the renewal. firebase-js-sdk's `updateToken()` rethrows here
+ - `ON_TOKEN_CHANGE` is now emitted as `(newToken, oldToken)` and also for a token that changed while the process was not running: the last announced token is persisted under `push_receiver.announced_token`. The first start after upgrading from 1.0.x announces nothing (nothing persisted yet). `PushReceiverLegacy` keeps it in memory only
+ - Log levels: transient failures (offline, a timeout, a 429/5xx, a reset socket) are logged at `warn`; `error` is left for permanent failures, protocol violations, listener throws and the retry limit. Previously every failed reconnect attempt, socket error and `RemoteConfig` background fetch failure was an `error`; an unknown MCS tag is now a `warn`
+ - Quick login-then-drop cycles and failed logins now count towards `maxRetryAttempts` (they used to reset the count), so with a finite limit such a server makes the receiver give up with `PushReceiver retry limit reached`
+ - `RemoteConfig` now requires `logger.error`
+ - Errors from `utils/request.ts` (GCM checkin/register, FCM registration) are now `HttpRequestError` and GCM register errors `GcmRegisterError`; messages are unchanged. A non-ok `RemoteConfig` fetch status is an `HttpRequestError` too, same message
+
+### Added
+ - `PushReceiver` option `retryInitialConnect` (default `false`): a failed first attempt of `connect()` goes on the retry schedule instead of rejecting, so `connect()` stays pending until a login
+ - `PushReceiver.reconnect()`: starts a fresh attempt now, cutting a backoff short or replacing a logged-in connection; for OS resume and network-change handlers
+ - `RemoteConfig` retries a failed automatic fetch (at construction or on the `cacheMaxAge` interval) after 1, 2, 4, ... minutes up to `cacheMaxAge`, instead of waiting for the next interval
+ - `Installations.whenSettled()`: waits for an installation request already in flight, never starts one
+ - `FirebaseApp` option and property `requestTimeoutMs`
+ - `HttpRequestError` (`status`, `statusText`), `GcmRegisterError` (`code`) and `isTransientError()`, exported from the package root
+ - `importLegacyState()`: one-off import of firebase-nodejs-client 0.3.x Remote Config/Installations storage and `@eneris/push-receiver` credentials into the current layout, also loadable as `dist/legacyImport` without the rest of the library
+
 ## 1.0.4
  - Upgraded `protobufjs` to 8.8.1, `protobufjs-cli` to 2.7.1, `@types/node` to 26.6.6 and `oxlint` to 1.90.0
 

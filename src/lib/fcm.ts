@@ -8,6 +8,7 @@ import type FirebaseApp from '../app'
 import { assertRequiredProperties, StorageInterface } from '../app'
 import { InstallationEntry } from '../installations'
 import { escape as toBase64Url } from '../utils/base64'
+import { HttpRequestError, isTransientError } from '../utils/errors'
 import type { PushConfig } from '../utils/types'
 
 import { DEFAULT_VAPID_KEY, FCM_API, FCM_REGISTRATION_API } from '../utils/constants'
@@ -65,6 +66,7 @@ export default class FCM {
             'credentials.apiKey',
             'credentials.projectId',
             'installations.getInstallation',
+            'installations.whenSettled',
             'storage.get',
             'storage.set',
         ])
@@ -232,6 +234,11 @@ export default class FCM {
         const keys = this.#normalizeKeys(currentRegistration.keys)
         const subscriptionOptions = this.#createSubscriptionOptions(gcm, keys)
 
+        // A replacement another consumer (RemoteConfig) is creating right now would otherwise
+        // be missed until the next attempt. Waits only on a request already in flight, never
+        // starts one, so the steady state stays free of FIS calls.
+        await this.#app.installations.whenSettled()
+
         // FIS replaced or deleted the installation this registration was created under: the
         // old registration is dead server-side, so register again from scratch. See
         // AGENTS.md "FCM registration is bound to an installation FID" for why a missing
@@ -270,7 +277,35 @@ export default class FCM {
                 }
             }
 
-            const registration = await this.#updateRegistration(currentRegistration.registration.token, installation, subscriptionOptions)
+            let registration: FcmRegistration
+
+            // Source: https://github.com/firebase/firebase-js-sdk/blob/main/packages/messaging/src/internals/token-manager.ts
+            // updateToken() rethrows any failure and keeps the cached token (:157-178). Both
+            // branches below deviate on purpose: a 404 means the registration is gone, so a new
+            // one is created now; a transient failure keeps serving the current registration,
+            // because MCS delivery does not need the renewal, and leaves createTime as is so
+            // the next attempt renews again.
+            try {
+                registration = await this.#updateRegistration(currentRegistration.registration.token, installation, subscriptionOptions)
+            } catch (error) {
+                if (error instanceof HttpRequestError && error.status === 404) {
+                    this.#app.logger.warn('FCM registration no longer exists, registering again')
+
+                    return this.#register(gcm)
+                }
+
+                if (isTransientError(error)) {
+                    this.#app.logger.warn('FCM registration renewal failed, keeping the current registration', error)
+
+                    return {
+                        ...currentRegistration,
+                        keys,
+                        subscriptionOptions,
+                    }
+                }
+
+                throw error
+            }
 
             return {
                 ...currentRegistration,

@@ -2,6 +2,7 @@ import Long from 'long'
 import { randomUUID } from 'crypto'
 import request from '../utils/request'
 import delay from '../utils/timeout'
+import { GcmRegisterError, HttpRequestError } from '../utils/errors'
 import Protos from '../protobuf'
 import { GcmRequestConstants } from '../utils/constants'
 
@@ -38,7 +39,16 @@ export interface GcmRegisterResponse {
 export type GcmData = GcmCheckinResponse & GcmRegisterResponse
 
 interface GCMStorage {
-    registration: GcmData
+    // Cleared when checkin rejects the stored credentials, so reads can come back empty.
+    registration?: GcmData
+}
+
+// Source: https://chromium.googlesource.com/chromium/src/+/main/google_apis/gcm/engine/checkin_request.cc
+// :248-258 BAD_REQUEST (malformed request) and UNAUTHORIZED (security token does not match the
+// android id) are final, not retried; gcm_client_impl.cc OnCheckinCompleted (:486-490) then
+// resets the GCM store ("Checkin rejected. Resetting GCM Store.").
+function isCheckinRejected(error: unknown): boolean {
+    return error instanceof HttpRequestError && (error.status === 400 || error.status === 401)
 }
 
 export default class GCM {
@@ -74,18 +84,32 @@ export default class GCM {
     async getRegistration(): Promise<GcmData> {
         const gcmRegistration = this.#storage.get('registration')
 
-        if (!gcmRegistration) {
-            const options = await this.checkIn(gcmRegistration)
-            const registration = await this.#doRegister(options)
-            this.#storage.set('registration', registration)
-            return registration
+        if (gcmRegistration) {
+            try {
+                const checkin = await this.checkIn(gcmRegistration)
+                const refreshedRegistration = { ...gcmRegistration, ...checkin }
+                this.#storage.set('registration', refreshedRegistration)
+
+                return refreshedRegistration
+            } catch (error) {
+                // Any other failure keeps the stored credentials for the next attempt.
+                if (!isCheckinRejected(error)) {
+                    throw error
+                }
+
+                // Mirrors Chromium's store reset, but registers again in the same call instead
+                // of on the next start. The new token changes the FCM endpoint, so lib/fcm.ts
+                // replaces the FCM registration too.
+                this.#app.logger.warn('GCM checkin rejected the stored registration, registering again', error)
+                this.#storage.set('registration', undefined)
+            }
         }
 
-        const checkin = await this.checkIn(gcmRegistration)
-        const refreshedRegistration = { ...gcmRegistration, ...checkin }
-        this.#storage.set('registration', refreshedRegistration)
+        const options = await this.checkIn()
+        const registration = await this.#doRegister(options)
+        this.#storage.set('registration', registration)
 
-        return refreshedRegistration
+        return registration
     }
 
     #parseLong(number: bigint, unsigned?: boolean | number, radix?: number): Long {
@@ -108,6 +132,13 @@ export default class GCM {
             enums: String,
             bytes: String,
         })
+
+        // Source: https://chromium.googlesource.com/chromium/src/+/main/google_apis/gcm/engine/checkin_request.cc
+        // :271-275 a response without a non-zero android id and security token is a failed
+        // checkin (kZeroIdOrToken), retried later; never store it as credentials.
+        if (!isNonZeroId(object.androidId) || !isNonZeroId(object.securityToken)) {
+            throw new Error('GCM checkin returned no android id or security token')
+        }
 
         return {
             androidId: object.androidId,
@@ -151,15 +182,17 @@ export default class GCM {
         })).text()
 
         if (response.includes('Error')) {
-            if (NON_RETRIABLE_REGISTER_ERRORS.some((code) => response.includes(code))) {
-                throw new Error(`GCM register failed with a non-retriable error: ${response}`)
+            const code = parseRegisterErrorCode(response)
+
+            if (NON_RETRIABLE_REGISTER_ERRORS.some((nonRetriable) => response.includes(nonRetriable))) {
+                throw new GcmRegisterError(`GCM register failed with a non-retriable error: ${response}`, code)
             }
 
             // Google answers PHONE_REGISTRATION_ERROR for the first few attempts as a matter of
             // course and then registers fine, so a single failed attempt is not worth reporting.
             // Only an exhausted retry budget is a real failure, and that one throws.
             if (retry >= MAX_REGISTER_RETRIES) {
-                throw new Error(`GCM register has failed after ${retry + 1} attempts: ${response}`)
+                throw new GcmRegisterError(`GCM register has failed after ${retry + 1} attempts: ${response}`, code)
             }
 
             this.#app.logger.debug(`Register request failed with ${response}, retrying (${retry + 1})`)
@@ -211,4 +244,17 @@ export default class GCM {
         const message = AndroidCheckinRequest.create(payload)
         return AndroidCheckinRequest.encode(message).finish()
     }
+}
+
+function isNonZeroId(value: unknown): value is string {
+    return typeof value === 'string' && value !== '' && value !== '0'
+}
+
+// register3 answers `Error=<CODE>` in a 200 body.
+// Source: https://chromium.googlesource.com/chromium/src/+/main/google_apis/gcm/engine/registration_request.cc
+// ParseResponse() (:270-292) reads the code after kErrorPrefix `Error=` (:46).
+function parseRegisterErrorCode(response: string): string {
+    const match = /Error=([^&\s]*)/.exec(response)
+
+    return match?.[1] ?? response.trim()
 }

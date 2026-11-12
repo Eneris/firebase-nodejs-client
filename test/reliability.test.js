@@ -125,6 +125,39 @@ test('release reliability regressions', async (t) => {
         assert.equal(attempts, 2)
     })
 
+    await t.test('request() rejects with an HttpRequestError carrying the status', async () => {
+        const { HttpRequestError } = require('../dist')
+        fetchHandler = async () => new Response('{}', { status: 404, statusText: 'Not Found' })
+
+        await assert.rejects(request('https://example.test'), (error) => {
+            assert.ok(error instanceof HttpRequestError)
+            assert.equal(error.status, 404)
+            assert.equal(error.statusText, 'Not Found')
+            assert.equal(error.message, 'Request failed: 404 Not Found')
+            return true
+        })
+    })
+
+    await t.test('isTransientError tells network and server trouble apart from a permanent failure', () => {
+        const { HttpRequestError, InstallationsRequestError, isTransientError } = require('../dist')
+        const networkError = new TypeError('fetch failed', { cause: Object.assign(new Error('getaddrinfo ENOTFOUND'), { code: 'ENOTFOUND' }) })
+        const timeout = new DOMException('The operation was aborted due to timeout', 'TimeoutError')
+
+        assert.equal(isTransientError(networkError), true)
+        assert.equal(isTransientError(new TypeError('fetch failed')), true)
+        assert.equal(isTransientError(Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' })), true)
+        assert.equal(isTransientError(timeout), true)
+        assert.equal(isTransientError(new HttpRequestError(503, 'Service Unavailable')), true)
+        assert.equal(isTransientError(new HttpRequestError(429, 'Too Many Requests')), true)
+        assert.equal(isTransientError(new InstallationsRequestError('Installation refresh', new Response(null, { status: 500 }))), true)
+
+        assert.equal(isTransientError(new HttpRequestError(401, 'Unauthorized')), false)
+        assert.equal(isTransientError(new InstallationsRequestError('Installation refresh', new Response(null, { status: 403 }))), false)
+        assert.equal(isTransientError(new Error('something else')), false)
+        assert.equal(isTransientError(new TypeError('x is not a function')), false)
+        assert.equal(isTransientError(undefined), false)
+    })
+
     await t.test('fetchWithRetry bounds server errors but keeps retrying a rejected request', async () => {
         // fetch-retry ignores its own `retries` option when `retryOn` is a function, so the
         // bound lives in src/utils/fetch.ts and is worth pinning: it once retried forever.
@@ -586,6 +619,101 @@ test('release reliability regressions', async (t) => {
         })
     })
 
+    await t.test('FCM: a registration bound to an installation FIS is replacing right now is re-registered', async () => {
+        const { app } = createApp()
+        const gcmData = { androidId: '1', securityToken: '2', token: 'gcm-token', appId: 'wp:app' }
+        const fcm = new FCM(app, new GCM(app, pushConfig), pushConfig)
+        let releaseCreate
+        let fcmCreates = 0
+
+        app.storage.set('installations.installation', installation)
+        fetchHandler = async (url, options) => {
+            const href = String(url)
+
+            if (href.endsWith('/authTokens:generate')) {
+                return new Response('{}', { status: 404, statusText: 'Not Found' })
+            }
+
+            if (href.includes('firebaseinstallations.googleapis.com') && href.endsWith('/installations')) {
+                await new Promise((resolve) => { releaseCreate = resolve })
+                return new Response(JSON.stringify({
+                    fid: 'dNEWNEWNEWNEWNEWNEWNEW',
+                    refreshToken: 'new-refresh-token',
+                    authToken: { token: 'new-auth-token', expiresIn: '604800s' },
+                }), { status: 200, headers: { 'content-type': 'application/json' } })
+            }
+
+            if (href.includes('fcmregistrations.googleapis.com') && options.method === 'POST') {
+                fcmCreates++
+                return new Response(JSON.stringify({ name: 'reg', token: `fcm-token-${fcmCreates}`, web: {} }), { status: 200 })
+            }
+
+            assert.fail(`unexpected request: ${options.method} ${href}`)
+        }
+
+        const first = await fcm.getRegistration(gcmData)
+        assert.equal(first.installationFid, installation.fid)
+
+        // Another consumer (RemoteConfig) refreshes the expired installation; FIS answers 404,
+        // so a replacement is being created while the FCM registration is looked up.
+        app.storage.set('installations.installation', { ...installation, expiresAt: Date.now() - 1000 })
+        const replacing = app.installations.getInstallation()
+        await new Promise((resolve) => setImmediate(resolve))
+        assert.ok(releaseCreate, 'the replacement is in flight')
+
+        const lookup = fcm.getRegistration(gcmData)
+        await new Promise((resolve) => setImmediate(resolve))
+        releaseCreate()
+
+        const [replaced, second] = await Promise.all([replacing, lookup])
+
+        assert.equal(replaced.fid, 'dNEWNEWNEWNEWNEWNEWNEW')
+        assert.equal(second.installationFid, 'dNEWNEWNEWNEWNEWNEWNEW')
+        assert.equal(second.registration.token, 'fcm-token-2')
+    })
+
+    await t.test('Installations.whenSettled() starts nothing when idle and swallows a rejected pending request', async () => {
+        const { app } = createApp()
+        const gcmData = { androidId: '1', securityToken: '2', token: 'gcm-token', appId: 'wp:app' }
+        const fcm = new FCM(app, new GCM(app, pushConfig), pushConfig)
+
+        app.storage.set('installations.installation', installation)
+        fetchHandler = async (url, options) => {
+            if (String(url).includes('fcmregistrations.googleapis.com') && options.method === 'POST') {
+                return new Response(JSON.stringify({ name: 'reg', token: 'fcm-token', web: {} }), { status: 200 })
+            }
+            assert.fail(`unexpected request: ${url}`)
+        }
+        const first = await fcm.getRegistration(gcmData)
+
+        fetchHandler = async (url) => assert.fail(`whenSettled() must not start a request: ${url}`)
+        await app.installations.whenSettled()
+
+        // A refresh of a genuinely expired token that fails (400) rejects getInstallation().
+        app.storage.set('installations.installation', { ...installation, expiresAt: Date.now() - 60 * 60 * 1000 })
+        let release
+        fetchHandler = async () => {
+            await new Promise((resolve) => { release = resolve })
+            return new Response('{}', { status: 400, statusText: 'Bad Request' })
+        }
+        const refreshing = app.installations.getInstallation()
+        refreshing.catch(() => {})
+        await new Promise((resolve) => setImmediate(resolve))
+        assert.ok(release, 'the refresh is in flight')
+
+        const settled = app.installations.whenSettled()
+        const lookup = fcm.getRegistration(gcmData)
+        release()
+
+        await assert.rejects(refreshing, /400 'Bad Request'/)
+        await settled
+        const second = await lookup
+
+        // The FID did not change, so the compare goes on and serves the cached registration.
+        assert.equal(second.registration.token, first.registration.token)
+        assert.equal(second.installationFid, installation.fid)
+    })
+
     await t.test('PushReceiver emits ON_TOKEN_CHANGE only when the FCM token actually rotates', async () => {
         const { app } = createApp()
         const CHECKIN_URL = 'https://android.clients.google.com/checkin'
@@ -769,6 +897,256 @@ test('release reliability regressions', async (t) => {
         })
     })
 
+    await t.test('GCM register rejects with a GcmRegisterError carrying the server code', async () => {
+        const { GcmRegisterError } = require('../dist')
+        const { app } = createApp()
+        const AndroidCheckinResponse = Protos.checkin_proto.AndroidCheckinResponse
+
+        fetchHandler = async (url) => {
+            if (String(url) === 'https://android.clients.google.com/checkin') {
+                return new Response(AndroidCheckinResponse.encode(AndroidCheckinResponse.create({
+                    statsOk: true,
+                    androidId: 1,
+                    securityToken: 2,
+                })).finish(), { status: 200 })
+            }
+
+            return new Response('Error=INVALID_SENDER', { status: 200 })
+        }
+
+        await assert.rejects(new GCM(app, pushConfig).getRegistration(), (error) => {
+            assert.ok(error instanceof GcmRegisterError)
+            assert.equal(error.code, 'INVALID_SENDER')
+            return true
+        })
+    })
+
+    await t.test('GCM self-heal: checkin rejection and malformed checkin answers', async (t) => {
+        const CHECKIN_URL = 'https://android.clients.google.com/checkin'
+        const AndroidCheckinResponse = Protos.checkin_proto.AndroidCheckinResponse
+        const stored = { androidId: '111', securityToken: '222', token: 'gcm-token-stale', appId: 'wp:old' }
+        const checkinOk = (androidId, securityToken) => new Response(AndroidCheckinResponse.encode(AndroidCheckinResponse.create({
+            statsOk: true,
+            androidId,
+            securityToken,
+        })).finish(), { status: 200 })
+
+        for (const [status, statusText] of [[400, 'Bad Request'], [401, 'Unauthorized']]) {
+            await t.test(`a checkin answering ${status} for the stored registration registers again in the same call`, async () => {
+                const { app } = createApp()
+                app.storage.set('gcm.registration', stored)
+                const checkinBodies = []
+
+                fetchHandler = async (url, options) => {
+                    if (String(url) === CHECKIN_URL) {
+                        const request = Protos.checkin_proto.AndroidCheckinRequest.decode(options.body)
+                        // An unset proto2 field decodes to its default, 0.
+                        checkinBodies.push(request.id && String(request.id) !== '0' ? String(request.id) : undefined)
+                        return checkinBodies.length === 1
+                            ? new Response('', { status, statusText })
+                            : checkinOk(333, 444)
+                    }
+
+                    return new Response('token=gcm-token-fresh', { status: 200 })
+                }
+
+                const registration = await new GCM(app, pushConfig).getRegistration()
+
+                // Source: chromium components/gcm_driver/gcm_client_impl.cc OnCheckinCompleted:
+                // 400/401 -> "Checkin rejected. Resetting GCM Store."
+                assert.deepEqual(checkinBodies, ['111', undefined], 'the second checkin is a fresh one')
+                assert.equal(registration.androidId, '333')
+                assert.equal(registration.securityToken, '444')
+                assert.equal(registration.token, 'gcm-token-fresh')
+                assert.deepEqual(app.storage.get('gcm.registration'), registration)
+            })
+        }
+
+        await t.test('any other checkin failure keeps the stored registration and rejects', async () => {
+            const { app } = createApp()
+            app.storage.set('gcm.registration', stored)
+            fetchHandler = async () => new Response('', { status: 403, statusText: 'Forbidden' })
+
+            await assert.rejects(new GCM(app, pushConfig).getRegistration(), /403 Forbidden/)
+            assert.deepEqual(app.storage.get('gcm.registration'), stored)
+        })
+
+        await t.test('a checkin answer without an android id or security token is a failure, not a registration', async () => {
+            // Source: chromium google_apis/gcm/engine/checkin_request.cc kZeroIdOrToken.
+            const { app } = createApp()
+            app.storage.set('gcm.registration', stored)
+            fetchHandler = async () => checkinOk(0, 0)
+
+            await assert.rejects(new GCM(app, pushConfig).getRegistration(), /android id or security token/)
+            assert.deepEqual(app.storage.get('gcm.registration'), stored)
+
+            const { app: freshApp } = createApp()
+            fetchHandler = async (url) => String(url) === CHECKIN_URL
+                ? new Response(AndroidCheckinResponse.encode(AndroidCheckinResponse.create({ statsOk: true })).finish(), { status: 200 })
+                : new Response('token=gcm-token', { status: 200 })
+
+            await assert.rejects(new GCM(freshApp, pushConfig).getRegistration(), /android id or security token/)
+            assert.equal(freshApp.storage.get('gcm.registration'), undefined)
+        })
+    })
+
+    await t.test('FCM renewal: a vanished registration is re-created, a transient failure keeps serving', async (t) => {
+        const gcmData = { androidId: '1', securityToken: '2', token: 'gcm-token', appId: 'wp:app' }
+        const eightDaysAgo = () => Date.now() - 8 * 24 * 60 * 60 * 1000
+
+        async function registerThenAge(app, extraHandler) {
+            const fcm = new FCM(app, new GCM(app, pushConfig), pushConfig)
+            app.storage.set('installations.installation', installation)
+            fetchHandler = async (url, options) => {
+                const handled = await extraHandler?.(String(url), options)
+                if (handled) return handled
+                if (options.method === 'POST') {
+                    return new Response(JSON.stringify({ name: 'reg', token: 'fcm-token-created', web: {} }), { status: 200 })
+                }
+                assert.fail(`unexpected request: ${options.method} ${url}`)
+            }
+
+            const first = await fcm.getRegistration(gcmData)
+            app.storage.set('fcm.registration', { ...first, createTime: eightDaysAgo() })
+
+            return { fcm, first }
+        }
+
+        await t.test('PATCH answering 404 registers again in the same call', async () => {
+            const { app } = createApp()
+            let creates = 0
+            const { fcm, first } = await registerThenAge(app, async (url, options) => {
+                if (options.method === 'PATCH') return new Response('{}', { status: 404, statusText: 'Not Found' })
+                if (options.method === 'POST' && ++creates > 1) {
+                    return new Response(JSON.stringify({ name: 'reg', token: 'fcm-token-recreated', web: {} }), { status: 200 })
+                }
+            })
+
+            const renewed = await fcm.getRegistration(gcmData)
+
+            assert.equal(renewed.registration.token, 'fcm-token-recreated')
+            assert.notDeepEqual(renewed.keys, first.keys, 'a fresh registration gets fresh keys')
+            assert.ok(renewed.createTime > Date.now() - 1000)
+        })
+
+        await t.test('PATCH failing transiently keeps the current registration and retries next time', async (t) => {
+            t.mock.timers.enable({ apis: ['setTimeout'] })
+            const { app } = createApp()
+            const warnings = []
+            app.logger.warn = (...args) => warnings.push(args)
+            let patches = 0
+            const { fcm } = await registerThenAge(app, async (url, options) => {
+                if (options.method === 'PATCH') {
+                    patches++
+                    return new Response('{}', { status: 503, statusText: 'Service Unavailable' })
+                }
+            })
+            const aged = app.storage.get('fcm.registration')
+
+            // utils/request.ts retries a 503 with real delays; drive them.
+            let settled = false
+            const pending = fcm.getRegistration(gcmData).finally(() => { settled = true })
+            while (!settled) {
+                await new Promise((resolve) => setImmediate(resolve))
+                t.mock.timers.tick(5_000)
+            }
+            const served = await pending
+
+            assert.equal(patches, 4)
+            assert.equal(served.registration.token, aged.registration.token)
+            assert.equal(served.createTime, aged.createTime, 'createTime is kept so the renewal runs again next time')
+            assert.ok(warnings.length > 0)
+        })
+
+        await t.test('PATCH failing permanently still rejects', async () => {
+            const { app } = createApp()
+            const { fcm } = await registerThenAge(app, async (url, options) => {
+                if (options.method === 'PATCH') return new Response('{}', { status: 403, statusText: 'Forbidden' })
+            })
+
+            await assert.rejects(fcm.getRegistration(gcmData), /403 Forbidden/)
+        })
+    })
+
+    await t.test('GCM self-heal: a fresh checkin that fails too leaves no credentials and rejects', async () => {
+        const { app } = createApp()
+        const warnings = []
+        app.logger.warn = (...args) => warnings.push(args)
+        app.storage.set('gcm.registration', { androidId: '111', securityToken: '222', token: 'gcm-token-stale', appId: 'wp:old' })
+        let checkins = 0
+        let registers = 0
+
+        fetchHandler = async (url) => {
+            if (String(url) === 'https://android.clients.google.com/checkin') {
+                checkins++
+                return checkins === 1
+                    ? new Response('', { status: 401, statusText: 'Unauthorized' })
+                    : new Response('', { status: 403, statusText: 'Forbidden' })
+            }
+
+            registers++
+            return new Response('token=gcm-token', { status: 200 })
+        }
+
+        await assert.rejects(new GCM(app, pushConfig).getRegistration(), /403 Forbidden/)
+
+        assert.equal(checkins, 2)
+        assert.equal(registers, 0)
+        assert.equal(app.storage.get('gcm.registration'), undefined, 'the rejected credentials stay cleared')
+        assert.equal(warnings.length, 1)
+        assert.match(String(warnings[0][0]), /checkin rejected/)
+        assert.equal(warnings[0][1].status, 401)
+    })
+
+    await t.test('PushReceiverLegacy: an ON_CREDENTIALS_CHANGE listener that throws does not fail registration', async (t) => {
+        const consoleErrors = t.mock.method(console, 'error', () => {})
+        const AndroidCheckinResponse = Protos.checkin_proto.AndroidCheckinResponse
+
+        fetchHandler = async (url, options) => {
+            const href = String(url)
+
+            if (href === 'https://android.clients.google.com/checkin') {
+                return new Response(AndroidCheckinResponse.encode(AndroidCheckinResponse.create({
+                    statsOk: true,
+                    androidId: 1,
+                    securityToken: 2,
+                })).finish(), { status: 200 })
+            }
+
+            if (href === 'https://android.clients.google.com/c2dm/register3') {
+                return new Response('token=gcm-token', { status: 200 })
+            }
+
+            if (href.includes('firebaseinstallations.googleapis.com') && href.endsWith('/installations')) {
+                return new Response(JSON.stringify({
+                    fid: installation.fid,
+                    refreshToken: installation.refreshToken,
+                    authToken: { token: installation.authToken, expiresIn: '604800s' },
+                }), { status: 200, headers: { 'content-type': 'application/json' } })
+            }
+
+            if (href.includes('fcmregistrations.googleapis.com') && options.method === 'POST') {
+                return new Response(JSON.stringify({ name: 'reg', token: 'fcm-token-legacy', web: {} }), { status: 200 })
+            }
+
+            throw new Error(`unexpected request: ${href}`)
+        }
+
+        const pushReceiver = new PushReceiverLegacy({ firebase: credentials })
+        let calls = 0
+        pushReceiver.onCredentialsChanged(() => {
+            calls++
+            throw new Error('listener boom')
+        })
+
+        const result = await pushReceiver.registerIfNeeded()
+
+        assert.equal(result.fcm.token, 'fcm-token-legacy')
+        assert.equal(pushReceiver.config.credentials.fcm.token, 'fcm-token-legacy')
+        assert.ok(calls >= 1)
+        assert.ok(consoleErrors.mock.calls.some((call) => /ON_CREDENTIALS_CHANGE listener threw/.test(call.arguments[0]?.message)))
+    })
+
     await t.test('GCM and FCM assert their config at construction', () => {
         const { app } = createApp()
 
@@ -814,6 +1192,37 @@ test('release reliability regressions', async (t) => {
         fetchHandler = async () => new Response(null, { status: 304 })
         await remoteConfig.fetchAndActivate(true)
         assert.ok(app.storage.get('remote_config.lastFetchTimestamp') >= previousTimestamp)
+        remoteConfig.destroy()
+    })
+
+    await t.test('Remote Config: an activate listener that throws does not fail the fetch', async () => {
+        const { app } = createApp()
+        const errors = []
+        app.logger.error = (error) => errors.push(error)
+        app.storage.set('installations.installation', installation)
+        app.storage.set('remote_config.config', { existing: 'value' })
+        app.storage.set('remote_config.lastFetchTimestamp', 1)
+        fetchHandler = async () => new Response(JSON.stringify({ state: 'UPDATE', entries: { fresh: 'value' } }), {
+            status: 200,
+            headers: { 'content-type': 'application/json', etag: 'etag-2' },
+        })
+
+        const remoteConfig = new RemoteConfig(app, { cacheMaxAge: 0 })
+        const seen = []
+        remoteConfig.on('activate', () => {
+            // Everything the fetch stores is in place before listeners run.
+            seen.push(app.storage.get('remote_config.lastFetchTimestamp'))
+            throw new Error('listener boom')
+        })
+
+        await remoteConfig.fetchAndActivate(true)
+
+        assert.deepEqual(app.storage.get('remote_config.config'), { fresh: 'value' })
+        assert.equal(app.storage.get('remote_config.etag'), 'etag-2')
+        assert.ok(app.storage.get('remote_config.lastFetchTimestamp') > 1)
+        assert.ok(seen.length >= 1)
+        assert.ok(seen.every((timestamp) => timestamp > 1))
+        assert.ok(errors.some((error) => /activate listener threw/.test(error.message)))
         remoteConfig.destroy()
     })
 

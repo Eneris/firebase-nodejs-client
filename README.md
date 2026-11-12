@@ -40,6 +40,10 @@ Will add more parts based on my project needs or upon request.
 | [`FirebaseApp`](wiki/FirebaseApp.md) | Shared app instance holding credentials, storage, logger and crypto |
 | [`Installations`](wiki/Installations.md) | Firebase Installations (FID + auth token) and heartbeat header |
 | [`InstallationsRequestError`](wiki/Installations.md#errors) | Thrown by `Installations` methods on a non-ok FIS response, carries `status` |
+| [`HttpRequestError`](wiki/Errors.md) | Non-ok response from GCM, FCM registration or Remote Config, carries `status` |
+| [`GcmRegisterError`](wiki/Errors.md) | GCM register answered `Error=<CODE>`, carries `code` |
+| [`isTransientError`](wiki/Errors.md) | Tells a network/timeout/429/5xx failure apart from a permanent one |
+| [`importLegacyState`](wiki/LegacyImport.md) | Imports 0.3.x Remote Config/Installations and `@eneris/push-receiver` state |
 | [`RemoteConfig`](wiki/RemoteConfig.md) | Remote config fetch/activate with auto refresh (also the default export) |
 | [`Value`](wiki/Value.md) | Remote config value returned by `getValue`/`getAll`, with typed getters |
 | [`Analytics`](wiki/Analytics.md) | GA4 event logging through the `g/collect` endpoint |
@@ -112,7 +116,7 @@ await client.connect()
 console.log('FCM token:', client.fcmToken)
 ```
 
-Migrating from `@eneris/push-receiver`? Use [`PushReceiverLegacy`](wiki/PushReceiverLegacy.md), which keeps the old config and credentials shape.
+Migrating from `@eneris/push-receiver`? Use [`PushReceiverLegacy`](wiki/PushReceiverLegacy.md), which keeps the old config and credentials shape, or import the old state once with [`importLegacyState`](wiki/LegacyImport.md) and use `PushReceiver`.
 
 ## Sending push notifications
 
@@ -148,6 +152,8 @@ await analytics.logEvent('page_view', { page_title: 'Home' })
 - [`PushReceiver`](wiki/PushReceiver.md)
 - [`PushReceiverLegacy`](wiki/PushReceiverLegacy.md)
 - [`PushSender`](wiki/PushSender.md)
+- [`importLegacyState`](wiki/LegacyImport.md)
+- [Errors](wiki/Errors.md)
 
 ## Credits
  - Big thanks to authors of https://github.com/firebase/firebase-js-sdk . Most of the logic/types/infromation comes from there

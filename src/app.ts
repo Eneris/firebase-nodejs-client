@@ -1,6 +1,7 @@
 import { getProperty } from 'dot-prop'
 import Installations from './installations'
 import { FirebaseConfig } from './utils/types'
+import { DEFAULT_REQUEST_TIMEOUT_MS } from './utils/constants'
 
 export interface Logger {
     log: (...args: any) => void
@@ -24,6 +25,11 @@ export interface FirebaseAppOptions {
     storage: StorageInterface
     logger?: Logger
     crypto?: CryptoInterface
+    /**
+     * Upper bound, in ms, for one Firebase Installations request including its retries.
+     * Defaults to 60 s. 0 disables it: a request made offline then retries until it succeeds.
+     */
+    requestTimeoutMs?: number
 }
 
 type MissingPropertiesError = TypeError & {
@@ -62,12 +68,14 @@ export default class FirebaseApp {
     public readonly storage: StorageInterface
     public readonly logger: Logger
     public readonly crypto: CryptoInterface
+    public readonly requestTimeoutMs: number
     public readonly installations: Installations
 
     constructor(options: FirebaseAppOptions) {
         this.credentials = options.credentials
         this.logger = options.logger || console
         this.crypto = options.crypto ?? (globalThis.crypto as CryptoInterface)
+        this.requestTimeoutMs = options.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS
 
         this.storage = {
             get: (key) => options.storage.get(`${this.credentials.appId}.${key}`),

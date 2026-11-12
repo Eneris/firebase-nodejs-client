@@ -6,21 +6,39 @@ import FCM, { type FcmData } from './lib/fcm'
 import Parser from './lib/parser'
 import decrypt from './utils/decrypt'
 import defer from './utils/defer'
+import { emitSafely } from './utils/emit'
+import { isTransientError } from './utils/errors'
 import Protos from './protobuf'
 
 import {
     Variables, MCSProtoTag,
     DEFAULT_BUNDLE_ID, DEFAULT_CHROME_ID, DEFAULT_CHROME_PLATFORM, DEFAULT_CHROME_CHANNEL,
     DEFAULT_CHROME_VERSION, DEFAULT_TIME_ZONE, DEFAULT_VAPID_KEY, DEFAULT_HEARTBEAT_INTERVAL_MS,
+    MAX_STORED_PERSISTENT_IDS,
 } from './utils/constants'
 
 import type * as Types from './utils/types'
 import FirebaseApp, { assertRequiredProperties, StorageInterface } from './app'
 
-const MAX_STORED_PERSISTENT_IDS = 30
+// Source: https://chromium.googlesource.com/chromium/src/+/main/google_apis/gcm/engine/connection_factory_impl.cc
+// kConnectionResetWindowSecs (:44) and ShouldRestorePreviousBackoff() (:48-52): a connection
+// reset within this window of a login restores the backoff saved at login (:249-254, saved at
+// :486-491), so a login immediately followed by a drop does not reset the retry schedule.
+const CONNECTION_RESET_WINDOW_MS = 10_000
+
+// Source: https://chromium.googlesource.com/chromium/src/+/main/google_apis/gcm/engine/connection_factory_impl.cc
+// kReadTimeoutMs (:39), the read timeout ConnectionHandlerImpl uses for the login handshake
+// (connection_handler_impl.cc :57-59, OnTimeout :472-476 -> ERR_TIMED_OUT, a socket failure).
+// Deviation: Chromium starts that timer once the login request is written and leaves the TCP
+// connect to the network stack; here one timer spans TCP + TLS + login, so a connect the OS
+// keeps retrying for minutes is bounded too.
+const LOGIN_TIMEOUT_MS = 30_000
 
 interface PushReceiverStorage {
     last_persistent_ids: string[]
+    // The FCM token last announced to the app, so a rotation across a restart is announced
+    // too. Unset until the first registration after upgrading from 1.0.x.
+    announced_token?: string
 }
 
 interface ClientEvents {
@@ -29,7 +47,7 @@ interface ClientEvents {
     ON_DISCONNECT: (data: void) => void
     ON_READY: (data: void) => void
     ON_HEARTBEAT: (data: void) => void
-    ON_TOKEN_CHANGE: (newToken: string) => void
+    ON_TOKEN_CHANGE: (newToken: string, oldToken: string) => void
 }
 
 // One connection attempt: registration, socket, login and heartbeat. The receiver holds at
@@ -42,6 +60,12 @@ class Connection {
     parser: Parser | null = null
     heartbeatTimer?: NodeJS.Timeout
     heartbeatTimeout?: NodeJS.Timeout
+    loginTimeout?: NodeJS.Timeout
+    // Set by a successful LoginResponse, together with the retry count the login reset. A drop
+    // within CONNECTION_RESET_WINDOW_MS of the login puts that count back. Kept on the attempt,
+    // not the receiver, so no later attempt can pick up a stale count.
+    loggedInAt?: number
+    retryCountBeforeLogin = 0
     // Source: https://chromium.googlesource.com/chromium/src/+/main/google_apis/gcm/engine/mcs_client.cc
     // ResetStateAndBuildLoginRequest restarts stream_id_in_ at 0 for every connection.
     streamId = 0
@@ -107,6 +131,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         this.#options = {
             heartbeatIntervalMs: DEFAULT_HEARTBEAT_INTERVAL_MS,
             maxRetryAttempts: this.#DEFAULT_MAX_RETRY_ATTEMPTS,
+            retryInitialConnect: false,
             ...options,
         }
 
@@ -180,10 +205,49 @@ export default class PushReceiver extends Emitter<ClientEvents> {
     // away, call destroy() first.
     connect = async (): Promise<void> => {
         if (!this.#connection && !this.#retryTimeout) {
-            this.#startConnection(false)
+            this.#startConnection(this.#options.retryInitialConnect!)
         }
 
         return this.whenReady
+    }
+
+    // Starts a fresh attempt now, for when the caller knows the network just came back or the
+    // machine woke up: a connection that looks alive may be dead, and a retry may be waiting
+    // out a long backoff. Idle: same as connect(). Waiting on backoff: the wait is cut short.
+    // Logged in: the connection is closed (ON_DISCONNECT) and replaced. An attempt still
+    // before its login is left alone; LOGIN_TIMEOUT_MS bounds it. The retry count is kept, so
+    // a reconnect() that fails continues the backoff where it was.
+    //
+    // Chromium reacts to a network change with a canary attempt that bypasses the backoff
+    // (connection_factory_impl.cc :231-239) and to a resume with a heartbeat
+    // (heartbeat_manager.cc OnResume :130-142); here both are left to the caller, who calls
+    // this. Deviation: a failed reconnect() attempt counts towards the backoff and
+    // maxRetryAttempts, a Chromium canary does not.
+    // Source: https://chromium.googlesource.com/chromium/src/+/main/google_apis/gcm/engine/connection_factory_impl.cc
+    reconnect = async (): Promise<void> => {
+        const connection = this.#connection
+
+        if (connection) {
+            if (connection.loggedInAt === undefined) {
+                return this.whenReady
+            }
+
+            this.#closeConnection()
+            this.#startConnection(true)
+            this.#emit('ON_DISCONNECT')
+
+            return this.whenReady
+        }
+
+        if (this.#retryTimeout) {
+            clearTimeout(this.#retryTimeout)
+            this.#retryTimeout = undefined
+            this.#startConnection(true)
+
+            return this.whenReady
+        }
+
+        return this.connect()
     }
 
     // Safe at any point, including from inside a listener: whatever the attempt or the retry
@@ -195,6 +259,12 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         this.#retryCount = 0
         this.#closeConnection()
         this.#rejectReady(reason)
+    }
+
+    // Every event goes out through here: a listener that throws is logged and cannot reach the
+    // connection's own error handling (the parser's catch would otherwise close the socket).
+    #emit<T extends keyof ClientEvents>(event: T, ...args: Emitter.EventArgs<ClientEvents, T>) {
+        emitSafely<ClientEvents, T>(this, this.#app.logger, event, ...args)
     }
 
     #isCurrent(connection: Connection): boolean {
@@ -224,13 +294,20 @@ export default class PushReceiver extends Emitter<ClientEvents> {
             const { gcmData, fcmData } = await registering
             if (!this.#isCurrent(connection)) return
 
-            const previousToken = this.#fcmData?.registration.token
+            const token = fcmData.registration.token
+            const announcedToken = this.#storage.get('announced_token')
+            const previousToken = this.#fcmData?.registration.token ?? announcedToken
             this.#fcmData = fcmData
 
-            if (previousToken && previousToken !== fcmData.registration.token) {
-                this.emit('ON_TOKEN_CHANGE', fcmData.registration.token)
-                // The listener may have destroyed or restarted the receiver.
+            if (previousToken && previousToken !== token) {
+                this.#emit('ON_TOKEN_CHANGE', token, previousToken)
+                // The listener may have destroyed or restarted the receiver. The token is then
+                // not recorded as announced, so the next start announces it again: at least once.
                 if (!this.#isCurrent(connection)) return
+            }
+
+            if (announcedToken !== token) {
+                this.#storage.set('announced_token', token)
             }
 
             this.#openSocket(connection)
@@ -256,6 +333,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
             servername: this.#HOST,
         })
         connection.socket = socket
+        connection.loginTimeout = setTimeout(() => this.#handleLoginTimeout(connection), LOGIN_TIMEOUT_MS)
 
         // Without an explicit delay the OS default applies (7200s on Linux), so half-open
         // connections dropped by NAT aging stay undetected for hours instead of ~a minute.
@@ -284,7 +362,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         this.#closeConnection()
 
         if (connection.retry) {
-            this.#app.logger.error(error)
+            this.#logFailure(error)
             this.#scheduleRetry()
         } else {
             this.#rejectReady(error)
@@ -300,6 +378,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
 
         this.#connection = null
         this.#clearHeartbeat(connection)
+        this.#clearLoginTimeout(connection)
 
         if (connection.socket) {
             connection.socket.removeAllListeners()
@@ -308,6 +387,18 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         }
 
         connection.parser?.destroy()
+    }
+
+    #clearLoginTimeout(connection: Connection) {
+        clearTimeout(connection.loginTimeout)
+        connection.loginTimeout = undefined
+    }
+
+    #handleLoginTimeout(connection: Connection) {
+        if (!this.#isCurrent(connection)) return
+
+        this.#app.logger.warn(new Error(`PushReceiver login timed out after ${LOGIN_TIMEOUT_MS} ms`))
+        this.#handleSocketClose(connection)
     }
 
     // The connection is gone: put the next attempt on the backoff schedule, or give up once
@@ -368,22 +459,39 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         if (!this.#isCurrent(connection)) return
 
         this.#startHeartbeat(connection)
-        this.emit('ON_CONNECT')
+        this.#emit('ON_CONNECT')
     }
 
     #handleSocketClose(connection: Connection) {
         if (!this.#isCurrent(connection)) return
 
+        // A login that did not last the reset window does not count as a success: the backoff
+        // continues from where it was before that login.
+        if (connection.loggedInAt !== undefined && Date.now() - connection.loggedInAt <= CONNECTION_RESET_WINDOW_MS) {
+            this.#retryCount = connection.retryCountBeforeLogin
+        }
+
         this.#closeConnection()
         this.#scheduleRetry()
-        this.emit('ON_DISCONNECT')
+        this.#emit('ON_DISCONNECT')
     }
 
     #handleSocketError(connection: Connection, error: Error) {
         if (!this.#isCurrent(connection)) return
 
-        this.#app.logger.error(error)
+        this.#logFailure(error)
         // ignore, the close handler takes care of retry
+    }
+
+    // A failure the retry schedule recovers from on its own (offline, a timeout, a 5xx) is a
+    // warning; one that will keep failing (a rejected request, a TLS certificate error) is an
+    // error. The retry limit and protocol violations are always errors.
+    #logFailure(error: Error) {
+        if (isTransientError(error)) {
+            this.#app.logger.warn(error)
+        } else {
+            this.#app.logger.error(error)
+        }
     }
 
     #handleParserError(connection: Connection, error: Error) {
@@ -533,13 +641,25 @@ export default class PushReceiver extends Emitter<ClientEvents> {
 
         switch (tag) {
             case MCSProtoTag.kLoginResponseTag:
+                // Source: https://chromium.googlesource.com/chromium/src/+/main/google_apis/gcm/engine/mcs_client.cc
+                // A LoginResponse with a non-zero error code is a failed login (:616-623): the
+                // connection is reset as a LOGIN_FAILURE, which keeps the backoff growing.
+                if (object?.error?.code) {
+                    this.#app.logger.warn(new Error(`PushReceiver login failed with error ${object.error.code}: ${object.error.message ?? ''}`))
+                    this.#handleSocketClose(connection)
+                    return
+                }
+
+                this.#clearLoginTimeout(connection)
                 // Chromium resets stream_id_in_ to 1 on LoginResponse.
                 connection.streamId = 1
-                // clear persistent ids, as we just sent them to the server while logging in
+                connection.loggedInAt = Date.now()
+                connection.retryCountBeforeLogin = this.#retryCount
                 this.#retryCount = 0
+                // clear persistent ids, as we just sent them to the server while logging in
                 this.#lastPersistentIds = []
                 this.#ready.resolve()
-                this.emit('ON_READY')
+                this.#emit('ON_READY')
                 break
 
             case MCSProtoTag.kDataMessageStanzaTag:
@@ -549,12 +669,12 @@ export default class PushReceiver extends Emitter<ClientEvents> {
             case MCSProtoTag.kHeartbeatPingTag:
                 this.#app.logger.debug('HEARTBEAT PING', object)
                 this.#sendHeartbeatPong(connection, object)
-                this.emit('ON_HEARTBEAT')
+                this.#emit('ON_HEARTBEAT')
                 break
 
             case MCSProtoTag.kHeartbeatAckTag:
                 this.#app.logger.debug('HEARTBEAT PONG', object)
-                this.emit('ON_HEARTBEAT')
+                this.#emit('ON_HEARTBEAT')
                 break
 
             case MCSProtoTag.kCloseTag:
@@ -572,7 +692,8 @@ export default class PushReceiver extends Emitter<ClientEvents> {
                 break
 
             default:
-                this.#app.logger.error(new Error('Unknown message: ' + JSON.stringify(object)))
+                // Newer servers may send tags this client does not know; nothing is lost.
+                this.#app.logger.warn(new Error('Unknown message: ' + JSON.stringify(object)))
                 return
 
             // no default
@@ -628,7 +749,7 @@ export default class PushReceiver extends Emitter<ClientEvents> {
         this.#addPersistentId(object.persistentId)
 
         // Send notification
-        this.emit('ON_MESSAGE_RECEIVED', {
+        this.#emit('ON_MESSAGE_RECEIVED', {
             message: messagePayload,
             // Needs to be saved by the client
             persistentId: object.persistentId,

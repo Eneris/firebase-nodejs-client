@@ -9,6 +9,7 @@ const app = new FirebaseApp({
     storage,            // required, simple get/set persistency
     logger,             // optional, defaults to `console`
     crypto,             // optional, defaults to `globalThis.crypto`, needs `getRandomValues`
+    requestTimeoutMs,   // optional, bound for one Firebase Installations request including its retries, defaults to 60 s, 0 disables it
 })
 ```
 
@@ -17,6 +18,7 @@ const app = new FirebaseApp({
 - `storage` - storage automatically prefixed with `appId`, so multiple apps can share one store
 - `logger` - must implement `log`, `debug`, `warn` and `error`
 - `crypto` - must implement `getRandomValues`
+- `requestTimeoutMs` - the resolved Firebase Installations request bound
 - `installations` - [`Installations`](Installations.md) instance created for this app
 
 ## Notes

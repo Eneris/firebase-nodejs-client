@@ -146,4 +146,9 @@ export const DEFAULT_TIME_ZONE = 'Europe/Prague'
 export const DEFAULT_HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000
 export const DEFAULT_VAPID_KEY = 'BDOU99-h67HcA6JeFXHbSNMu7e2yNNu3RzoMj8TM4W88jITfq7ZmPvIM1Iv-4_l2LxQcYwhqby2xGpWwzjfAnG4'
 export const FCM_API = 'https://fcm.googleapis.com/'
+// Persistent ids kept for login dedup (PushReceiver) and imported from legacy state.
+export const MAX_STORED_PERSISTENT_IDS = 30
+// Bound for one Firebase Installations request, retries included; see AGENTS.md "Firebase
+// Installations failure policy".
+export const DEFAULT_REQUEST_TIMEOUT_MS = 60 * 1000
 export const FCM_REGISTRATION_API = 'https://fcmregistrations.googleapis.com/v1/'
