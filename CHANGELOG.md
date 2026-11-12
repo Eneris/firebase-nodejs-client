@@ -1,7 +1,5 @@
 # Changelog
-## Unreleased
-Contains default behaviour changes (see Changed): release as at least a minor version.
-
+## 1.1.0
 ### Fixed
  - An event listener that throws can no longer break the library. In `PushReceiver` a throw from any `ON_*` listener used to reach the frame parser's error handling and close the MCS connection (and a throwing `ON_TOKEN_CHANGE` listener failed the attempt); in `RemoteConfig` a throwing `activate` listener rejected `fetchAndActivate()`. The throw is now logged at `error` and the library carries on. As with Node's `EventEmitter`, it still stops the listeners after it for that one emit. `PushReceiverLegacy`'s `ON_CREDENTIALS_CHANGE` is isolated the same way
  - `RemoteConfig` stores the config, etag and fetch timestamp before emitting `activate`, so a listener sees the complete state
