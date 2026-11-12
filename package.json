@@ -57,7 +57,7 @@
   "devDependencies": {
     "@eneris/conf": "^15.2.2",
     "@types/node": "^26.6.6",
-    "oxlint": "^1.90.0",
+    "oxlint": "^1.93.0",
     "protobufjs-cli": "^2.7.1",
     "ts-node": "^10.9.2",
     "typescript": "^7.0.2"
